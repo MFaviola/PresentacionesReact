@@ -155,9 +155,9 @@ const Marcas = () => {
       <Button className="mb-2 me-2 btn-shadow" color="primary" onClick={() => editarMarcaClick(row.marc_Id, row.marc_Descripcion)}>
         Editar
       </Button>
-      <Button className="mb-2 me-2 btn-shadow" color="alternate">
+      {/* <Button className="mb-2 me-2 btn-shadow" color="alternate">
         Detalles
-      </Button>
+      </Button> */}
       <Button className="mb-2 me-2 btn-shadow" color="danger" onClick={() => eliminarMarcaClick(row.marc_Id,row.marc_Descripcion)}>
         Eliminar
       </Button>
