@@ -32,7 +32,7 @@ const Formasdepago = () => {
       }
 
       const result = await response.json();
-      console.log('Datos obtenidos:', result);  // Registro de depuración
+      console.log('Datos obtenidos:', result); 
       setData(result.data || []);
     } catch (error) {
       console.error('Error al listar Formas de pago', error);

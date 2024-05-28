@@ -66,4 +66,13 @@ export const ComponentsNav = [
     to: "#/tables/formasdepago",
 
   },
+
+  {
+    icon: "pe-7s-display2",
+    label: "Unidades de medida",
+    to: "#/tables/unidadesmedida",
+
+  },
+
+  
 ];

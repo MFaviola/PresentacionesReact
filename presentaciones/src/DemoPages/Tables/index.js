@@ -6,6 +6,7 @@ import { Route } from "react-router-dom";
 import DataTableFixedHeader from "./DataTables/Examples/FixedHeader";
 import Marcas from "./DataTables/Examples/Marcas";
 import Formasdepago from "./DataTables/Examples/Formas de Pago";
+import UnidadesDeMedida from "./DataTables/Examples/UnidadesDeMedida";
 
 
 // Layout
@@ -31,6 +32,8 @@ const Tables = ({ match }) => (
           <Route path={`${match.url}/datatables-fixed-header`} component={DataTableFixedHeader}/>
           <Route path={`${match.url}/marcas`} component={Marcas}/>
           <Route path={`${match.url}/formasdepago`} component={Formasdepago}/>
+          <Route path={`${match.url}/unidadesmedida`} component={UnidadesDeMedida}/>
+
 
         </div>
         <AppFooter />

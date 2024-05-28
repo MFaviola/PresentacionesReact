@@ -10,22 +10,22 @@ import 'react-toastify/dist/ReactToastify.css';
 import { Formik, Field, ErrorMessage } from 'formik';
 import * as Yup from 'yup';
 
-const urlAPI = 'https://localhost:44380/api/Marcas'; 
+const urlAPI = 'https://localhost:44380/api/UnidadMedidas'; 
 const keyAPI = '4b567cb1c6b24b51ab55248f8e66e5cc';
 const keyencriptada = 'FZWv3nQTyHYyNvdx';
 
-const Marcas = () => {
+const UnidadMedidas = () => {
   const [data, setData] = useState([]);
   const [collapse, setCollapse] = useState(false);
   const [editarr, setEditar] = useState(false); 
-  const [editMarcaId, setEditMarcaId] = useState(null); 
-  const [nuevaMarca, setNuevaMarca] = useState("");
-  const [elimMarcaId, setElimMarcaId] = useState(null);
+  const [editUnidadMedidasId, setEditUnidadMedidasId] = useState(null); 
+  const [nuevaUnidadMedidas, setNuevaUnidadMedidas] = useState("");
+  const [elimUnidadMedidasId, setElimUnidadMedidasId] = useState(null);
   const [confirmarEliminar, setConfirmarEliminar] = useState(false);
 
   const toggleCollapse = () => setCollapse(!collapse);
 
-  const listarMarcas = async () => {
+  const listarUnidadMedidas = async () => {
     try {
       const response = await axios.get(`${urlAPI}/Listar`, {
         headers: {
@@ -35,104 +35,106 @@ const Marcas = () => {
       });
       setData(response.data.data);
     } catch (error) {
-      console.error('Error al listar Marcas', error);
+      console.error('Error al listar UnidadMedidas', error);
     }
   };
 
-  const insertarMarca = async (values, { resetForm }) => {
+  const insertarUnidadMedidas = async (values, { resetForm }) => {
     try {
       const fechaActual = new Date().toISOString(); 
-      const MarcaAInsertar = {
-        marc_Descripcion: values.marcaDescripcion,
+      const UnidadMedidasAInsertar = {
+        unme_Descripcion: values.UnidadMedidasDescripcion,
+        unme_EsAduana: values.unme_EsAduana,
         usua_UsuarioCreacion: 1,
-        marc_FechaCreacion: fechaActual
+        unme_FechaCreacion: fechaActual
       };
-      const response = await axios.post(`${urlAPI}/Insertar`, MarcaAInsertar, {
+      const response = await axios.post(`${urlAPI}/Insertar`, UnidadMedidasAInsertar, {
         headers: {
           'XApiKey': keyAPI,
           'EncryptionKey': keyencriptada
         }
       });
 
-      listarMarcas();
+      listarUnidadMedidas();
       resetForm();
       setCollapse(false);
-      toast.success("Marca insertada exitosamente!");
+      toast.success("UnidadMedidas insertada exitosamente!");
 
     } catch (error) {
-      console.error('Error al insertar marca', error);
-      toast.error("Error al insertar la marca.");
+      console.error('Error al insertar UnidadMedidas', error);
+      toast.error("Error al insertar la UnidadMedidas.");
     }
   };
 
-  const editarMarca = async (values, { resetForm }) => {
+  const editarUnidadMedidas = async (values, { resetForm }) => {
     try {
       const fechaActual = new Date().toISOString(); 
-      const marcaAEditar = {
-        marc_Id: editMarcaId, 
-        marc_Descripcion: values.marcaDescripcion,
+      const UnidadMedidasAEditar = {
+        unme_Id: editUnidadMedidasId, 
+        unme_Descripcion: values.UnidadMedidasDescripcion,
+        unme_EsAduana: values.unme_EsAduana,
         usua_UsuarioModificacion: 1, 
-        marc_FechaModificacion: fechaActual
+        unme_FechaModificacion: fechaActual
       };
-      const response = await axios.post(`${urlAPI}/Editar`, marcaAEditar, {
+      const response = await axios.post(`${urlAPI}/Editar`, UnidadMedidasAEditar, {
         headers: {
           'XApiKey': keyAPI,
           'EncryptionKey': keyencriptada
         }
       });
 
-      listarMarcas();
+      listarUnidadMedidas();
       resetForm();
       setCollapse(false);
       setEditar(false);
-      setEditMarcaId(null); 
-      toast.success("Marca editada exitosamente!");
+      setEditUnidadMedidasId(null); 
+      toast.success("UnidadMedidas editada exitosamente!");
 
     } catch (error) {
-      console.error('Error al editar marca', error);
-      toast.error("Error al editar la marca.");
+      console.error('Error al editar UnidadMedidas', error);
+      toast.error("Error al editar la UnidadMedidas.");
     }
   };
 
-  const editarMarcaClick = (marcaId, descripcion) => {
+  const editarUnidadMedidasClick = (UnidadMedidasId, descripcion, esAduana) => {
     setEditar(true);
-    setEditMarcaId(marcaId);
-    setNuevaMarca(descripcion);
+    setEditUnidadMedidasId(UnidadMedidasId);
+    setNuevaUnidadMedidas(descripcion);
     setCollapse(true);
   };
 
-  const eliminarMarca = async () => {
+  const eliminarUnidadMedidas = async () => {
     try {
       const fechaActual = new Date().toISOString(); 
-      const marcaAEliminar = {
-        marc_Id: elimMarcaId,
+      const UnidadMedidasAEliminar = {
+        unme_Id: elimUnidadMedidasId,
         usua_UsuarioEliminacion: 1,
-        marc_FechaEliminacion: fechaActual
+        unme_FechaEliminacion: fechaActual
       };
-      const response = await axios.post(`${urlAPI}/Eliminar`, marcaAEliminar, {
+      const response = await axios.post(`${urlAPI}/Eliminar`, UnidadMedidasAEliminar, {
         headers: {
           'XApiKey': keyAPI,
           'EncryptionKey': keyencriptada
         }
       });
   
-      listarMarcas();
+      listarUnidadMedidas();
       setConfirmarEliminar(false);
-      toast.success("Marca eliminada exitosamente!");
+      toast.success("UnidadMedidas eliminada exitosamente!");
 
     } catch (error) {
-      console.error('Error al eliminar marca', error);
-      toast.error("Error al eliminar la marca.");
+      console.error('Error al eliminar UnidadMedidas', error);
+      toast.error("Error al eliminar la UnidadMedidas.");
     }
   };
 
-  const eliminarMarcaClick = (marcaId) => {
-    setElimMarcaId(marcaId);
+  const eliminarUnidadMedidasClick = (UnidadMedidasId) => {
+    setElimUnidadMedidasId(UnidadMedidasId);
     setConfirmarEliminar(true);
   };
 
   const cancelarEliminacion = () => {
-    setElimMarcaId(null);
+    setElimUnidadMedidasId(null);
     setConfirmarEliminar(false);
   };
 
@@ -140,20 +142,20 @@ const Marcas = () => {
     resetForm();
     setCollapse(false);
     setEditar(false);
-    setEditMarcaId(null);
-    setNuevaMarca(""); 
+    setEditUnidadMedidasId(null);
+    setNuevaUnidadMedidas(""); 
   };
 
   useEffect(() => {
-    listarMarcas();
+    listarUnidadMedidas();
   }, []);
 
   const botonesacciones = row => (
     <div>
-      <Button className="mb-2 me-2 btn-shadow" color="primary" onClick={() => editarMarcaClick(row.marc_Id, row.marc_Descripcion)}>
+      <Button className="mb-2 me-2 btn-shadow" color="primary" onClick={() => editarUnidadMedidasClick(row.unme_Id, row.unme_Descripcion, row.unme_EsAduana)}>
         Editar
       </Button>
-      <Button className="mb-2 me-2 btn-shadow" color="danger" onClick={() => eliminarMarcaClick(row.marc_Id)}>
+      <Button className="mb-2 me-2 btn-shadow" color="danger" onClick={() => eliminarUnidadMedidasClick(row.unme_Id)}>
         Eliminar
       </Button>
     </div>
@@ -162,12 +164,17 @@ const Marcas = () => {
   const columns = [
     {
       name: "ID",
-      selector: row => row.marc_Id,
+      selector: row => row.unme_Id,
       sortable: true,
     },
     {
       name: "Descripción",
-      selector: row => row.marc_Descripcion,
+      selector: row => row.unme_Descripcion,
+      sortable: true,
+    },
+    {
+      name: "Es Aduana",
+      selector: row => (row.unme_EsAduana ? 'Sí' : 'No'),
       sortable: true,
     },
     {
@@ -181,7 +188,7 @@ const Marcas = () => {
   ];
 
   const validationSchema = Yup.object().shape({
-    marcaDescripcion: Yup.string()
+    UnidadMedidasDescripcion: Yup.string()
       .matches(/^[a-zA-Z\s]+$/, "La descripción solo debe contener letras.")
       .required("El campo es requerido."),
   });
@@ -192,7 +199,7 @@ const Marcas = () => {
         <CSSTransition component="div" timeout={1500} enter={false} exit={false}>
           <div>
             <PageTitle
-              heading="Marcas"
+              heading="UnidadMedidas"
               icon="pe-7s-network icon-gradient bg-tempting-azure"
             />
             <Row>
@@ -204,24 +211,34 @@ const Marcas = () => {
                   <Card>
                     <CardBody>
                       <Formik
-                        initialValues={{ marcaDescripcion: nuevaMarca }}
+                        initialValues={{ UnidadMedidasDescripcion: nuevaUnidadMedidas, unme_EsAduana: false }}
                         enableReinitialize
                         validationSchema={validationSchema}
-                        onSubmit={editarr ? editarMarca : insertarMarca}
+                        onSubmit={editarr ? editarUnidadMedidas : insertarUnidadMedidas}
                       >
-                        {({ handleSubmit, resetForm }) => (
+                        {({ handleSubmit, resetForm, values }) => (
                           <Form onSubmit={handleSubmit}>
                             <FormGroup>
-                              <Label for="marcaDescripcion">Marca</Label>
+                              <Label for="UnidadMedidasDescripcion">UnidadMedidas</Label>
                               <Col sm={6} style={{ padding: 0 }}>
                                 <Field
                                   type="text"
-                                  name="marcaDescripcion"
+                                  name="UnidadMedidasDescripcion"
                                   as={Input}
-                                  id="marcaDescripcion"
+                                  id="UnidadMedidasDescripcion"
                                 />
-                                <ErrorMessage name="marcaDescripcion" component="div" style={{ color: 'red' }} />
+                                <ErrorMessage name="UnidadMedidasDescripcion" component="div" style={{ color: 'red' }} />
                               </Col>
+                            </FormGroup>
+                            <FormGroup check>
+                              <Label check>
+                                <Field
+                                  type="checkbox"
+                                  name="unme_EsAduana"
+                                  checked={values.unme_EsAduana}
+                                />{' '}
+                                Es Aduana
+                              </Label>
                             </FormGroup>
                             <Button className="mb-2 me-2 btn-shadow" type="submit" color="primary">
                               Enviar
@@ -256,19 +273,19 @@ const Marcas = () => {
         </CSSTransition>
       </TransitionGroup>
       <SweetAlert
-        title="Eliminar Marca"
+        title="Eliminar UnidadMedidas"
         show={confirmarEliminar}
         showCancel
         confirmBtnText="Eliminar"
         confirmBtnBsStyle="danger"
         cancelBtnText="Cancelar"
-        onConfirm={eliminarMarca}
+        onConfirm={eliminarUnidadMedidas}
         onCancel={cancelarEliminacion}>
-        ¿Está seguro que desea eliminar la marca?
+        ¿Está seguro que desea eliminar la UnidadMedidas?
       </SweetAlert>
       <ToastContainer />
     </Fragment>
   );
 };
 
-export default Marcas;
+export default UnidadMedidas;
