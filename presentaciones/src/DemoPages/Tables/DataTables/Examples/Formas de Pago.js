@@ -5,6 +5,8 @@ import DataTable from 'react-data-table-component';
 import PageTitle from "../../../../Layout/AppMain/PageTitle";
 import { ToastContainer, toast } from "react-toastify";
 import 'react-toastify/dist/ReactToastify.css';
+import { Formik, Field, ErrorMessage } from 'formik';
+import * as Yup from 'yup';
 
 const urlAPI = 'https://localhost:44380/api/FormasDePago'; 
 const keyAPI = '4b567cb1c6b24b51ab55248f8e66e5cc';
@@ -13,7 +15,6 @@ const keyencriptada = 'FZWv3nQTyHYyNvdx';
 const Formasdepago = () => {
   const [data, setData] = useState([]);
   const [collapse, setCollapse] = useState(false);
-  const [newFormasdepago, setNewFormasdepago] = useState("");
 
   const toggleCollapse = () => setCollapse(!collapse);
 
@@ -38,12 +39,11 @@ const Formasdepago = () => {
     }
   };
 
-  const insertarFormasdepago = async (e) => {
-    e.preventDefault();
+  const insertarFormasdepago = async (values, { resetForm }) => {
     try {
       const fechaActual = new Date().toISOString(); 
       const nuevaFormasdepago = {
-        fopa_Descripcion: newFormasdepago,
+        fopa_Descripcion: values.newFormasdepago,
         usua_UsuarioCreacion: 1,
         fopa_FechaCreacion: fechaActual
       };
@@ -63,18 +63,13 @@ const Formasdepago = () => {
       }
 
       listarFormasdepago();
-      setNewFormasdepago("");
+      resetForm();
       setCollapse(false);
       toast.success("Forma de pago insertada exitosamente!");
     } catch (error) {
       console.error('Error al insertar Formas de pago', error);
       toast.error("Error al insertar la forma de pago.");
     }
-  };
-
-  const cancelar = () => {
-    setNewFormasdepago("");
-    setCollapse(false);
   };
 
   useEffect(() => {
@@ -116,6 +111,12 @@ const Formasdepago = () => {
     }
   ];
 
+  const validationSchema = Yup.object().shape({
+    newFormasdepago: Yup.string()
+      .matches(/^[a-zA-Z\s]+$/, "La descripción solo debe contener letras.")
+      .required("El campo es requerido."),
+  });
+
   return (
     <Fragment>
       <TransitionGroup>
@@ -133,25 +134,35 @@ const Formasdepago = () => {
                 <Collapse isOpen={collapse}>
                   <Card>
                     <CardBody>
-                      <Form onSubmit={insertarFormasdepago}>
-                        <FormGroup>
-                          <Label for="Formasdepago">Formas de pago</Label>
-                          <Input
-                            type="text"
-                            name="Formasdepago"
-                            id="Formasdepago"
-                            value={newFormasdepago}
-                            onChange={(e) => setNewFormasdepago(e.target.value)}
-                            required
-                          />
-                        </FormGroup>
-                        <Button className="mb-2 me-2 btn-shadow" type="submit" color="primary">
-                           Enviar
-                         </Button>
-                         <Button className="mb-2 me-2 btn-shadow" onClick={cancelar} type="button" color="secondary">
-                           Cancelar
-                         </Button>
-                      </Form>
+                      <Formik
+                        initialValues={{ newFormasdepago: '' }}
+                        validationSchema={validationSchema}
+                        onSubmit={insertarFormasdepago}
+                      >
+                        {({ handleSubmit, resetForm }) => (
+                          <Form onSubmit={handleSubmit}>
+                            <FormGroup>
+                              <Label for="Formasdepago">Formas de pago</Label>
+                              <Col sm={6} style={{ padding: 0 }}>
+                                <Field
+                                  type="text"
+                                  name="newFormasdepago"
+                                  as={Input}
+                                  id="Formasdepago"
+                                  required
+                                />
+                                <ErrorMessage name="newFormasdepago" component="div" style={{ color: 'red' }} />
+                              </Col>
+                            </FormGroup>
+                            <Button className="mb-2 me-2 btn-shadow" type="submit" color="primary">
+                              Enviar
+                            </Button>
+                            <Button className="mb-2 me-2 btn-shadow" type="button" color="secondary" onClick={() => { resetForm(); setCollapse(false); }}>
+                              Cancelar
+                            </Button>
+                          </Form>
+                        )}
+                      </Formik>
                     </CardBody>
                   </Card>
                 </Collapse>
