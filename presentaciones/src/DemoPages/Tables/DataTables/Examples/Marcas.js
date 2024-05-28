@@ -5,6 +5,9 @@ import DataTable from 'react-data-table-component';
 import PageTitle from "../../../../Layout/AppMain/PageTitle";
 import axios from 'axios';
 import SweetAlert from 'react-bootstrap-sweetalert';
+import { ToastContainer, toast } from "react-toastify";
+import 'react-toastify/dist/ReactToastify.css';
+
 
 const urlAPI = 'https://localhost:44380/api/Marcas'; 
 const keyAPI = '4b567cb1c6b24b51ab55248f8e66e5cc';
@@ -56,6 +59,8 @@ const Marcas = () => {
 
       setNuevaMarca("");
       setCollapse(false);
+      toast.success("Marca insertada exitosamente!");
+
     } catch (error) {
       console.error('Error al insertar marca', error);
     }
@@ -84,6 +89,8 @@ const Marcas = () => {
       setCollapse(false);
       setEditar(false);
       setEditMarcaId(null); 
+      toast.success("Marca editada exitosamente!");
+
     } catch (error) {
       console.error('Error al editar marca', error);
     }
@@ -115,6 +122,8 @@ const Marcas = () => {
   
       listarMarcas();
       setConfirmarEliminar(false);
+      toast.success("Marca eliminada exitosamente!");
+
     } catch (error) {
       console.error('Error al eliminar marca', error);
     }

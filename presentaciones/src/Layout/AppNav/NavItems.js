@@ -30,22 +30,22 @@ export const MainNav = [
 ];
 export const ComponentsNav = [
   
-  {
-    icon: "pe-7s-car",
-    label: "Components",
-    content: [
+  // {
+  //   icon: "pe-7s-car",
+  //   label: "Components",
+  //   content: [
      
-      {
-        label: "Accordions",
-        to: "#/components/accordions",
-      },
-      {
-        label: "Notifications",
-        to: "#/components/notifications",
-      },
+  //     {
+  //       label: "Accordions",
+  //       to: "#/components/accordions",
+  //     },
+  //     {
+  //       label: "Notifications",
+  //       to: "#/components/notifications",
+  //     },
      
-    ],
-  },
+  //   ],
+  // },
   {
     icon: "pe-7s-display2",
     label: "Tables",
