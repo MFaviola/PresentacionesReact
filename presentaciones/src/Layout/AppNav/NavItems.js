@@ -58,4 +58,12 @@ export const ComponentsNav = [
     to: "#/tables/marcas",
 
   },
+
+
+  {
+    icon: "pe-7s-display2",
+    label: "Formas de pago",
+    to: "#/tables/formasdepago",
+
+  },
 ];
