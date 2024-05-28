@@ -4,6 +4,7 @@ import { Row, Col, Card, CardBody, Button, Collapse, Form, FormGroup, Label, Inp
 import DataTable from 'react-data-table-component';
 import PageTitle from "../../../../Layout/AppMain/PageTitle";
 import axios from 'axios';
+import SweetAlert from 'react-bootstrap-sweetalert';
 
 const urlAPI = 'https://localhost:44380/api/Marcas'; 
 const keyAPI = '4b567cb1c6b24b51ab55248f8e66e5cc';
@@ -12,7 +13,12 @@ const keyencriptada = 'FZWv3nQTyHYyNvdx';
 const Marcas = () => {
   const [data, setData] = useState([]);
   const [collapse, setCollapse] = useState(false);
-  const [newMarca, setNewMarca] = useState("");
+  const [editarr, setEditar] = useState(false); 
+  const [editMarcaId, setEditMarcaId] = useState(null); 
+  const [nuevaMarca, setNuevaMarca] = useState("");
+  const [elimMarcaId, setElimMarcaId] = useState(null);
+  const [confirmarEliminar, setConfirmarEliminar] = useState(false);
+
 
   const toggleCollapse = () => setCollapse(!collapse);
 
@@ -34,12 +40,12 @@ const Marcas = () => {
     e.preventDefault();
     try {
       const fechaActual = new Date().toISOString(); 
-      const nuevaMarca = {
-        marc_Descripcion: newMarca,
+      const MarcaAEditar = {
+        marc_Descripcion: nuevaMarca,
         usua_UsuarioCreacion: 1,
         marc_FechaCreacion: fechaActual
       };
-      const response = await axios.post(`${urlAPI}/Insertar`, nuevaMarca, {
+      const response = await axios.post(`${urlAPI}/Insertar`, MarcaAEditar, {
         headers: {
           'XApiKey': keyAPI,
           'EncryptionKey': keyencriptada
@@ -48,15 +54,86 @@ const Marcas = () => {
 
       listarMarcas();
 
-      setNewMarca("");
+      setNuevaMarca("");
       setCollapse(false);
     } catch (error) {
       console.error('Error al insertar marca', error);
     }
   };
 
+  const editarMarca = async (e) => {
+    e.preventDefault();
+    try {
+      const fechaActual = new Date().toISOString(); 
+      const marcaAEditar = {
+        marc_Id: editMarcaId, 
+        marc_Descripcion: nuevaMarca,
+        usua_UsuarioModificacion: 1, 
+        marc_FechaModificacion: fechaActual
+      };
+      const response = await axios.post(`${urlAPI}/Editar`, marcaAEditar, {
+        headers: {
+          'XApiKey': keyAPI,
+          'EncryptionKey': keyencriptada
+        }
+      });
+
+      listarMarcas();
+
+      setNuevaMarca("");
+      setCollapse(false);
+      setEditar(false);
+      setEditMarcaId(null); 
+    } catch (error) {
+      console.error('Error al editar marca', error);
+    }
+  };
+
+  const editarMarcaClick = (marcaId, descripcion) => {
+    setEditar(true);
+    setEditMarcaId(marcaId);
+    setNuevaMarca(descripcion);
+    toggleCollapse(); 
+  };
+
+  const eliminarMarca = async () => {
+    try {
+      console.log('entra a eliminar');
+      const fechaActual = new Date().toISOString(); 
+      const marcaAEliminar = {
+        marc_Id: elimMarcaId,
+        usua_UsuarioEliminacion: 1,
+        marc_FechaEliminacion: fechaActual
+      };
+      const response = await axios.post(`${urlAPI}/Eliminar`, marcaAEliminar, {
+        headers: {
+          'XApiKey': keyAPI,
+          'EncryptionKey': keyencriptada
+        }
+      });
+      console.log(response);
+  
+      listarMarcas();
+      setConfirmarEliminar(false);
+    } catch (error) {
+      console.error('Error al eliminar marca', error);
+    }
+  };
+  
+
+  const eliminarMarcaClick = (marcaId) => {
+    setElimMarcaId(marcaId);
+    setConfirmarEliminar(true);
+  };
+  
+  const cancelarEliminacion = () => {
+    setElimMarcaId(null);
+    setConfirmarEliminar(false);
+  };
+  
+
   const cancelar = () => {
-    setNewMarca("");
+    setNuevaMarca("");
     setCollapse(false);
   };
 
@@ -66,13 +143,13 @@ const Marcas = () => {
 
   const botonesacciones = row => (
     <div>
-      <Button className="mb-2 me-2 btn-shadow" color="primary">
+      <Button className="mb-2 me-2 btn-shadow" color="primary" onClick={() => editarMarcaClick(row.marc_Id, row.marc_Descripcion)}>
         Editar
       </Button>
       <Button className="mb-2 me-2 btn-shadow" color="alternate">
         Detalles
       </Button>
-      <Button className="mb-2 me-2 btn-shadow" color="danger">
+      <Button className="mb-2 me-2 btn-shadow" color="danger" onClick={() => eliminarMarcaClick(row.marc_Id,row.marc_Descripcion)}>
         Eliminar
       </Button>
     </div>
@@ -116,15 +193,15 @@ const Marcas = () => {
                 <Collapse isOpen={collapse}>
                   <Card>
                     <CardBody>
-                      <Form onSubmit={insertarMarca}>
+                    <Form onSubmit={editarr ? editarMarca : insertarMarca}>
                         <FormGroup>
                           <Label for="marcaDescripcion">Marca</Label>
                           <Input
                             type="text"
                             name="marca"
                             id="marcaDescripcion"
-                            value={newMarca}
-                            onChange={(e) => setNewMarca(e.target.value)}
+                            value={nuevaMarca}
+                            onChange={(e) => setNuevaMarca(e.target.value)}
                             required
                           />
                         </FormGroup>
@@ -158,6 +235,17 @@ const Marcas = () => {
           </div>
         </CSSTransition>
       </TransitionGroup>
+      <SweetAlert
+        title="Eliminar Marca"
+        show={confirmarEliminar}
+        showCancel
+        confirmBtnText="Eliminar"
+        confirmBtnBsStyle="danger"
+        cancelBtnText="Cancelar"
+        onConfirm={eliminarMarca}
+        onCancel={cancelarEliminacion}>
+        ¿Está seguro que desea eliminar la marca?
+      </SweetAlert>
     </Fragment>
   );
 };
