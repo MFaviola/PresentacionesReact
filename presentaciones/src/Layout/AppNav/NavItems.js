@@ -52,4 +52,10 @@ export const ComponentsNav = [
     to: "#/tables/datatables-fixed-header",
 
   },
+  {
+    icon: "pe-7s-display2",
+    label: "Marcas",
+    to: "#/tables/marcas",
+
+  },
 ];

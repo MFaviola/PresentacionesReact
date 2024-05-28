@@ -4,6 +4,7 @@ import { Route } from "react-router-dom";
 // Tables
 
 import DataTableFixedHeader from "./DataTables/Examples/FixedHeader";
+import Marcas from "./DataTables/Examples/Marcas";
 
 // Layout
 
@@ -26,6 +27,7 @@ const Tables = ({ match }) => (
           {/* Tables */}
 
           <Route path={`${match.url}/datatables-fixed-header`} component={DataTableFixedHeader}/>
+          <Route path={`${match.url}/marcas`} component={Marcas}/>
         </div>
         <AppFooter />
       </div>
