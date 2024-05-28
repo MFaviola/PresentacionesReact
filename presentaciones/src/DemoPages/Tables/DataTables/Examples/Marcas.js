@@ -17,6 +17,7 @@ const keyencriptada = 'FZWv3nQTyHYyNvdx';
 const Marcas = () => {
   const [data, setData] = useState([]);
   const [collapse, setCollapse] = useState(false);
+  const [collapsee, setCollapsee] = useState(false);
   const [editarr, setEditar] = useState(false); 
   const [editMarcaId, setEditMarcaId] = useState(null); 
   const [nuevaMarca, setNuevaMarca] = useState("");
@@ -24,6 +25,7 @@ const Marcas = () => {
   const [confirmarEliminar, setConfirmarEliminar] = useState(false);
 
   const toggleCollapse = () => setCollapse(!collapse);
+  const toggleCollapsee = () => setCollapsee(!collapse);
 
   const listarMarcas = async () => {
     try {
@@ -131,6 +133,25 @@ const Marcas = () => {
     setConfirmarEliminar(true);
   };
 
+  const detalleMarca = async (marcaId) => {
+    const idmarca = marcaId;
+    const response = await axios.get(`${urlAPI}/Listar`, {
+      headers: {
+        'XApiKey': keyAPI,
+        'EncryptionKey': keyencriptada
+      }
+    });
+    setCollapsee(false);
+
+    setData(response.data.data);
+    const lista = response.data.data;
+    console.log(response.data.data);
+    const objeto = lista.find((list) => list.marc_Id == idmarca); //buscar dentro del arreglo con objetos
+    console.log(objeto);
+
+};
+
+
   const cancelarEliminacion = () => {
     setElimMarcaId(null);
     setConfirmarEliminar(false);
@@ -144,6 +165,10 @@ const Marcas = () => {
     setNuevaMarca(""); 
   };
 
+  const cancelardeta = () => {
+    setCollapsee(false);
+  };
+
   useEffect(() => {
     listarMarcas();
   }, []);
@@ -152,6 +177,9 @@ const Marcas = () => {
     <div>
       <Button className="mb-2 me-2 btn-shadow" color="primary" onClick={() => editarMarcaClick(row.marc_Id, row.marc_Descripcion)}>
         Editar
+      </Button>
+      <Button className="mb-2 me-2 btn-shadow" color="alternate" onClick={() => detalleMarca(row.marc_Id)}>
+        Detalles
       </Button>
       <Button className="mb-2 me-2 btn-shadow" color="danger" onClick={() => eliminarMarcaClick(row.marc_Id)}>
         Eliminar
@@ -195,6 +223,28 @@ const Marcas = () => {
               heading="Marcas"
               icon="pe-7s-network icon-gradient bg-tempting-azure"
             />
+            {/* <Row>
+            <Col md="12">
+                <Collapse isOpen={collapsee}>  
+                  <Card>
+                    <CardBody>
+                    
+                              <Label>Marca</Label>
+                              <Col sm={6} style={{ padding: 0 }}>
+                                <Field
+                                  name="marcaDescripcion"
+                                  as={Input}
+                                  id="marcaDescripcion"
+                                />
+                              </Col>
+                            <Button className="mb-2 me-2 btn-shadow" type="button" color="secondary" onClick={() => cancelardeta()}>
+                              Cancelar
+                            </Button>
+                    </CardBody>
+                  </Card>
+                </Collapse>
+              </Col>
+            </Row> */}
             <Row>
               <Col md="12">
                 {!collapse && (
@@ -235,7 +285,9 @@ const Marcas = () => {
                     </CardBody>
                   </Card>
                 </Collapse>
+                
               </Col>
+             
               {!collapse && (
                 <Col md="12">
                   <Card className="main-card mb-3">
