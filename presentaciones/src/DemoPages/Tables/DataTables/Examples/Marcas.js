@@ -7,7 +7,8 @@ import axios from 'axios';
 import SweetAlert from 'react-bootstrap-sweetalert';
 import { ToastContainer, toast } from "react-toastify";
 import 'react-toastify/dist/ReactToastify.css';
-
+import { Formik, Field, ErrorMessage } from 'formik';
+import * as Yup from 'yup';
 
 const urlAPI = 'https://localhost:44380/api/Marcas'; 
 const keyAPI = '4b567cb1c6b24b51ab55248f8e66e5cc';
@@ -18,10 +19,8 @@ const Marcas = () => {
   const [collapse, setCollapse] = useState(false);
   const [editarr, setEditar] = useState(false); 
   const [editMarcaId, setEditMarcaId] = useState(null); 
-  const [nuevaMarca, setNuevaMarca] = useState("");
   const [elimMarcaId, setElimMarcaId] = useState(null);
   const [confirmarEliminar, setConfirmarEliminar] = useState(false);
-
 
   const toggleCollapse = () => setCollapse(!collapse);
 
@@ -39,16 +38,15 @@ const Marcas = () => {
     }
   };
 
-  const insertarMarca = async (e) => {
-    e.preventDefault();
+  const insertarMarca = async (values, { resetForm }) => {
     try {
       const fechaActual = new Date().toISOString(); 
-      const MarcaAEditar = {
-        marc_Descripcion: nuevaMarca,
+      const MarcaAInsertar = {
+        marc_Descripcion: values.marcaDescripcion,
         usua_UsuarioCreacion: 1,
         marc_FechaCreacion: fechaActual
       };
-      const response = await axios.post(`${urlAPI}/Insertar`, MarcaAEditar, {
+      const response = await axios.post(`${urlAPI}/Insertar`, MarcaAInsertar, {
         headers: {
           'XApiKey': keyAPI,
           'EncryptionKey': keyencriptada
@@ -56,23 +54,22 @@ const Marcas = () => {
       });
 
       listarMarcas();
-
-      setNuevaMarca("");
+      resetForm();
       setCollapse(false);
       toast.success("Marca insertada exitosamente!");
 
     } catch (error) {
       console.error('Error al insertar marca', error);
+      toast.error("Error al insertar la marca.");
     }
   };
 
-  const editarMarca = async (e) => {
-    e.preventDefault();
+  const editarMarca = async (values, { resetForm }) => {
     try {
       const fechaActual = new Date().toISOString(); 
       const marcaAEditar = {
         marc_Id: editMarcaId, 
-        marc_Descripcion: nuevaMarca,
+        marc_Descripcion: values.marcaDescripcion,
         usua_UsuarioModificacion: 1, 
         marc_FechaModificacion: fechaActual
       };
@@ -84,8 +81,7 @@ const Marcas = () => {
       });
 
       listarMarcas();
-
-      setNuevaMarca("");
+      resetForm();
       setCollapse(false);
       setEditar(false);
       setEditMarcaId(null); 
@@ -93,19 +89,18 @@ const Marcas = () => {
 
     } catch (error) {
       console.error('Error al editar marca', error);
+      toast.error("Error al editar la marca.");
     }
   };
 
   const editarMarcaClick = (marcaId, descripcion) => {
     setEditar(true);
     setEditMarcaId(marcaId);
-    setNuevaMarca(descripcion);
-    toggleCollapse(); 
+    setCollapse(true);
   };
 
   const eliminarMarca = async () => {
     try {
-      console.log('entra a eliminar');
       const fechaActual = new Date().toISOString(); 
       const marcaAEliminar = {
         marc_Id: elimMarcaId,
@@ -118,7 +113,6 @@ const Marcas = () => {
           'EncryptionKey': keyencriptada
         }
       });
-      console.log(response);
   
       listarMarcas();
       setConfirmarEliminar(false);
@@ -126,24 +120,25 @@ const Marcas = () => {
 
     } catch (error) {
       console.error('Error al eliminar marca', error);
+      toast.error("Error al eliminar la marca.");
     }
   };
   
-
   const eliminarMarcaClick = (marcaId) => {
     setElimMarcaId(marcaId);
     setConfirmarEliminar(true);
   };
-  
+
   const cancelarEliminacion = () => {
     setElimMarcaId(null);
     setConfirmarEliminar(false);
   };
-  
 
-  const cancelar = () => {
-    setNuevaMarca("");
+  const cancelar = (resetForm) => {
+    resetForm();
     setCollapse(false);
+    setEditar(false);
+    setEditMarcaId(null);
   };
 
   useEffect(() => {
@@ -155,10 +150,7 @@ const Marcas = () => {
       <Button className="mb-2 me-2 btn-shadow" color="primary" onClick={() => editarMarcaClick(row.marc_Id, row.marc_Descripcion)}>
         Editar
       </Button>
-      {/* <Button className="mb-2 me-2 btn-shadow" color="alternate">
-        Detalles
-      </Button> */}
-      <Button className="mb-2 me-2 btn-shadow" color="danger" onClick={() => eliminarMarcaClick(row.marc_Id,row.marc_Descripcion)}>
+      <Button className="mb-2 me-2 btn-shadow" color="danger" onClick={() => eliminarMarcaClick(row.marc_Id)}>
         Eliminar
       </Button>
     </div>
@@ -185,6 +177,12 @@ const Marcas = () => {
     }
   ];
 
+  const validationSchema = Yup.object().shape({
+    marcaDescripcion: Yup.string()
+      .matches(/^[a-zA-Z\s]+$/, "La descripción solo debe contener letras.")
+      .required("El campo es requerido."),
+  });
+
   return (
     <Fragment>
       <TransitionGroup>
@@ -202,25 +200,34 @@ const Marcas = () => {
                 <Collapse isOpen={collapse}>
                   <Card>
                     <CardBody>
-                    <Form onSubmit={editarr ? editarMarca : insertarMarca}>
-                        <FormGroup>
-                          <Label for="marcaDescripcion">Marca</Label>
-                          <Input
-                            type="text"
-                            name="marca"
-                            id="marcaDescripcion"
-                            value={nuevaMarca}
-                            onChange={(e) => setNuevaMarca(e.target.value)}
-                            required
-                          />
-                        </FormGroup>
-                        <Button className="mb-2 me-2 btn-shadow" type="submit" color="primary">
-                           Enviar
-                         </Button>
-                         <Button className="mb-2 me-2 btn-shadow" onClick={cancelar} type="button" color="secondary">
-                           Cancelar
-                         </Button>
-                      </Form>
+                      <Formik
+                        initialValues={{ marcaDescripcion: '' }}
+                        validationSchema={validationSchema}
+                        onSubmit={editarr ? editarMarca : insertarMarca}
+                      >
+                        {({ handleSubmit, resetForm }) => (
+                          <Form onSubmit={handleSubmit}>
+                            <FormGroup>
+                              <Label for="marcaDescripcion">Marca</Label>
+                              <Col sm={6} style={{ padding: 0 }}>
+                                <Field
+                                  type="text"
+                                  name="marcaDescripcion"
+                                  as={Input}
+                                  id="marcaDescripcion"
+                                />
+                                <ErrorMessage name="marcaDescripcion" component="div" style={{ color: 'red' }} />
+                              </Col>
+                            </FormGroup>
+                            <Button className="mb-2 me-2 btn-shadow" type="submit" color="primary">
+                              Enviar
+                            </Button>
+                            <Button className="mb-2 me-2 btn-shadow" type="button" color="secondary" onClick={() => cancelar(resetForm)}>
+                              Cancelar
+                            </Button>
+                          </Form>
+                        )}
+                      </Formik>
                     </CardBody>
                   </Card>
                 </Collapse>
@@ -235,6 +242,7 @@ const Marcas = () => {
                         pagination
                         fixedHeader
                         fixedHeaderScrollHeight="400px"
+                        noDataComponent="No hay registros para mostrar"
                       />
                     </CardBody>
                   </Card>
@@ -255,6 +263,7 @@ const Marcas = () => {
         onCancel={cancelarEliminacion}>
         ¿Está seguro que desea eliminar la marca?
       </SweetAlert>
+      <ToastContainer />
     </Fragment>
   );
 };

@@ -149,7 +149,6 @@ const Formasdepago = () => {
                                   name="newFormasdepago"
                                   as={Input}
                                   id="Formasdepago"
-                                  required
                                 />
                                 <ErrorMessage name="newFormasdepago" component="div" style={{ color: 'red' }} />
                               </Col>
