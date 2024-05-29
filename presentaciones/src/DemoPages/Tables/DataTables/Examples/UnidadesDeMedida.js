@@ -19,9 +19,10 @@ const UnidadesDeMedidas = () => {
   const [collapse, setCollapse] = useState(false);
   const [editarr, setEditar] = useState(false); 
   const [editUnidadesDeMedidasId, setEditUnidadesDeMedidasId] = useState(null); 
-  const [nuevaUnidadesDeMedidas, setNuevaUnidadesDeMedidas] = useState("");
+  const [nuevaUnidadesDeMedidas, setNuevaUnidadesDeMedidas] = useState({ unme_Descripcion: "", unme_EsAduana: false });
   const [elimUnidadesDeMedidasId, setElimUnidadesDeMedidasId] = useState(null);
   const [confirmarEliminar, setConfirmarEliminar] = useState(false);
+  const [detalleUnidadesDeMedidas, setDetalleUnidadesDeMedidas] = useState(null);
 
   const toggleCollapse = () => setCollapse(!collapse);
 
@@ -58,7 +59,7 @@ const UnidadesDeMedidas = () => {
         }
       });
 
-      listarUnidadesDeMedidas();
+      await listarUnidadesDeMedidas();
       resetForm();
       setCollapse(false);
       toast.success("UnidadesDeMedidas insertada exitosamente!");
@@ -75,12 +76,12 @@ const UnidadesDeMedidas = () => {
       const UnidadesDeMedidasAEditar = {
         unme_Id: editUnidadesDeMedidasId, 
         unme_Descripcion: values.unme_Descripcion,
-        unme_EsAduana: values.unme_EsAduana, // Enviar como true/false
+        unme_EsAduana: values.unme_EsAduana, 
         usua_UsuarioModificacion: 1, 
         unme_FechaModificacion: fechaActual,
       };
 
-      console.log('Datos enviados para editar:', UnidadesDeMedidasAEditar); // Log de los datos enviados
+      console.log('Datos enviados para editar:', UnidadesDeMedidasAEditar); 
 
       const response = await axios.post(`${urlAPI}/Editar`, UnidadesDeMedidasAEditar, {
         headers: {
@@ -89,7 +90,7 @@ const UnidadesDeMedidas = () => {
         }
       });
 
-      listarUnidadesDeMedidas();
+      await listarUnidadesDeMedidas();
       resetForm();
       setCollapse(false);
       setEditar(false);
@@ -97,7 +98,7 @@ const UnidadesDeMedidas = () => {
       toast.success("UnidadesDeMedidas editada exitosamente!");
 
     } catch (error) {
-      console.error('Error al editar UnidadesDeMedidas:', error.response.data); // Mostrar el error específico
+      console.error('Error al editar UnidadesDeMedidas:', error.response.data); 
       toast.error("Error al editar la UnidadesDeMedidas.");
     }
   };
@@ -105,7 +106,8 @@ const UnidadesDeMedidas = () => {
   const editarUnidadesDeMedidasClick = (UnidadesDeMedidasId, descripcion, esAduana) => {
     setEditar(true);
     setEditUnidadesDeMedidasId(UnidadesDeMedidasId);
-    setNuevaUnidadesDeMedidas(descripcion);
+    setNuevaUnidadesDeMedidas({ unme_Descripcion: descripcion, unme_EsAduana: esAduana });
+    setDetalleUnidadesDeMedidas(null);
     setCollapse(true);
   };
 
@@ -124,13 +126,33 @@ const UnidadesDeMedidas = () => {
         }
       });
   
-      listarUnidadesDeMedidas();
+      await listarUnidadesDeMedidas();
       setConfirmarEliminar(false);
       toast.success("UnidadesDeMedidas eliminada exitosamente!");
 
     } catch (error) {
-      console.error('Error al eliminar UnidadesDeMedidas:', error.response.data); // Mostrar el error específico
+      console.error('Error al eliminar UnidadesDeMedidas:', error.response.data); 
       toast.error("Error al eliminar la UnidadesDeMedidas.");
+    }
+  };
+
+  const obtenerDetalleUnidadesDeMedidas = async (UnidadesDeMedidasId) => {
+    try {
+      const response = await axios.get(`${urlAPI}/Listar`, {
+        headers: {
+          'XApiKey': keyAPI,
+          'EncryptionKey': keyencriptada
+        }
+      });
+      const lista = response.data.data;
+      const objeto = lista.find((list) => list.unme_Id === UnidadesDeMedidasId);
+      setDetalleUnidadesDeMedidas(objeto);
+      setEditar(false);
+      setEditUnidadesDeMedidasId(null);
+      setCollapse(true);
+    } catch (error) {
+      console.error('Error al obtener detalles de la unidad de medida', error);
+      toast.error("Error al obtener los detalles de la unidad de medida.");
     }
   };
 
@@ -149,7 +171,13 @@ const UnidadesDeMedidas = () => {
     setCollapse(false);
     setEditar(false);
     setEditUnidadesDeMedidasId(null);
-    setNuevaUnidadesDeMedidas("");  
+    setNuevaUnidadesDeMedidas({ unme_Descripcion: "", unme_EsAduana: false });  
+    setDetalleUnidadesDeMedidas(null);
+  };
+
+  const cancelarr = () => {
+    setCollapse(false);
+    setDetalleUnidadesDeMedidas(null);
   };
 
   useEffect(() => {
@@ -161,11 +189,68 @@ const UnidadesDeMedidas = () => {
       <Button className="mb-2 me-2 btn-shadow" color="primary" onClick={() => editarUnidadesDeMedidasClick(row.unme_Id, row.unme_Descripcion, row.unme_EsAduana)}>
         Editar
       </Button>
+      <Button className="mb-2 me-2 btn-shadow" color="alternate" onClick={() => obtenerDetalleUnidadesDeMedidas(row.unme_Id)}>
+        Detalles
+      </Button>
       <Button className="mb-2 me-2 btn-shadow" color="danger" onClick={() => eliminarUnidadesDeMedidasClick(row.unme_Id)}>
         Eliminar
       </Button>
     </div>
   );
+
+  const DetallesUnidadesDeMedidas = ({ detalle }) => {
+    if (!detalle) return null;
+
+    const { unme_Id, unme_Descripcion, unme_EsAduana, usuarioCreacionNombre, unme_FechaCreacion, usuarioModificacionNombre, unme_FechaModificacion } = detalle;
+
+    const columnsDetalle = [
+      { name: 'Acción', selector: row => row.accion },
+      { name: 'Usuario', selector: row => row.usuario },
+      { name: 'Fecha', selector: row => row.fecha },
+    ];
+
+    const dataDetalle = [
+      { accion: 'Creador', usuario: usuarioCreacionNombre, fecha: unme_FechaCreacion },
+      { accion: 'Modificador', usuario: usuarioModificacionNombre, fecha: unme_FechaModificacion }
+    ];
+
+    return (
+      <div>
+        <Row>
+          <h5><b>Detalles</b></h5>
+          <hr />
+          <Col md={4}>
+            <FormGroup>
+              <Label><b>ID</b></Label>
+              <p>{unme_Id}</p>
+            </FormGroup>
+          </Col>
+          <Col md={4}>
+            <FormGroup>
+              <Label><b>Descripción</b></Label>
+              <p>{unme_Descripcion}</p>
+            </FormGroup>
+          </Col>
+          <Col md={4}>
+            <FormGroup>
+              <Label><b>Es Aduana</b></Label>
+              <p>{unme_EsAduana ? "Sí" : "No"}</p>
+            </FormGroup>
+          </Col>
+        </Row>
+        <DataTable
+          data={dataDetalle}
+          columns={columnsDetalle}
+          fixedHeader
+          fixedHeaderScrollHeight="200px"
+        />
+        <hr />
+        <Button className="mb-2 me-2 btn-shadow right" type="button" color="secondary" onClick={() => cancelarr()}>
+          Volver
+        </Button>
+      </div>
+    );
+  };
 
   const columns = [
     {
@@ -176,6 +261,11 @@ const UnidadesDeMedidas = () => {
     {
       name: "Descripción",
       selector: row => row.unme_Descripcion,
+      sortable: true,
+    },
+    {
+      name: "Es Aduana",
+      selector: row => row.unme_EsAduana ? "Sí" : "No",
       sortable: true,
     },
     {
@@ -211,48 +301,52 @@ const UnidadesDeMedidas = () => {
                 <Collapse isOpen={collapse}>
                   <Card>
                     <CardBody>
-                      <Formik
-                        initialValues={{ unme_Descripcion: nuevaUnidadesDeMedidas, unme_EsAduana: false }} // Añadir unme_EsAduana aquí
-                        enableReinitialize
-                        validationSchema={validationSchema}
-                        onSubmit={editarr ? editarUnidadesDeMedidas : insertarUnidadesDeMedidas}
-                      >
-                        {({ handleSubmit, resetForm, values, setFieldValue }) => (
-                          <Form onSubmit={handleSubmit}>
-                            <FormGroup>
-                              <Label for="unme_Descripcion">UnidadesDeMedidas</Label>
-                              <Col sm={6} style={{ padding: 0 }}>
-                                <Field
-                                  type="text"
-                                  name="unme_Descripcion"
-                                  as={Input}
-                                  id="unme_Descripcion"
-                                />
-                                <ErrorMessage name="unme_Descripcion" component="div" style={{ color: 'red' }} />
-                              </Col>
-                            </FormGroup>
-                            <FormGroup>
-                              <Label for="unme_EsAduana">¿Es Aduana?</Label>
-                              <Col sm={6} style={{ padding: 0 }}>
-                                <Field
-                                  type="checkbox"
-                                  name="unme_EsAduana"
-                                  as={Input}
-                                  checked={values.unme_EsAduana}
-                                  onChange={() => setFieldValue('unme_EsAduana', !values.unme_EsAduana)}
-                                  id="unme_EsAduana"
-                                />
-                              </Col>
-                            </FormGroup>
-                            <Button className="mb-2 me-2 btn-shadow" type="submit" color="primary">
-                              Enviar
-                            </Button>
-                            <Button className="mb-2 me-2 btn-shadow" type="button" color="secondary" onClick={() => cancelar(resetForm)}>
-                              Cancelar
-                            </Button>
-                          </Form>
-                        )}
-                      </Formik>
+                      {detalleUnidadesDeMedidas ? (
+                        <DetallesUnidadesDeMedidas detalle={detalleUnidadesDeMedidas} />
+                      ) : (
+                        <Formik
+                          initialValues={nuevaUnidadesDeMedidas}
+                          enableReinitialize
+                          validationSchema={validationSchema}
+                          onSubmit={editarr ? editarUnidadesDeMedidas : insertarUnidadesDeMedidas}
+                        >
+                          {({ handleSubmit, resetForm, values, setFieldValue }) => (
+                            <Form onSubmit={handleSubmit}>
+                              <FormGroup>
+                                <Label for="unme_Descripcion">UnidadesDeMedidas</Label>
+                                <Col sm={6} style={{ padding: 0 }}>
+                                  <Field
+                                    type="text"
+                                    name="unme_Descripcion"
+                                    as={Input}
+                                    id="unme_Descripcion"
+                                  />
+                                  <ErrorMessage name="unme_Descripcion" component="div" style={{ color: 'red' }} />
+                                </Col>
+                              </FormGroup>
+                              <FormGroup>
+                                <Label for="unme_EsAduana">¿Es Aduana?</Label>
+                                <Col sm={6} style={{ padding: 0 }}>
+                                  <Field
+                                    type="checkbox"
+                                    name="unme_EsAduana"
+                                    as={Input}
+                                    checked={values.unme_EsAduana}
+                                    onChange={() => setFieldValue('unme_EsAduana', !values.unme_EsAduana)}
+                                    id="unme_EsAduana"
+                                  />
+                                </Col>
+                              </FormGroup>
+                              <Button className="mb-2 me-2 btn-shadow" type="submit" color="primary">
+                                Enviar
+                              </Button>
+                              <Button className="mb-2 me-2 btn-shadow" type="button" color="secondary" onClick={() => cancelar(resetForm)}>
+                                Cancelar
+                              </Button>
+                            </Form>
+                          )}
+                        </Formik>
+                      )}
                     </CardBody>
                   </Card>
                 </Collapse>

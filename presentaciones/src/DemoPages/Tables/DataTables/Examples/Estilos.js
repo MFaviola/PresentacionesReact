@@ -22,6 +22,7 @@ const Estilos = () => {
   const [nuevaEstilos, setNuevaEstilos] = useState("");
   const [elimEstilosId, setElimEstilosId] = useState(null);
   const [confirmarEliminar, setConfirmarEliminar] = useState(false);
+  const [detalleEstilos, setDetalleEstilos] = useState(null);
 
   const toggleCollapse = () => setCollapse(!collapse);
 
@@ -98,6 +99,7 @@ const Estilos = () => {
     setEditar(true);
     setEditEstilosId(EstilosId);
     setNuevaEstilos(descripcion);
+    setDetalleEstilos(null);
     setCollapse(true);
   };
 
@@ -131,6 +133,26 @@ const Estilos = () => {
     setConfirmarEliminar(true);
   };
 
+  const obtenerDetalleEstilos = async (EstilosId) => {
+    try {
+      const response = await axios.get(`${urlAPI}/Listar`, {
+        headers: {
+          'XApiKey': keyAPI,
+          'EncryptionKey': keyencriptada
+        }
+      });
+      const lista = response.data.data;
+      const objeto = lista.find((list) => list.esti_Id === EstilosId);
+      setDetalleEstilos(objeto);
+      setEditar(false);
+      setEditEstilosId(null);
+      setCollapse(true);
+    } catch (error) {
+      console.error('Error al obtener detalles de los estilos', error);
+      toast.error("Error al obtener los detalles de los estilos.");
+    }
+  };
+
   const cancelarEliminacion = () => {
     setElimEstilosId(null);
     setConfirmarEliminar(false);
@@ -142,6 +164,12 @@ const Estilos = () => {
     setEditar(false);
     setEditEstilosId(null);
     setNuevaEstilos(""); 
+    setDetalleEstilos(null);
+  };
+
+  const cancelarr = () => {
+    setCollapse(false);
+    setDetalleEstilos(null);
   };
 
   useEffect(() => {
@@ -153,11 +181,62 @@ const Estilos = () => {
       <Button className="mb-2 me-2 btn-shadow" color="primary" onClick={() => editarEstilosClick(row.esti_Id, row.esti_Descripcion)}>
         Editar
       </Button>
+      <Button className="mb-2 me-2 btn-shadow" color="alternate" onClick={() => obtenerDetalleEstilos(row.esti_Id)}>
+        Detalles
+      </Button>
       <Button className="mb-2 me-2 btn-shadow" color="danger" onClick={() => eliminarEstilosClick(row.esti_Id)}>
         Eliminar
       </Button>
     </div>
   );
+
+  const DetallesEstilos = ({ detalle }) => {
+    if (!detalle) return null;
+
+    const { esti_Id, esti_Descripcion, usuarioCreacionNombre, esti_FechaCreacion, usuarioModificacionNombre, esti_FechaModificacion } = detalle;
+
+    const columnsDetalle = [
+      { name: 'Acción', selector: row => row.accion },
+      { name: 'Usuario', selector: row => row.usuario },
+      { name: 'Fecha', selector: row => row.fecha },
+    ];
+
+    const dataDetalle = [
+      { accion: 'Creador', usuario: usuarioCreacionNombre, fecha: esti_FechaCreacion },
+      { accion: 'Modificador', usuario: usuarioModificacionNombre, fecha: esti_FechaModificacion }
+    ];
+
+    return (
+      <div>
+        <Row>
+          <h5><b>Detalles</b></h5>
+          <hr />
+          <Col md={4}>
+            <FormGroup>
+              <Label><b>ID</b></Label>
+              <p>{esti_Id}</p>
+            </FormGroup>
+          </Col>
+          <Col md={4}>
+            <FormGroup>
+              <Label><b>Descripción</b></Label>
+              <p>{esti_Descripcion}</p>
+            </FormGroup>
+          </Col>
+        </Row>
+        <DataTable
+          data={dataDetalle}
+          columns={columnsDetalle}
+          fixedHeader
+          fixedHeaderScrollHeight="200px"
+        />
+        <hr />
+        <Button className="mb-2 me-2 btn-shadow right" type="button" color="secondary" onClick={() => cancelarr()}>
+          Volver
+        </Button>
+      </div>
+    );
+  };
 
   const columns = [
     {
@@ -203,35 +282,39 @@ const Estilos = () => {
                 <Collapse isOpen={collapse}>
                   <Card>
                     <CardBody>
-                      <Formik
-                        initialValues={{ esti_Descripcion: nuevaEstilos }}
-                        enableReinitialize
-                        validationSchema={validationSchema}
-                        onSubmit={editarr ? editarEstilos : insertarEstilos}
-                      >
-                        {({ handleSubmit, resetForm }) => (
-                          <Form onSubmit={handleSubmit}>
-                            <FormGroup>
-                              <Label for="esti_Descripcion">Estilos</Label>
-                              <Col sm={6} style={{ padding: 0 }}>
-                                <Field
-                                  type="text"
-                                  name="esti_Descripcion"
-                                  as={Input}
-                                  id="esti_Descripcion"
-                                />
-                                <ErrorMessage name="esti_Descripcion" component="div" style={{ color: 'red' }} />
-                              </Col>
-                            </FormGroup>
-                            <Button className="mb-2 me-2 btn-shadow" type="submit" color="primary">
-                              Enviar
-                            </Button>
-                            <Button className="mb-2 me-2 btn-shadow" type="button" color="secondary" onClick={() => cancelar(resetForm)}>
-                              Cancelar
-                            </Button>
-                          </Form>
-                        )}
-                      </Formik>
+                      {detalleEstilos ? (
+                        <DetallesEstilos detalle={detalleEstilos} />
+                      ) : (
+                        <Formik
+                          initialValues={{ esti_Descripcion: nuevaEstilos }}
+                          enableReinitialize
+                          validationSchema={validationSchema}
+                          onSubmit={editarr ? editarEstilos : insertarEstilos}
+                        >
+                          {({ handleSubmit, resetForm }) => (
+                            <Form onSubmit={handleSubmit}>
+                              <FormGroup>
+                                <Label for="esti_Descripcion">Estilos</Label>
+                                <Col sm={6} style={{ padding: 0 }}>
+                                  <Field
+                                    type="text"
+                                    name="esti_Descripcion"
+                                    as={Input}
+                                    id="esti_Descripcion"
+                                  />
+                                  <ErrorMessage name="esti_Descripcion" component="div" style={{ color: 'red' }} />
+                                </Col>
+                              </FormGroup>
+                              <Button className="mb-2 me-2 btn-shadow" type="submit" color="primary">
+                                Enviar
+                              </Button>
+                              <Button className="mb-2 me-2 btn-shadow" type="button" color="secondary" onClick={() => cancelar(resetForm)}>
+                                Cancelar
+                              </Button>
+                            </Form>
+                          )}
+                        </Formik>
+                      )}
                     </CardBody>
                   </Card>
                 </Collapse>

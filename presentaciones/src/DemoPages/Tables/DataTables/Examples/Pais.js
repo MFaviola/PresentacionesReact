@@ -22,6 +22,7 @@ const Paises = () => {
   const [nuevaPaises, setNuevaPaises] = useState({ pais_Codigo: "", pais_Nombre: "", pais_prefijo: "", pais_EsAduana: false });
   const [elimPaisesId, setElimPaisesId] = useState(null);
   const [confirmarEliminar, setConfirmarEliminar] = useState(false);
+  const [detallePaises, setDetallePaises] = useState(null);
 
   const toggleCollapse = () => setCollapse(!collapse);
 
@@ -60,7 +61,7 @@ const Paises = () => {
         }
       });
 
-      listarPaises();
+      await listarPaises();
       resetForm();
       setCollapse(false);
       toast.success("Paises insertado exitosamente!");
@@ -92,7 +93,7 @@ const Paises = () => {
         }
       });
 
-      listarPaises();
+      await listarPaises();
       resetForm();
       setCollapse(false);
       setEditar(false);
@@ -110,6 +111,7 @@ const Paises = () => {
     setEditPaisesId(PaisesId);
     setNuevaPaises({ pais_Codigo: PaisesId, pais_Nombre: nombre, pais_prefijo: prefijo, pais_EsAduana: esAduana });
     setCollapse(true);
+    setDetallePaises(null);
   };
 
   const eliminarPaises = async () => {
@@ -128,13 +130,33 @@ const Paises = () => {
         }
       });
 
-      listarPaises();
+      await listarPaises();
       setConfirmarEliminar(false);
       toast.success("Paises eliminado exitosamente!");
 
     } catch (error) {
       console.error('Error al eliminar Paises:', error.response.data); // Mostrar el error específico
       toast.error("Error al eliminar el Paises.");
+    }
+  };
+
+  const obtenerDetallePaises = async (PaisesId) => {
+    try {
+      const response = await axios.get(`${urlAPI}/Listar`, {
+        headers: {
+          'XApiKey': keyAPI,
+          'EncryptionKey': keyencriptada
+        }
+      });
+      const lista = response.data.data;
+      const objeto = lista.find((list) => list.pais_Codigo === PaisesId);
+      setDetallePaises(objeto);
+      setEditar(false);
+      setEditPaisesId(null);
+      setCollapse(true);
+    } catch (error) {
+      console.error('Error al obtener detalles del país', error);
+      toast.error("Error al obtener los detalles del país.");
     }
   };
 
@@ -154,6 +176,12 @@ const Paises = () => {
     setEditar(false);
     setEditPaisesId(null);
     setNuevaPaises({ pais_Codigo: "", pais_Nombre: "", pais_prefijo: "", pais_EsAduana: false });
+    setDetallePaises(null);
+  };
+
+  const cancelarr = () => {
+    setCollapse(false);
+    setDetallePaises(null);
   };
 
   useEffect(() => {
@@ -165,11 +193,74 @@ const Paises = () => {
       <Button className="mb-2 me-2 btn-shadow" color="primary" onClick={() => editarPaisesClick(row.pais_Codigo, row.pais_Nombre, row.pais_prefijo, row.pais_EsAduana)}>
         Editar
       </Button>
+      <Button className="mb-2 me-2 btn-shadow" color="alternate" onClick={() => obtenerDetallePaises(row.pais_Codigo)}>
+        Detalles
+      </Button>
       <Button className="mb-2 me-2 btn-shadow" color="danger" onClick={() => eliminarPaisesClick(row.pais_Codigo)}>
         Eliminar
       </Button>
     </div>
   );
+
+  const DetallesPaises = ({ detalle }) => {
+    if (!detalle) return null;
+
+    const { pais_Codigo, pais_Nombre, pais_prefijo, pais_EsAduana, usuarioCreacionNombre, pais_FechaCreacion, usuarioModificacionNombre, pais_FechaModificacion } = detalle;
+
+    const columnsDetalle = [
+      { name: 'Acción', selector: row => row.accion },
+      { name: 'Usuario', selector: row => row.usuario },
+      { name: 'Fecha', selector: row => row.fecha },
+    ];
+
+    const dataDetalle = [
+      { accion: 'Creador', usuario: usuarioCreacionNombre, fecha: pais_FechaCreacion },
+      { accion: 'Modificador', usuario: usuarioModificacionNombre, fecha: pais_FechaModificacion }
+    ];
+
+    return (
+      <div>
+        <Row>
+          <h5><b>Detalles</b></h5>
+          <hr />
+          <Col md={4}>
+            <FormGroup>
+              <Label><b>Código</b></Label>
+              <p>{pais_Codigo}</p>
+            </FormGroup>
+          </Col>
+          <Col md={4}>
+            <FormGroup>
+              <Label><b>Nombre</b></Label>
+              <p>{pais_Nombre}</p>
+            </FormGroup>
+          </Col>
+          <Col md={4}>
+            <FormGroup>
+              <Label><b>Prefijo</b></Label>
+              <p>{pais_prefijo}</p>
+            </FormGroup>
+          </Col>
+          <Col md={4}>
+            <FormGroup>
+              <Label><b>Es Aduana</b></Label>
+              <p>{pais_EsAduana ? "Sí" : "No"}</p>
+            </FormGroup>
+          </Col>
+        </Row>
+        <DataTable
+          data={dataDetalle}
+          columns={columnsDetalle}
+          fixedHeader
+          fixedHeaderScrollHeight="200px"
+        />
+        <hr />
+        <Button className="mb-2 me-2 btn-shadow right" type="button" color="secondary" onClick={() => cancelarr()}>
+          Volver
+        </Button>
+      </div>
+    );
+  };
 
   const columns = [
     {
@@ -204,16 +295,13 @@ const Paises = () => {
 
   const validationSchema = Yup.object().shape({
     pais_Codigo: Yup.string()
-      .matches(/^[a-zA-Z\s]+$/, "El codigo solo debe contener dos letras.")
-
+      .matches(/^[a-zA-Z]{2}$/, "El código solo debe contener dos letras.")
       .required("El campo es requerido."),
     pais_Nombre: Yup.string()
       .matches(/^[a-zA-Z\s]+$/, "El nombre solo debe contener letras.")
       .required("El campo es requerido."),
     pais_prefijo: Yup.string()
-    .matches(/^\d{4}$/, "El prefijo debe contener exactamente 4 numeros.")
-
-      // .matches(/^[A-Za-z]{4}$/, )
+      .matches(/^\d{4}$/, "El prefijo debe contener exactamente 4 números.")
       .required("El campo es requerido."),
   });
 
@@ -234,72 +322,76 @@ const Paises = () => {
                 <Collapse isOpen={collapse}>
                   <Card>
                     <CardBody>
-                      <Formik
-                        initialValues={nuevaPaises}
-                        enableReinitialize
-                        validationSchema={validationSchema}
-                        onSubmit={editarr ? editarPaises : insertarPaises}
-                      >
-                        {({ handleSubmit, resetForm, values, setFieldValue }) => (
-                          <Form onSubmit={handleSubmit}>
-                            <FormGroup>
-                              <Label for="pais_Codigo">Código</Label>
-                              <Col sm={6} style={{ padding: 0 }}>
-                                <Field
-                                  type="text"
-                                  name="pais_Codigo"
-                                  as={Input}
-                                  id="pais_Codigo"
-                                />
-                                <ErrorMessage name="pais_Codigo" component="div" style={{ color: 'red' }} />
-                              </Col>
-                            </FormGroup>
-                            <FormGroup>
-                              <Label for="pais_Nombre">Nombre</Label>
-                              <Col sm={6} style={{ padding: 0 }}>
-                                <Field
-                                  type="text"
-                                  name="pais_Nombre"
-                                  as={Input}
-                                  id="pais_Nombre"
-                                />
-                                <ErrorMessage name="pais_Nombre" component="div" style={{ color: 'red' }} />
-                              </Col>
-                            </FormGroup>
-                            <FormGroup>
-                              <Label for="pais_prefijo">Prefijo</Label>
-                              <Col sm={6} style={{ padding: 0 }}>
-                                <Field
-                                  type="text"
-                                  name="pais_prefijo"
-                                  as={Input}
-                                  id="pais_prefijo"
-                                />
-                                <ErrorMessage name="pais_prefijo" component="div" style={{ color: 'red' }} />
-                              </Col>
-                            </FormGroup>
-                            <FormGroup>
-                              <Label for="pais_EsAduana">¿Es Aduana?</Label>
-                              <Col sm={6} style={{ padding: 0 }}>
-                                <Field
-                                  type="checkbox"
-                                  name="pais_EsAduana"
-                                  as={Input}
-                                  checked={values.pais_EsAduana}
-                                  onChange={() => setFieldValue('pais_EsAduana', !values.pais_EsAduana)}
-                                  id="pais_EsAduana"
-                                />
-                              </Col>
-                            </FormGroup>
-                            <Button className="mb-2 me-2 btn-shadow" type="submit" color="primary">
-                              Enviar
-                            </Button>
-                            <Button className="mb-2 me-2 btn-shadow" type="button" color="secondary" onClick={() => cancelar(resetForm)}>
-                              Cancelar
-                            </Button>
-                          </Form>
-                        )}
-                      </Formik>
+                      {detallePaises ? (
+                        <DetallesPaises detalle={detallePaises} />
+                      ) : (
+                        <Formik
+                          initialValues={nuevaPaises}
+                          enableReinitialize
+                          validationSchema={validationSchema}
+                          onSubmit={editarr ? editarPaises : insertarPaises}
+                        >
+                          {({ handleSubmit, resetForm, values, setFieldValue }) => (
+                            <Form onSubmit={handleSubmit}>
+                              <FormGroup>
+                                <Label for="pais_Codigo">Código</Label>
+                                <Col sm={6} style={{ padding: 0 }}>
+                                  <Field
+                                    type="text"
+                                    name="pais_Codigo"
+                                    as={Input}
+                                    id="pais_Codigo"
+                                  />
+                                  <ErrorMessage name="pais_Codigo" component="div" style={{ color: 'red' }} />
+                                </Col>
+                              </FormGroup>
+                              <FormGroup>
+                                <Label for="pais_Nombre">Nombre</Label>
+                                <Col sm={6} style={{ padding: 0 }}>
+                                  <Field
+                                    type="text"
+                                    name="pais_Nombre"
+                                    as={Input}
+                                    id="pais_Nombre"
+                                  />
+                                  <ErrorMessage name="pais_Nombre" component="div" style={{ color: 'red' }} />
+                                </Col>
+                              </FormGroup>
+                              <FormGroup>
+                                <Label for="pais_prefijo">Prefijo</Label>
+                                <Col sm={6} style={{ padding: 0 }}>
+                                  <Field
+                                    type="text"
+                                    name="pais_prefijo"
+                                    as={Input}
+                                    id="pais_prefijo"
+                                  />
+                                  <ErrorMessage name="pais_prefijo" component="div" style={{ color: 'red' }} />
+                                </Col>
+                              </FormGroup>
+                              <FormGroup>
+                                <Label for="pais_EsAduana">¿Es Aduana?</Label>
+                                <Col sm={6} style={{ padding: 0 }}>
+                                  <Field
+                                    type="checkbox"
+                                    name="pais_EsAduana"
+                                    as={Input}
+                                    checked={values.pais_EsAduana}
+                                    onChange={() => setFieldValue('pais_EsAduana', !values.pais_EsAduana)}
+                                    id="pais_EsAduana"
+                                  />
+                                </Col>
+                              </FormGroup>
+                              <Button className="mb-2 me-2 btn-shadow" type="submit" color="primary">
+                                Enviar
+                              </Button>
+                              <Button className="mb-2 me-2 btn-shadow" type="button" color="secondary" onClick={() => cancelar(resetForm)}>
+                                Cancelar
+                              </Button>
+                            </Form>
+                          )}
+                        </Formik>
+                      )}
                     </CardBody>
                   </Card>
                 </Collapse>
