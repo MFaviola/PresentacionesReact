@@ -17,15 +17,14 @@ const keyencriptada = 'FZWv3nQTyHYyNvdx';
 const Marcas = () => {
   const [data, setData] = useState([]);
   const [collapse, setCollapse] = useState(false);
-  const [collapsee, setCollapsee] = useState(false);
   const [editarr, setEditar] = useState(false); 
   const [editMarcaId, setEditMarcaId] = useState(null); 
   const [nuevaMarca, setNuevaMarca] = useState("");
   const [elimMarcaId, setElimMarcaId] = useState(null);
   const [confirmarEliminar, setConfirmarEliminar] = useState(false);
+  const [detalleMarca, setDetalleMarca] = useState(null);
 
   const toggleCollapse = () => setCollapse(!collapse);
-  const toggleCollapsee = () => setCollapsee(!collapse);
 
   const listarMarcas = async () => {
     try {
@@ -100,6 +99,7 @@ const Marcas = () => {
     setEditar(true);
     setEditMarcaId(marcaId);
     setNuevaMarca(descripcion);
+    setDetalleMarca(null);
     setCollapse(true);
   };
 
@@ -133,24 +133,25 @@ const Marcas = () => {
     setConfirmarEliminar(true);
   };
 
-  const detalleMarca = async (marcaId) => {
-    const idmarca = marcaId;
-    const response = await axios.get(`${urlAPI}/Listar`, {
-      headers: {
-        'XApiKey': keyAPI,
-        'EncryptionKey': keyencriptada
-      }
-    });
-    setCollapsee(false);
-
-    setData(response.data.data);
-    const lista = response.data.data;
-    console.log(response.data.data);
-    const objeto = lista.find((list) => list.marc_Id == idmarca); //buscar dentro del arreglo con objetos
-    console.log(objeto);
-
-};
-
+  const obtenerDetalleMarca = async (marcaId) => {
+    try {
+      const response = await axios.get(`${urlAPI}/Listar`, {
+        headers: {
+          'XApiKey': keyAPI,
+          'EncryptionKey': keyencriptada
+        }
+      });
+      const lista = response.data.data;
+      const objeto = lista.find((list) => list.marc_Id === marcaId);
+      setDetalleMarca(objeto);
+      setEditar(false);
+      setEditMarcaId(null);
+      setCollapse(true);
+    } catch (error) {
+      console.error('Error al obtener detalles de la marca', error);
+      toast.error("Error al obtener los detalles de la marca.");
+    }
+  };
 
   const cancelarEliminacion = () => {
     setElimMarcaId(null);
@@ -163,10 +164,11 @@ const Marcas = () => {
     setEditar(false);
     setEditMarcaId(null);
     setNuevaMarca(""); 
+    setDetalleMarca(null);
   };
-
-  const cancelardeta = () => {
-    setCollapsee(false);
+  const cancelarr = () => {
+    setCollapse(false);
+    setDetalleMarca(null);
   };
 
   useEffect(() => {
@@ -178,7 +180,7 @@ const Marcas = () => {
       <Button className="mb-2 me-2 btn-shadow" color="primary" onClick={() => editarMarcaClick(row.marc_Id, row.marc_Descripcion)}>
         Editar
       </Button>
-      <Button className="mb-2 me-2 btn-shadow" color="alternate" onClick={() => detalleMarca(row.marc_Id)}>
+      <Button className="mb-2 me-2 btn-shadow" color="alternate" onClick={() => obtenerDetalleMarca(row.marc_Id)}>
         Detalles
       </Button>
       <Button className="mb-2 me-2 btn-shadow" color="danger" onClick={() => eliminarMarcaClick(row.marc_Id)}>
@@ -186,6 +188,55 @@ const Marcas = () => {
       </Button>
     </div>
   );
+
+  const DetallesMarca = ({ detalle }) => {
+    if (!detalle) return null;
+    
+    const { marc_Id, marc_Descripcion, usuarioCreacionNombre, marc_FechaCreacion, usuarioModificacionNombre, marc_FechaModificacion } = detalle;
+    
+    const columnsDetalle = [
+      { name: 'Acción', selector: row => row.accion },
+      { name: 'Usuario', selector: row => row.usuario },
+      { name: 'Fecha', selector: row => row.fecha },
+    ];
+    
+    const dataDetalle = [
+      { accion: 'Creador', usuario: usuarioCreacionNombre, fecha: marc_FechaCreacion },
+      { accion: 'Modificador', usuario: usuarioModificacionNombre, fecha: marc_FechaModificacion }
+    ];
+    
+    return (
+      <div>
+         
+          <Row>
+            <h5><b>Detalles</b></h5>
+            <hr></hr>
+            <Col md={4}>
+              <FormGroup>
+                <Label><b>ID</b></Label>
+                <p>{marc_Id}</p>
+              </FormGroup>
+            </Col>
+            <Col md={4}>
+              <FormGroup>
+                <Label><b>Marca</b></Label>
+                <p>{marc_Descripcion}</p>
+              </FormGroup>
+            </Col>
+          </Row>
+          <DataTable
+            data={dataDetalle}
+            columns={columnsDetalle}
+            fixedHeader
+            fixedHeaderScrollHeight="200px"
+          />
+          <hr></hr>
+          <Button className="mb-2 me-2 btn-shadow right" type="button" color="secondary" onClick={() => cancelarr()}>
+            Volver
+          </Button>
+      </div>
+    );
+  };
 
   const columns = [
     {
@@ -223,28 +274,7 @@ const Marcas = () => {
               heading="Marcas"
               icon="pe-7s-network icon-gradient bg-tempting-azure"
             />
-            {/* <Row>
-            <Col md="12">
-                <Collapse isOpen={collapsee}>  
-                  <Card>
-                    <CardBody>
-                    
-                              <Label>Marca</Label>
-                              <Col sm={6} style={{ padding: 0 }}>
-                                <Field
-                                  name="marcaDescripcion"
-                                  as={Input}
-                                  id="marcaDescripcion"
-                                />
-                              </Col>
-                            <Button className="mb-2 me-2 btn-shadow" type="button" color="secondary" onClick={() => cancelardeta()}>
-                              Cancelar
-                            </Button>
-                    </CardBody>
-                  </Card>
-                </Collapse>
-              </Col>
-            </Row> */}
+            
             <Row>
               <Col md="12">
                 {!collapse && (
@@ -253,6 +283,9 @@ const Marcas = () => {
                 <Collapse isOpen={collapse}>
                   <Card>
                     <CardBody>
+                    {detalleMarca ? (
+                        <DetallesMarca detalle={detalleMarca} />
+                      ) : (
                       <Formik
                         initialValues={{ marcaDescripcion: nuevaMarca }}
                         enableReinitialize
@@ -282,6 +315,7 @@ const Marcas = () => {
                           </Form>
                         )}
                       </Formik>
+                     )}
                     </CardBody>
                   </Card>
                 </Collapse>
