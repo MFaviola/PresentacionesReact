@@ -1,3 +1,7 @@
+
+
+
+
 import React, { Fragment, useState, useEffect } from "react";
 import { CSSTransition, TransitionGroup } from 'react-transition-group';
 import { Row, Col, Card, CardBody, Button, Collapse, Form, FormGroup, Label, Input } from "reactstrap";
@@ -141,7 +145,7 @@ const Marcas = () => {
     setCollapse(false);
     setEditar(false);
     setEditMarcaId(null);
-    setNuevaMarca(""); 
+    setNuevaMarca(""); // Limpiar el campo de la marca
   };
 
   useEffect(() => {
