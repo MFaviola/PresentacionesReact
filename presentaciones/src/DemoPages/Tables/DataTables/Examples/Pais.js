@@ -20,8 +20,6 @@ const Paises = () => {
   const [editarr, setEditar] = useState(false); 
   const [editPaisesId, setEditPaisesId] = useState(null); 
   const [nuevaPaises, setNuevaPaises] = useState({ pais_Codigo: "", pais_Nombre: "", pais_prefijo: "", pais_EsAduana: false });
-  const [elimPaisesId, setElimPaisesId] = useState(null);
-  const [confirmarEliminar, setConfirmarEliminar] = useState(false);
   const [detallePaises, setDetallePaises] = useState(null);
 
   const toggleCollapse = () => setCollapse(!collapse);
@@ -113,33 +111,6 @@ const Paises = () => {
     setCollapse(true);
     setDetallePaises(null);
   };
-
-  const eliminarPaises = async () => {
-    try {
-      const fechaActual = new Date().toISOString(); 
-      const PaisesAEliminar = {
-        pais_Codigo: elimPaisesId,
-        usua_UsuarioEliminacion: 1,
-        pais_FechaEliminacion: fechaActual
-      };
-
-      const response = await axios.post(`${urlAPI}/Eliminar`, PaisesAEliminar, {
-        headers: {
-          'XApiKey': keyAPI,
-          'EncryptionKey': keyencriptada
-        }
-      });
-
-      await listarPaises();
-      setConfirmarEliminar(false);
-      toast.success("Paises eliminado exitosamente!");
-
-    } catch (error) {
-      console.error('Error al eliminar Paises:', error.response.data); // Mostrar el error específico
-      toast.error("Error al eliminar el Paises.");
-    }
-  };
-
   const obtenerDetallePaises = async (PaisesId) => {
     try {
       const response = await axios.get(`${urlAPI}/Listar`, {
@@ -160,15 +131,6 @@ const Paises = () => {
     }
   };
 
-  const eliminarPaisesClick = (PaisesId) => {
-    setElimPaisesId(PaisesId);
-    setConfirmarEliminar(true);
-  };
-
-  const cancelarEliminacion = () => {
-    setElimPaisesId(null);
-    setConfirmarEliminar(false);
-  };
 
   const cancelar = (resetForm) => {
     resetForm();
@@ -195,9 +157,6 @@ const Paises = () => {
       </Button>
       <Button className="mb-2 me-2 btn-shadow" color="alternate" onClick={() => obtenerDetallePaises(row.pais_Codigo)}>
         Detalles
-      </Button>
-      <Button className="mb-2 me-2 btn-shadow" color="danger" onClick={() => eliminarPaisesClick(row.pais_Codigo)}>
-        Eliminar
       </Button>
     </div>
   );
@@ -312,7 +271,7 @@ const Paises = () => {
           <div>
             <PageTitle
               heading="Paises"
-              icon="pe-7s-network icon-gradient bg-tempting-azure"
+              icon="pe-7s-flag icon-gradient bg-mixed-hopes"
             />
             <Row>
               <Col md="12">
@@ -333,9 +292,10 @@ const Paises = () => {
                         >
                           {({ handleSubmit, resetForm, values, setFieldValue }) => (
                             <Form onSubmit={handleSubmit}>
-                              <FormGroup>
-                                <Label for="pais_Codigo">Código</Label>
-                                <Col sm={6} style={{ padding: 0 }}>
+                            <Row>
+                              <Col md={6}>
+                                <FormGroup>
+                                  <Label for="pais_Codigo">Código</Label>
                                   <Field
                                     type="text"
                                     name="pais_Codigo"
@@ -343,11 +303,11 @@ const Paises = () => {
                                     id="pais_Codigo"
                                   />
                                   <ErrorMessage name="pais_Codigo" component="div" style={{ color: 'red' }} />
-                                </Col>
-                              </FormGroup>
-                              <FormGroup>
-                                <Label for="pais_Nombre">Nombre</Label>
-                                <Col sm={6} style={{ padding: 0 }}>
+                                </FormGroup>
+                              </Col>
+                              <Col md={6}>
+                                <FormGroup>
+                                  <Label for="pais_Nombre">Nombre</Label>
                                   <Field
                                     type="text"
                                     name="pais_Nombre"
@@ -355,11 +315,13 @@ const Paises = () => {
                                     id="pais_Nombre"
                                   />
                                   <ErrorMessage name="pais_Nombre" component="div" style={{ color: 'red' }} />
-                                </Col>
-                              </FormGroup>
-                              <FormGroup>
-                                <Label for="pais_prefijo">Prefijo</Label>
-                                <Col sm={6} style={{ padding: 0 }}>
+                                </FormGroup>
+                              </Col>
+                            </Row>
+                            <Row>
+                              <Col md={6}>
+                                <FormGroup>
+                                  <Label for="pais_prefijo">Prefijo</Label>
                                   <Field
                                     type="text"
                                     name="pais_prefijo"
@@ -367,11 +329,12 @@ const Paises = () => {
                                     id="pais_prefijo"
                                   />
                                   <ErrorMessage name="pais_prefijo" component="div" style={{ color: 'red' }} />
-                                </Col>
-                              </FormGroup>
-                              <FormGroup>
-                                <Label for="pais_EsAduana">¿Es Aduana?</Label>
-                                <Col sm={6} style={{ padding: 0 }}>
+                                </FormGroup>
+                              </Col>
+                              <Col md={6}>
+                                <FormGroup>
+                                  <Label for="pais_EsAduana">¿Es Aduana?</Label>
+                                  <Col sm={6} style={{ padding: 0 }}>
                                   <Field
                                     type="checkbox"
                                     name="pais_EsAduana"
@@ -380,15 +343,18 @@ const Paises = () => {
                                     onChange={() => setFieldValue('pais_EsAduana', !values.pais_EsAduana)}
                                     id="pais_EsAduana"
                                   />
-                                </Col>
-                              </FormGroup>
-                              <Button className="mb-2 me-2 btn-shadow" type="submit" color="primary">
-                                Enviar
-                              </Button>
-                              <Button className="mb-2 me-2 btn-shadow" type="button" color="secondary" onClick={() => cancelar(resetForm)}>
-                                Cancelar
-                              </Button>
-                            </Form>
+                                  </Col>
+                                </FormGroup>
+                              </Col>
+                            </Row>
+                            <Button className="mb-2 me-2 btn-shadow" type="submit" color="primary">
+                              Enviar
+                            </Button>
+                            <Button className="mb-2 me-2 btn-shadow" type="button" color="secondary" onClick={() => cancelar(resetForm)}>
+                              Cancelar
+                            </Button>
+                          </Form>
+                          
                           )}
                         </Formik>
                       )}
@@ -415,17 +381,6 @@ const Paises = () => {
           </div>
         </CSSTransition>
       </TransitionGroup>
-      <SweetAlert
-        title="Eliminar Paises"
-        show={confirmarEliminar}
-        showCancel
-        confirmBtnText="Eliminar"
-        confirmBtnBsStyle="danger"
-        cancelBtnText="Cancelar"
-        onConfirm={eliminarPaises}
-        onCancel={cancelarEliminacion}>
-        ¿Está seguro que desea eliminar el Paises?
-      </SweetAlert>
       <ToastContainer />
     </Fragment>
   );

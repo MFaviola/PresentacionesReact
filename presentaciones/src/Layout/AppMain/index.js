@@ -9,7 +9,7 @@ import { connect } from "react-redux";
 import { setAuthToken, setLoading } from "../../reducers/Auth";
 
 const UserPages = lazy(() => import("../../DemoPages/UserPages"));
-const Dashboards = lazy(() => import("../../DemoPages/Dashboards"));
+const Principales = lazy(() => import("../../DemoPages/Principales"));
 
 const Components = lazy(() => import("../../DemoPages/Components"));
 const Tables = lazy(() => import("../../DemoPages/Tables"));
@@ -128,7 +128,7 @@ const AppMain = ({setAuthToken, setLoading}) => {
 
       
 
-      {/* Dashboards */}
+      {/* Principales */}
 
       <Suspense
         fallback={
@@ -138,17 +138,17 @@ const AppMain = ({setAuthToken, setLoading}) => {
                 <Loader type="ball-grid-cy" />
               </div>
               <h6 className="mt-3">
-                Please wait while we load all the Dashboards examples
-                <small>Because this is a demonstration, we load at once all the Dashboards examples. This wouldn't happen in a real live app!</small>
+                Please wait while we load all the Principales examples
+                <small>Because this is a demonstration, we load at once all the Principales examples. This wouldn't happen in a real live app!</small>
               </h6>
             </div>
           </div>
         }
       >
-        <Route path="/dashboards" component={Dashboards} />
+        <Route path="/principales" component={Principales} />
       </Suspense>
 
-      <Route exact path="/" render={() => <Redirect to="/dashboards/crm" />} />
+      <Route exact path="/" render={() => <Redirect to="/principales/crm" />} />
       <ToastContainer />
     </Fragment>
   );

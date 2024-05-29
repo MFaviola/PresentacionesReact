@@ -290,7 +290,7 @@ const UnidadesDeMedidas = () => {
         <CSSTransition component="div" timeout={1500} enter={false} exit={false}>
           <div>
             <PageTitle
-              heading="UnidadesDeMedidas"
+              heading="Unidades De Medidas"
               icon="pe-7s-network icon-gradient bg-tempting-azure"
             />
             <Row>
@@ -312,9 +312,10 @@ const UnidadesDeMedidas = () => {
                         >
                           {({ handleSubmit, resetForm, values, setFieldValue }) => (
                             <Form onSubmit={handleSubmit}>
+                              <Row>
+                              <Col md={6}>
                               <FormGroup>
-                                <Label for="unme_Descripcion">UnidadesDeMedidas</Label>
-                                <Col sm={6} style={{ padding: 0 }}>
+                                <Label for="unme_Descripcion">Unidad de Medida</Label>
                                   <Field
                                     type="text"
                                     name="unme_Descripcion"
@@ -322,11 +323,12 @@ const UnidadesDeMedidas = () => {
                                     id="unme_Descripcion"
                                   />
                                   <ErrorMessage name="unme_Descripcion" component="div" style={{ color: 'red' }} />
-                                </Col>
                               </FormGroup>
-                              <FormGroup>
-                                <Label for="unme_EsAduana">¿Es Aduana?</Label>
-                                <Col sm={6} style={{ padding: 0 }}>
+                              </Col>
+                              <Col md={6}>
+                                <FormGroup>
+                                  <Label for="unme_EsAduana">¿Es Aduana?</Label>
+                                  <Col sm={6} style={{ padding: 0 }}>
                                   <Field
                                     type="checkbox"
                                     name="unme_EsAduana"
@@ -335,8 +337,10 @@ const UnidadesDeMedidas = () => {
                                     onChange={() => setFieldValue('unme_EsAduana', !values.unme_EsAduana)}
                                     id="unme_EsAduana"
                                   />
-                                </Col>
-                              </FormGroup>
+                                  </Col>
+                                </FormGroup>
+                              </Col>
+                              </Row>
                               <Button className="mb-2 me-2 btn-shadow" type="submit" color="primary">
                                 Enviar
                               </Button>

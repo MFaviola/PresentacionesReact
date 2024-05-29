@@ -124,7 +124,7 @@ const Formasdepago = () => {
           <div>
             <PageTitle
               heading="Formas de pago"
-              icon="pe-7s-network icon-gradient bg-tempting-azure"
+              icon="pe-7s-cash icon-gradient bg-tempting-azure"
             />
             <Row>
               <Col md="12">

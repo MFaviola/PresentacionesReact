@@ -2,7 +2,7 @@ import React, { Fragment, useState, useEffect } from "react";
 import { CSSTransition, TransitionGroup } from 'react-transition-group';
 import { Row, Col, Card, CardBody, Button, Collapse, Form, FormGroup, Label, Input } from "reactstrap";
 import DataTable from 'react-data-table-component';
-import PageTitle from "../../../../Layout/AppMain/PageTitle";
+import PageTitle from "../../Layout/AppMain/PageTitle";
 import axios from 'axios';
 import SweetAlert from 'react-bootstrap-sweetalert';
 import { ToastContainer, toast } from "react-toastify";
@@ -14,7 +14,7 @@ const urlAPI = 'https://localhost:44380/api/Estilos';
 const keyAPI = '4b567cb1c6b24b51ab55248f8e66e5cc';
 const keyencriptada = 'FZWv3nQTyHYyNvdx';
 
-const Estilos = () => {
+const Comerciante = () => {
   const [data, setData] = useState([]);
   const [collapse, setCollapse] = useState(false);
   const [editarr, setEditar] = useState(false); 
@@ -354,4 +354,4 @@ const Estilos = () => {
   );
 };
 
-export default Estilos;
+export default Comerciante;

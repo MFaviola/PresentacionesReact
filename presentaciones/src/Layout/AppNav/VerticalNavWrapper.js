@@ -6,8 +6,7 @@ import { setEnableMobileMenu } from "../../reducers/ThemeOptions";
 import {
   MainNav,
   ComponentsNav,
-  WidgetsNav,
-  ChartsNav,
+  PrincipalesNav,
 } from "./NavItems";
 
 class Nav extends Component {
@@ -27,6 +26,10 @@ class Nav extends Component {
 
         <h5 className="app-sidebar__heading">Tablas</h5>
         <MetisMenu content={ComponentsNav} onSelected={this.toggleMobileSidebar} activeLinkFromLocation
+          className="vertical-nav-menu" iconNamePrefix="" classNameStateIcon="pe-7s-angle-down"/>
+
+<h5 className="app-sidebar__heading">Tablas</h5>
+        <MetisMenu content={PrincipalesNav} onSelected={this.toggleMobileSidebar} activeLinkFromLocation
           className="vertical-nav-menu" iconNamePrefix="" classNameStateIcon="pe-7s-angle-down"/>
       </Fragment>
     );

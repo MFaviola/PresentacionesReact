@@ -1,9 +1,10 @@
 import React, { Fragment } from "react";
 import { Route } from "react-router-dom";
 
-// DASHBOARDS
+// Principales
 
-import AnalyticsDashboard from "./Analytics/";
+import Comerciante from "./Comerciante";
+
 
 // Layout
 
@@ -12,9 +13,10 @@ import AppSidebar from "../../Layout/AppSidebar/";
 import AppFooter from "../../Layout/AppFooter/";
 
 // Theme Options
+
 import ThemeOptions from "../../Layout/ThemeOptions/";
 
-const Dashboards = ({ match }) => (
+const Principales = ({ match }) => (
   <Fragment>
     <ThemeOptions />
     <AppHeader />
@@ -22,7 +24,7 @@ const Dashboards = ({ match }) => (
       <AppSidebar />
       <div className="app-main__outer">
         <div className="app-main__inner">
-          <Route path={`${match.url}/analytics`} component={AnalyticsDashboard}/>
+          <Route path={`${match.url}/comerciante`} component={Comerciante}/>
         </div>
         <AppFooter />
       </div>
@@ -30,4 +32,4 @@ const Dashboards = ({ match }) => (
   </Fragment>
 );
 
-export default Dashboards;
+export default Principales;

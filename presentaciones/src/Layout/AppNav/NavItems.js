@@ -46,29 +46,29 @@ export const ComponentsNav = [
      
   //   ],
   // },
+  // {
+  //   icon: "pe-7s-display2",
+  //   label: "Tables",
+  //   to: "#/tables/datatables-fixed-header",
+
+  // },
+  // {
+  //   icon: "pe-7s-network",
+  //   label: "Marcas",
+  //   to: "#/tables/marcas",
+
+  // },
+
+
+  // {
+  //   icon: "pe-7s-cash",
+  //   label: "Formas de pago",
+  //   to: "#/tables/formasdepago",
+
+  // },
+
   {
-    icon: "pe-7s-display2",
-    label: "Tables",
-    to: "#/tables/datatables-fixed-header",
-
-  },
-  {
-    icon: "pe-7s-display2",
-    label: "Marcas",
-    to: "#/tables/marcas",
-
-  },
-
-
-  {
-    icon: "pe-7s-display2",
-    label: "Formas de pago",
-    to: "#/tables/formasdepago",
-
-  },
-
-  {
-    icon: "pe-7s-display2",
+    icon: "pe-7s-network",
     label: "Unidades de medida",
     to: "#/tables/unidadesmedida",
 
@@ -77,7 +77,7 @@ export const ComponentsNav = [
 
 
   {
-    icon: "pe-7s-display2",
+    icon: "pe-7s-flag",
     label: "Paises",
     to: "#/tables/pais",
 
@@ -86,11 +86,25 @@ export const ComponentsNav = [
 
 
   {
-    icon: "pe-7s-display2",
+    icon: "pe-7s-scissors",
     label: "Estilos",
     to: "#/tables/estilos",
 
   },
 
   
+];
+export const PrincipalesNav = [
+  {
+    icon: "pe-7s-rocket",
+    label: "Comerciante Individual",
+    to: "#/principales/comerciante",
+
+  },
+  {
+    icon: "pe-7s-rocket",
+    label: "Persona Juridica",
+    to: "#/principales/comerciante",
+
+  },
 ];
