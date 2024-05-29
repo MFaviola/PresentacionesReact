@@ -7,6 +7,8 @@ import DataTableFixedHeader from "./DataTables/Examples/FixedHeader";
 import Marcas from "./DataTables/Examples/Marcas";
 import Formasdepago from "./DataTables/Examples/Formas de Pago";
 import UnidadesDeMedida from "./DataTables/Examples/UnidadesDeMedida";
+import Paises from "./DataTables/Examples/Pais";
+import Estilos from "./DataTables/Examples/Estilos";
 
 
 // Layout
@@ -33,6 +35,8 @@ const Tables = ({ match }) => (
           <Route path={`${match.url}/marcas`} component={Marcas}/>
           <Route path={`${match.url}/formasdepago`} component={Formasdepago}/>
           <Route path={`${match.url}/unidadesmedida`} component={UnidadesDeMedida}/>
+          <Route path={`${match.url}/pais`} component={Paises}/>
+          <Route path={`${match.url}/estilos`} component={Estilos}/>
 
 
         </div>

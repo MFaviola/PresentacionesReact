@@ -10,23 +10,23 @@ import 'react-toastify/dist/ReactToastify.css';
 import { Formik, Field, ErrorMessage } from 'formik';
 import * as Yup from 'yup';
 
-const urlAPI = 'https://localhost:44380/api/UnidadMedidas'; 
+const urlAPI = 'https://localhost:44380/api/Paises'; 
 const keyAPI = '4b567cb1c6b24b51ab55248f8e66e5cc';
 const keyencriptada = 'FZWv3nQTyHYyNvdx';
 
-const UnidadesDeMedidas = () => {
+const Paises = () => {
   const [data, setData] = useState([]);
   const [collapse, setCollapse] = useState(false);
   const [editarr, setEditar] = useState(false); 
-  const [editUnidadesDeMedidasId, setEditUnidadesDeMedidasId] = useState(null); 
-  const [nuevaUnidadesDeMedidas, setNuevaUnidadesDeMedidas] = useState({ unme_Descripcion: "", unme_EsAduana: false });
-  const [elimUnidadesDeMedidasId, setElimUnidadesDeMedidasId] = useState(null);
+  const [editPaisesId, setEditPaisesId] = useState(null); 
+  const [nuevaPaises, setNuevaPaises] = useState({ pais_Codigo: "", pais_Nombre: "", pais_prefijo: "", pais_EsAduana: false });
+  const [elimPaisesId, setElimPaisesId] = useState(null);
   const [confirmarEliminar, setConfirmarEliminar] = useState(false);
-  const [detalleUnidadesDeMedidas, setDetalleUnidadesDeMedidas] = useState(null);
+  const [detallePaises, setDetallePaises] = useState(null);
 
   const toggleCollapse = () => setCollapse(!collapse);
 
-  const listarUnidadesDeMedidas = async () => {
+  const listarPaises = async () => {
     try {
       const response = await axios.get(`${urlAPI}/Listar`, {
         headers: {
@@ -36,107 +36,111 @@ const UnidadesDeMedidas = () => {
       });
       setData(response.data.data);
     } catch (error) {
-      console.error('Error al listar UnidadesDeMedidas', error);
+      console.error('Error al listar Paises', error);
     }
   };
 
-  const insertarUnidadesDeMedidas = async (values, { resetForm }) => {
+  const insertarPaises = async (values, { resetForm }) => {
     try {
       const fechaActual = new Date().toISOString(); 
-      const UnidadesDeMedidasAInsertar = {
-        unme_Descripcion: values.unme_Descripcion,
-        unme_EsAduana: values.unme_EsAduana, 
+      const PaisesAInsertar = {
+        pais_Codigo: values.pais_Codigo,
+        pais_Nombre: values.pais_Nombre,
+        pais_prefijo: values.pais_prefijo,
+        pais_EsAduana: values.pais_EsAduana,
         usua_UsuarioCreacion: 1,
-        unme_FechaCreacion: fechaActual,
+        pais_FechaCreacion: fechaActual
       };
 
-      console.log('Datos enviados para insertar:', UnidadesDeMedidasAInsertar); 
+      console.log('Datos enviados para insertar:', PaisesAInsertar);
 
-      const response = await axios.post(`${urlAPI}/Insertar`, UnidadesDeMedidasAInsertar, {
+      const response = await axios.post(`${urlAPI}/Insertar`, PaisesAInsertar, {
         headers: {
           'XApiKey': keyAPI,
           'EncryptionKey': keyencriptada
         }
       });
 
-      await listarUnidadesDeMedidas();
+      await listarPaises();
       resetForm();
       setCollapse(false);
-      toast.success("UnidadesDeMedidas insertada exitosamente!");
+      toast.success("Paises insertado exitosamente!");
 
     } catch (error) {
-      console.error('Error al insertar UnidadesDeMedidas:', error.response.data); 
-      toast.error("Error al insertar la UnidadesDeMedidas.");
+      console.error('Error al insertar Paises:', error.response.data); // Mostrar el error específico
+      toast.error("Error al insertar el Paises.");
     }
   };
 
-  const editarUnidadesDeMedidas = async (values, { resetForm }) => {
+  const editarPaises = async (values, { resetForm }) => {
     try {
       const fechaActual = new Date().toISOString(); 
-      const UnidadesDeMedidasAEditar = {
-        unme_Id: editUnidadesDeMedidasId, 
-        unme_Descripcion: values.unme_Descripcion,
-        unme_EsAduana: values.unme_EsAduana, 
-        usua_UsuarioModificacion: 1, 
-        unme_FechaModificacion: fechaActual,
+      const PaisesAEditar = {
+        pais_Codigo: editPaisesId,
+        pais_Nombre: values.pais_Nombre,
+        pais_prefijo: values.pais_prefijo,
+        pais_EsAduana: values.pais_EsAduana,
+        usua_UsuarioModificacion: 1,
+        pais_FechaModificacion: fechaActual
       };
 
-      console.log('Datos enviados para editar:', UnidadesDeMedidasAEditar); 
+      console.log('Datos enviados para editar:', PaisesAEditar);
 
-      const response = await axios.post(`${urlAPI}/Editar`, UnidadesDeMedidasAEditar, {
+      const response = await axios.post(`${urlAPI}/Editar`, PaisesAEditar, {
         headers: {
           'XApiKey': keyAPI,
           'EncryptionKey': keyencriptada
         }
       });
 
-      await listarUnidadesDeMedidas();
+      await listarPaises();
       resetForm();
       setCollapse(false);
       setEditar(false);
-      setEditUnidadesDeMedidasId(null); 
-      toast.success("UnidadesDeMedidas editada exitosamente!");
+      setEditPaisesId(null);
+      toast.success("Paises editado exitosamente!");
 
     } catch (error) {
-      console.error('Error al editar UnidadesDeMedidas:', error.response.data); 
-      toast.error("Error al editar la UnidadesDeMedidas.");
+      console.error('Error al editar Paises:', error.response.data); // Mostrar el error específico
+      toast.error("Error al editar el Paises.");
     }
   };
 
-  const editarUnidadesDeMedidasClick = (UnidadesDeMedidasId, descripcion, esAduana) => {
+  const editarPaisesClick = (PaisesId, nombre, prefijo, esAduana) => {
     setEditar(true);
-    setEditUnidadesDeMedidasId(UnidadesDeMedidasId);
-    setNuevaUnidadesDeMedidas({ unme_Descripcion: descripcion, unme_EsAduana: esAduana });
-    setDetalleUnidadesDeMedidas(null);
+    setEditPaisesId(PaisesId);
+    setNuevaPaises({ pais_Codigo: PaisesId, pais_Nombre: nombre, pais_prefijo: prefijo, pais_EsAduana: esAduana });
     setCollapse(true);
+    setDetallePaises(null);
   };
 
-  const eliminarUnidadesDeMedidas = async () => {
+  const eliminarPaises = async () => {
     try {
       const fechaActual = new Date().toISOString(); 
-      const UnidadesDeMedidasAEliminar = {
-        unme_Id: elimUnidadesDeMedidasId,
+      const PaisesAEliminar = {
+        pais_Codigo: elimPaisesId,
         usua_UsuarioEliminacion: 1,
-        unme_FechaEliminacion: fechaActual
+        pais_FechaEliminacion: fechaActual
       };
-      const response = await axios.post(`${urlAPI}/Eliminar`, UnidadesDeMedidasAEliminar, {
+
+      const response = await axios.post(`${urlAPI}/Eliminar`, PaisesAEliminar, {
         headers: {
           'XApiKey': keyAPI,
           'EncryptionKey': keyencriptada
         }
       });
-  
-      await listarUnidadesDeMedidas();
+
+      await listarPaises();
       setConfirmarEliminar(false);
-      toast.success("UnidadesDeMedidas eliminada exitosamente!");
+      toast.success("Paises eliminado exitosamente!");
 
     } catch (error) {
-      console.error('Error al eliminar UnidadesDeMedidas:', error.response.data); 
-      toast.error("Error al eliminar la UnidadesDeMedidas.");
+      console.error('Error al eliminar Paises:', error.response.data); // Mostrar el error específico
+      toast.error("Error al eliminar el Paises.");
     }
   };
 
-  const obtenerDetalleUnidadesDeMedidas = async (UnidadesDeMedidasId) => {
+  const obtenerDetallePaises = async (PaisesId) => {
     try {
       const response = await axios.get(`${urlAPI}/Listar`, {
         headers: {
@@ -145,24 +149,24 @@ const UnidadesDeMedidas = () => {
         }
       });
       const lista = response.data.data;
-      const objeto = lista.find((list) => list.unme_Id === UnidadesDeMedidasId);
-      setDetalleUnidadesDeMedidas(objeto);
+      const objeto = lista.find((list) => list.pais_Codigo === PaisesId);
+      setDetallePaises(objeto);
       setEditar(false);
-      setEditUnidadesDeMedidasId(null);
+      setEditPaisesId(null);
       setCollapse(true);
     } catch (error) {
-      console.error('Error al obtener detalles de la unidad de medida', error);
-      toast.error("Error al obtener los detalles de la unidad de medida.");
+      console.error('Error al obtener detalles del país', error);
+      toast.error("Error al obtener los detalles del país.");
     }
   };
 
-  const eliminarUnidadesDeMedidasClick = (UnidadesDeMedidasId) => {
-    setElimUnidadesDeMedidasId(UnidadesDeMedidasId);
+  const eliminarPaisesClick = (PaisesId) => {
+    setElimPaisesId(PaisesId);
     setConfirmarEliminar(true);
   };
 
   const cancelarEliminacion = () => {
-    setElimUnidadesDeMedidasId(null);
+    setElimPaisesId(null);
     setConfirmarEliminar(false);
   };
 
@@ -170,38 +174,38 @@ const UnidadesDeMedidas = () => {
     resetForm();
     setCollapse(false);
     setEditar(false);
-    setEditUnidadesDeMedidasId(null);
-    setNuevaUnidadesDeMedidas({ unme_Descripcion: "", unme_EsAduana: false });  
-    setDetalleUnidadesDeMedidas(null);
+    setEditPaisesId(null);
+    setNuevaPaises({ pais_Codigo: "", pais_Nombre: "", pais_prefijo: "", pais_EsAduana: false });
+    setDetallePaises(null);
   };
 
   const cancelarr = () => {
     setCollapse(false);
-    setDetalleUnidadesDeMedidas(null);
+    setDetallePaises(null);
   };
 
   useEffect(() => {
-    listarUnidadesDeMedidas();
+    listarPaises();
   }, []);
 
   const botonesacciones = row => (
     <div>
-      <Button className="mb-2 me-2 btn-shadow" color="primary" onClick={() => editarUnidadesDeMedidasClick(row.unme_Id, row.unme_Descripcion, row.unme_EsAduana)}>
+      <Button className="mb-2 me-2 btn-shadow" color="primary" onClick={() => editarPaisesClick(row.pais_Codigo, row.pais_Nombre, row.pais_prefijo, row.pais_EsAduana)}>
         Editar
       </Button>
-      <Button className="mb-2 me-2 btn-shadow" color="alternate" onClick={() => obtenerDetalleUnidadesDeMedidas(row.unme_Id)}>
+      <Button className="mb-2 me-2 btn-shadow" color="alternate" onClick={() => obtenerDetallePaises(row.pais_Codigo)}>
         Detalles
       </Button>
-      <Button className="mb-2 me-2 btn-shadow" color="danger" onClick={() => eliminarUnidadesDeMedidasClick(row.unme_Id)}>
+      <Button className="mb-2 me-2 btn-shadow" color="danger" onClick={() => eliminarPaisesClick(row.pais_Codigo)}>
         Eliminar
       </Button>
     </div>
   );
 
-  const DetallesUnidadesDeMedidas = ({ detalle }) => {
+  const DetallesPaises = ({ detalle }) => {
     if (!detalle) return null;
 
-    const { unme_Id, unme_Descripcion, unme_EsAduana, usuarioCreacionNombre, unme_FechaCreacion, usuarioModificacionNombre, unme_FechaModificacion } = detalle;
+    const { pais_Codigo, pais_Nombre, pais_prefijo, pais_EsAduana, usuarioCreacionNombre, pais_FechaCreacion, usuarioModificacionNombre, pais_FechaModificacion } = detalle;
 
     const columnsDetalle = [
       { name: 'Acción', selector: row => row.accion },
@@ -210,8 +214,8 @@ const UnidadesDeMedidas = () => {
     ];
 
     const dataDetalle = [
-      { accion: 'Creador', usuario: usuarioCreacionNombre, fecha: unme_FechaCreacion },
-      { accion: 'Modificador', usuario: usuarioModificacionNombre, fecha: unme_FechaModificacion }
+      { accion: 'Creador', usuario: usuarioCreacionNombre, fecha: pais_FechaCreacion },
+      { accion: 'Modificador', usuario: usuarioModificacionNombre, fecha: pais_FechaModificacion }
     ];
 
     return (
@@ -221,20 +225,26 @@ const UnidadesDeMedidas = () => {
           <hr />
           <Col md={4}>
             <FormGroup>
-              <Label><b>ID</b></Label>
-              <p>{unme_Id}</p>
+              <Label><b>Código</b></Label>
+              <p>{pais_Codigo}</p>
             </FormGroup>
           </Col>
           <Col md={4}>
             <FormGroup>
-              <Label><b>Descripción</b></Label>
-              <p>{unme_Descripcion}</p>
+              <Label><b>Nombre</b></Label>
+              <p>{pais_Nombre}</p>
+            </FormGroup>
+          </Col>
+          <Col md={4}>
+            <FormGroup>
+              <Label><b>Prefijo</b></Label>
+              <p>{pais_prefijo}</p>
             </FormGroup>
           </Col>
           <Col md={4}>
             <FormGroup>
               <Label><b>Es Aduana</b></Label>
-              <p>{unme_EsAduana ? "Sí" : "No"}</p>
+              <p>{pais_EsAduana ? "Sí" : "No"}</p>
             </FormGroup>
           </Col>
         </Row>
@@ -254,18 +264,23 @@ const UnidadesDeMedidas = () => {
 
   const columns = [
     {
-      name: "ID",
-      selector: row => row.unme_Id,
+      name: "Código",
+      selector: row => row.pais_Codigo,
       sortable: true,
     },
     {
-      name: "Descripción",
-      selector: row => row.unme_Descripcion,
+      name: "Nombre",
+      selector: row => row.pais_Nombre,
+      sortable: true,
+    },
+    {
+      name: "Prefijo",
+      selector: row => row.pais_prefijo,
       sortable: true,
     },
     {
       name: "Es Aduana",
-      selector: row => row.unme_EsAduana ? "Sí" : "No",
+      selector: row => row.pais_EsAduana ? "Sí" : "No",
       sortable: true,
     },
     {
@@ -279,8 +294,14 @@ const UnidadesDeMedidas = () => {
   ];
 
   const validationSchema = Yup.object().shape({
-    unme_Descripcion: Yup.string()
-      .matches(/^[a-zA-Z\s]+$/, "La descripción solo debe contener letras.")
+    pais_Codigo: Yup.string()
+      .matches(/^[a-zA-Z]{2}$/, "El código solo debe contener dos letras.")
+      .required("El campo es requerido."),
+    pais_Nombre: Yup.string()
+      .matches(/^[a-zA-Z\s]+$/, "El nombre solo debe contener letras.")
+      .required("El campo es requerido."),
+    pais_prefijo: Yup.string()
+      .matches(/^\d{4}$/, "El prefijo debe contener exactamente 4 números.")
       .required("El campo es requerido."),
   });
 
@@ -290,7 +311,7 @@ const UnidadesDeMedidas = () => {
         <CSSTransition component="div" timeout={1500} enter={false} exit={false}>
           <div>
             <PageTitle
-              heading="UnidadesDeMedidas"
+              heading="Paises"
               icon="pe-7s-network icon-gradient bg-tempting-azure"
             />
             <Row>
@@ -301,39 +322,63 @@ const UnidadesDeMedidas = () => {
                 <Collapse isOpen={collapse}>
                   <Card>
                     <CardBody>
-                      {detalleUnidadesDeMedidas ? (
-                        <DetallesUnidadesDeMedidas detalle={detalleUnidadesDeMedidas} />
+                      {detallePaises ? (
+                        <DetallesPaises detalle={detallePaises} />
                       ) : (
                         <Formik
-                          initialValues={nuevaUnidadesDeMedidas}
+                          initialValues={nuevaPaises}
                           enableReinitialize
                           validationSchema={validationSchema}
-                          onSubmit={editarr ? editarUnidadesDeMedidas : insertarUnidadesDeMedidas}
+                          onSubmit={editarr ? editarPaises : insertarPaises}
                         >
                           {({ handleSubmit, resetForm, values, setFieldValue }) => (
                             <Form onSubmit={handleSubmit}>
                               <FormGroup>
-                                <Label for="unme_Descripcion">UnidadesDeMedidas</Label>
+                                <Label for="pais_Codigo">Código</Label>
                                 <Col sm={6} style={{ padding: 0 }}>
                                   <Field
                                     type="text"
-                                    name="unme_Descripcion"
+                                    name="pais_Codigo"
                                     as={Input}
-                                    id="unme_Descripcion"
+                                    id="pais_Codigo"
                                   />
-                                  <ErrorMessage name="unme_Descripcion" component="div" style={{ color: 'red' }} />
+                                  <ErrorMessage name="pais_Codigo" component="div" style={{ color: 'red' }} />
                                 </Col>
                               </FormGroup>
                               <FormGroup>
-                                <Label for="unme_EsAduana">¿Es Aduana?</Label>
+                                <Label for="pais_Nombre">Nombre</Label>
+                                <Col sm={6} style={{ padding: 0 }}>
+                                  <Field
+                                    type="text"
+                                    name="pais_Nombre"
+                                    as={Input}
+                                    id="pais_Nombre"
+                                  />
+                                  <ErrorMessage name="pais_Nombre" component="div" style={{ color: 'red' }} />
+                                </Col>
+                              </FormGroup>
+                              <FormGroup>
+                                <Label for="pais_prefijo">Prefijo</Label>
+                                <Col sm={6} style={{ padding: 0 }}>
+                                  <Field
+                                    type="text"
+                                    name="pais_prefijo"
+                                    as={Input}
+                                    id="pais_prefijo"
+                                  />
+                                  <ErrorMessage name="pais_prefijo" component="div" style={{ color: 'red' }} />
+                                </Col>
+                              </FormGroup>
+                              <FormGroup>
+                                <Label for="pais_EsAduana">¿Es Aduana?</Label>
                                 <Col sm={6} style={{ padding: 0 }}>
                                   <Field
                                     type="checkbox"
-                                    name="unme_EsAduana"
+                                    name="pais_EsAduana"
                                     as={Input}
-                                    checked={values.unme_EsAduana}
-                                    onChange={() => setFieldValue('unme_EsAduana', !values.unme_EsAduana)}
-                                    id="unme_EsAduana"
+                                    checked={values.pais_EsAduana}
+                                    onChange={() => setFieldValue('pais_EsAduana', !values.pais_EsAduana)}
+                                    id="pais_EsAduana"
                                   />
                                 </Col>
                               </FormGroup>
@@ -371,19 +416,19 @@ const UnidadesDeMedidas = () => {
         </CSSTransition>
       </TransitionGroup>
       <SweetAlert
-        title="Eliminar UnidadesDeMedidas"
+        title="Eliminar Paises"
         show={confirmarEliminar}
         showCancel
         confirmBtnText="Eliminar"
         confirmBtnBsStyle="danger"
         cancelBtnText="Cancelar"
-        onConfirm={eliminarUnidadesDeMedidas}
+        onConfirm={eliminarPaises}
         onCancel={cancelarEliminacion}>
-        ¿Está seguro que desea eliminar la UnidadesDeMedidas?
+        ¿Está seguro que desea eliminar el Paises?
       </SweetAlert>
       <ToastContainer />
     </Fragment>
   );
 };
 
-export default UnidadesDeMedidas;
+export default Paises;

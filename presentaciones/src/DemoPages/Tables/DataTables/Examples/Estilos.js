@@ -10,23 +10,23 @@ import 'react-toastify/dist/ReactToastify.css';
 import { Formik, Field, ErrorMessage } from 'formik';
 import * as Yup from 'yup';
 
-const urlAPI = 'https://localhost:44380/api/UnidadMedidas'; 
+const urlAPI = 'https://localhost:44380/api/Estilos'; 
 const keyAPI = '4b567cb1c6b24b51ab55248f8e66e5cc';
 const keyencriptada = 'FZWv3nQTyHYyNvdx';
 
-const UnidadesDeMedidas = () => {
+const Estilos = () => {
   const [data, setData] = useState([]);
   const [collapse, setCollapse] = useState(false);
   const [editarr, setEditar] = useState(false); 
-  const [editUnidadesDeMedidasId, setEditUnidadesDeMedidasId] = useState(null); 
-  const [nuevaUnidadesDeMedidas, setNuevaUnidadesDeMedidas] = useState({ unme_Descripcion: "", unme_EsAduana: false });
-  const [elimUnidadesDeMedidasId, setElimUnidadesDeMedidasId] = useState(null);
+  const [editEstilosId, setEditEstilosId] = useState(null); 
+  const [nuevaEstilos, setNuevaEstilos] = useState("");
+  const [elimEstilosId, setElimEstilosId] = useState(null);
   const [confirmarEliminar, setConfirmarEliminar] = useState(false);
-  const [detalleUnidadesDeMedidas, setDetalleUnidadesDeMedidas] = useState(null);
+  const [detalleEstilos, setDetalleEstilos] = useState(null);
 
   const toggleCollapse = () => setCollapse(!collapse);
 
-  const listarUnidadesDeMedidas = async () => {
+  const listarEstilos = async () => {
     try {
       const response = await axios.get(`${urlAPI}/Listar`, {
         headers: {
@@ -36,107 +36,104 @@ const UnidadesDeMedidas = () => {
       });
       setData(response.data.data);
     } catch (error) {
-      console.error('Error al listar UnidadesDeMedidas', error);
+      console.error('Error al listar Estilos', error);
     }
   };
 
-  const insertarUnidadesDeMedidas = async (values, { resetForm }) => {
+  const insertarEstilos = async (values, { resetForm }) => {
     try {
       const fechaActual = new Date().toISOString(); 
-      const UnidadesDeMedidasAInsertar = {
-        unme_Descripcion: values.unme_Descripcion,
-        unme_EsAduana: values.unme_EsAduana, 
+      const EstilosAInsertar = {
+        esti_Descripcion: values.esti_Descripcion,
         usua_UsuarioCreacion: 1,
-        unme_FechaCreacion: fechaActual,
+        esti_FechaCreacion: fechaActual
       };
-
-      console.log('Datos enviados para insertar:', UnidadesDeMedidasAInsertar); 
-
-      const response = await axios.post(`${urlAPI}/Insertar`, UnidadesDeMedidasAInsertar, {
+      const response = await axios.post(`${urlAPI}/Insertar`, EstilosAInsertar, {
         headers: {
           'XApiKey': keyAPI,
           'EncryptionKey': keyencriptada
         }
       });
 
-      await listarUnidadesDeMedidas();
+      listarEstilos();
       resetForm();
       setCollapse(false);
-      toast.success("UnidadesDeMedidas insertada exitosamente!");
+      toast.success("Estilos insertada exitosamente!");
 
     } catch (error) {
-      console.error('Error al insertar UnidadesDeMedidas:', error.response.data); 
-      toast.error("Error al insertar la UnidadesDeMedidas.");
+      console.error('Error al insertar Estilos', error);
+      toast.error("Error al insertar la Estilos.");
     }
   };
 
-  const editarUnidadesDeMedidas = async (values, { resetForm }) => {
+  const editarEstilos = async (values, { resetForm }) => {
     try {
       const fechaActual = new Date().toISOString(); 
-      const UnidadesDeMedidasAEditar = {
-        unme_Id: editUnidadesDeMedidasId, 
-        unme_Descripcion: values.unme_Descripcion,
-        unme_EsAduana: values.unme_EsAduana, 
+      const EstilosAEditar = {
+        esti_Id: editEstilosId, 
+        esti_Descripcion: values.esti_Descripcion,
         usua_UsuarioModificacion: 1, 
-        unme_FechaModificacion: fechaActual,
+        esti_FechaModificacion: fechaActual
       };
-
-      console.log('Datos enviados para editar:', UnidadesDeMedidasAEditar); 
-
-      const response = await axios.post(`${urlAPI}/Editar`, UnidadesDeMedidasAEditar, {
+      const response = await axios.post(`${urlAPI}/Editar`, EstilosAEditar, {
         headers: {
           'XApiKey': keyAPI,
           'EncryptionKey': keyencriptada
         }
       });
 
-      await listarUnidadesDeMedidas();
+      listarEstilos();
       resetForm();
       setCollapse(false);
       setEditar(false);
-      setEditUnidadesDeMedidasId(null); 
-      toast.success("UnidadesDeMedidas editada exitosamente!");
+      setEditEstilosId(null); 
+      toast.success("Estilos editado exitosamente!");
 
     } catch (error) {
-      console.error('Error al editar UnidadesDeMedidas:', error.response.data); 
-      toast.error("Error al editar la UnidadesDeMedidas.");
+      console.error('Error al editar Estilos', error);
+      toast.error("Error al editar la Estilos.");
     }
   };
 
-  const editarUnidadesDeMedidasClick = (UnidadesDeMedidasId, descripcion, esAduana) => {
+  const editarEstilosClick = (EstilosId, descripcion) => {
     setEditar(true);
-    setEditUnidadesDeMedidasId(UnidadesDeMedidasId);
-    setNuevaUnidadesDeMedidas({ unme_Descripcion: descripcion, unme_EsAduana: esAduana });
-    setDetalleUnidadesDeMedidas(null);
+    setEditEstilosId(EstilosId);
+    setNuevaEstilos(descripcion);
+    setDetalleEstilos(null);
     setCollapse(true);
   };
 
-  const eliminarUnidadesDeMedidas = async () => {
+  const eliminarEstilos = async () => {
     try {
       const fechaActual = new Date().toISOString(); 
-      const UnidadesDeMedidasAEliminar = {
-        unme_Id: elimUnidadesDeMedidasId,
+      const EstilosAEliminar = {
+        esti_Id: elimEstilosId,
         usua_UsuarioEliminacion: 1,
-        unme_FechaEliminacion: fechaActual
+        esti_FechaEliminacion: fechaActual
       };
-      const response = await axios.post(`${urlAPI}/Eliminar`, UnidadesDeMedidasAEliminar, {
+      const response = await axios.post(`${urlAPI}/Eliminar`, EstilosAEliminar, {
         headers: {
           'XApiKey': keyAPI,
           'EncryptionKey': keyencriptada
         }
       });
   
-      await listarUnidadesDeMedidas();
+      listarEstilos();
       setConfirmarEliminar(false);
-      toast.success("UnidadesDeMedidas eliminada exitosamente!");
+      toast.success("Estilos eliminada exitosamente!");
 
     } catch (error) {
-      console.error('Error al eliminar UnidadesDeMedidas:', error.response.data); 
-      toast.error("Error al eliminar la UnidadesDeMedidas.");
+      console.error('Error al eliminar Estilos', error);
+      toast.error("Error al eliminar la Estilos.");
     }
   };
 
-  const obtenerDetalleUnidadesDeMedidas = async (UnidadesDeMedidasId) => {
+  const eliminarEstilosClick = (EstilosId) => {
+    setElimEstilosId(EstilosId);
+    setConfirmarEliminar(true);
+  };
+
+  const obtenerDetalleEstilos = async (EstilosId) => {
     try {
       const response = await axios.get(`${urlAPI}/Listar`, {
         headers: {
@@ -145,24 +142,19 @@ const UnidadesDeMedidas = () => {
         }
       });
       const lista = response.data.data;
-      const objeto = lista.find((list) => list.unme_Id === UnidadesDeMedidasId);
-      setDetalleUnidadesDeMedidas(objeto);
+      const objeto = lista.find((list) => list.esti_Id === EstilosId);
+      setDetalleEstilos(objeto);
       setEditar(false);
-      setEditUnidadesDeMedidasId(null);
+      setEditEstilosId(null);
       setCollapse(true);
     } catch (error) {
-      console.error('Error al obtener detalles de la unidad de medida', error);
-      toast.error("Error al obtener los detalles de la unidad de medida.");
+      console.error('Error al obtener detalles de los estilos', error);
+      toast.error("Error al obtener los detalles de los estilos.");
     }
   };
 
-  const eliminarUnidadesDeMedidasClick = (UnidadesDeMedidasId) => {
-    setElimUnidadesDeMedidasId(UnidadesDeMedidasId);
-    setConfirmarEliminar(true);
-  };
-
   const cancelarEliminacion = () => {
-    setElimUnidadesDeMedidasId(null);
+    setElimEstilosId(null);
     setConfirmarEliminar(false);
   };
 
@@ -170,38 +162,38 @@ const UnidadesDeMedidas = () => {
     resetForm();
     setCollapse(false);
     setEditar(false);
-    setEditUnidadesDeMedidasId(null);
-    setNuevaUnidadesDeMedidas({ unme_Descripcion: "", unme_EsAduana: false });  
-    setDetalleUnidadesDeMedidas(null);
+    setEditEstilosId(null);
+    setNuevaEstilos(""); 
+    setDetalleEstilos(null);
   };
 
   const cancelarr = () => {
     setCollapse(false);
-    setDetalleUnidadesDeMedidas(null);
+    setDetalleEstilos(null);
   };
 
   useEffect(() => {
-    listarUnidadesDeMedidas();
+    listarEstilos();
   }, []);
 
   const botonesacciones = row => (
     <div>
-      <Button className="mb-2 me-2 btn-shadow" color="primary" onClick={() => editarUnidadesDeMedidasClick(row.unme_Id, row.unme_Descripcion, row.unme_EsAduana)}>
+      <Button className="mb-2 me-2 btn-shadow" color="primary" onClick={() => editarEstilosClick(row.esti_Id, row.esti_Descripcion)}>
         Editar
       </Button>
-      <Button className="mb-2 me-2 btn-shadow" color="alternate" onClick={() => obtenerDetalleUnidadesDeMedidas(row.unme_Id)}>
+      <Button className="mb-2 me-2 btn-shadow" color="alternate" onClick={() => obtenerDetalleEstilos(row.esti_Id)}>
         Detalles
       </Button>
-      <Button className="mb-2 me-2 btn-shadow" color="danger" onClick={() => eliminarUnidadesDeMedidasClick(row.unme_Id)}>
+      <Button className="mb-2 me-2 btn-shadow" color="danger" onClick={() => eliminarEstilosClick(row.esti_Id)}>
         Eliminar
       </Button>
     </div>
   );
 
-  const DetallesUnidadesDeMedidas = ({ detalle }) => {
+  const DetallesEstilos = ({ detalle }) => {
     if (!detalle) return null;
 
-    const { unme_Id, unme_Descripcion, unme_EsAduana, usuarioCreacionNombre, unme_FechaCreacion, usuarioModificacionNombre, unme_FechaModificacion } = detalle;
+    const { esti_Id, esti_Descripcion, usuarioCreacionNombre, esti_FechaCreacion, usuarioModificacionNombre, esti_FechaModificacion } = detalle;
 
     const columnsDetalle = [
       { name: 'Acción', selector: row => row.accion },
@@ -210,8 +202,8 @@ const UnidadesDeMedidas = () => {
     ];
 
     const dataDetalle = [
-      { accion: 'Creador', usuario: usuarioCreacionNombre, fecha: unme_FechaCreacion },
-      { accion: 'Modificador', usuario: usuarioModificacionNombre, fecha: unme_FechaModificacion }
+      { accion: 'Creador', usuario: usuarioCreacionNombre, fecha: esti_FechaCreacion },
+      { accion: 'Modificador', usuario: usuarioModificacionNombre, fecha: esti_FechaModificacion }
     ];
 
     return (
@@ -222,19 +214,13 @@ const UnidadesDeMedidas = () => {
           <Col md={4}>
             <FormGroup>
               <Label><b>ID</b></Label>
-              <p>{unme_Id}</p>
+              <p>{esti_Id}</p>
             </FormGroup>
           </Col>
           <Col md={4}>
             <FormGroup>
               <Label><b>Descripción</b></Label>
-              <p>{unme_Descripcion}</p>
-            </FormGroup>
-          </Col>
-          <Col md={4}>
-            <FormGroup>
-              <Label><b>Es Aduana</b></Label>
-              <p>{unme_EsAduana ? "Sí" : "No"}</p>
+              <p>{esti_Descripcion}</p>
             </FormGroup>
           </Col>
         </Row>
@@ -255,17 +241,12 @@ const UnidadesDeMedidas = () => {
   const columns = [
     {
       name: "ID",
-      selector: row => row.unme_Id,
+      selector: row => row.esti_Id,
       sortable: true,
     },
     {
       name: "Descripción",
-      selector: row => row.unme_Descripcion,
-      sortable: true,
-    },
-    {
-      name: "Es Aduana",
-      selector: row => row.unme_EsAduana ? "Sí" : "No",
+      selector: row => row.esti_Descripcion,
       sortable: true,
     },
     {
@@ -279,7 +260,7 @@ const UnidadesDeMedidas = () => {
   ];
 
   const validationSchema = Yup.object().shape({
-    unme_Descripcion: Yup.string()
+    esti_Descripcion: Yup.string()
       .matches(/^[a-zA-Z\s]+$/, "La descripción solo debe contener letras.")
       .required("El campo es requerido."),
   });
@@ -290,7 +271,7 @@ const UnidadesDeMedidas = () => {
         <CSSTransition component="div" timeout={1500} enter={false} exit={false}>
           <div>
             <PageTitle
-              heading="UnidadesDeMedidas"
+              heading="Estilos"
               icon="pe-7s-network icon-gradient bg-tempting-azure"
             />
             <Row>
@@ -301,40 +282,27 @@ const UnidadesDeMedidas = () => {
                 <Collapse isOpen={collapse}>
                   <Card>
                     <CardBody>
-                      {detalleUnidadesDeMedidas ? (
-                        <DetallesUnidadesDeMedidas detalle={detalleUnidadesDeMedidas} />
+                      {detalleEstilos ? (
+                        <DetallesEstilos detalle={detalleEstilos} />
                       ) : (
                         <Formik
-                          initialValues={nuevaUnidadesDeMedidas}
+                          initialValues={{ esti_Descripcion: nuevaEstilos }}
                           enableReinitialize
                           validationSchema={validationSchema}
-                          onSubmit={editarr ? editarUnidadesDeMedidas : insertarUnidadesDeMedidas}
+                          onSubmit={editarr ? editarEstilos : insertarEstilos}
                         >
-                          {({ handleSubmit, resetForm, values, setFieldValue }) => (
+                          {({ handleSubmit, resetForm }) => (
                             <Form onSubmit={handleSubmit}>
                               <FormGroup>
-                                <Label for="unme_Descripcion">UnidadesDeMedidas</Label>
+                                <Label for="esti_Descripcion">Estilos</Label>
                                 <Col sm={6} style={{ padding: 0 }}>
                                   <Field
                                     type="text"
-                                    name="unme_Descripcion"
+                                    name="esti_Descripcion"
                                     as={Input}
-                                    id="unme_Descripcion"
+                                    id="esti_Descripcion"
                                   />
-                                  <ErrorMessage name="unme_Descripcion" component="div" style={{ color: 'red' }} />
-                                </Col>
-                              </FormGroup>
-                              <FormGroup>
-                                <Label for="unme_EsAduana">¿Es Aduana?</Label>
-                                <Col sm={6} style={{ padding: 0 }}>
-                                  <Field
-                                    type="checkbox"
-                                    name="unme_EsAduana"
-                                    as={Input}
-                                    checked={values.unme_EsAduana}
-                                    onChange={() => setFieldValue('unme_EsAduana', !values.unme_EsAduana)}
-                                    id="unme_EsAduana"
-                                  />
+                                  <ErrorMessage name="esti_Descripcion" component="div" style={{ color: 'red' }} />
                                 </Col>
                               </FormGroup>
                               <Button className="mb-2 me-2 btn-shadow" type="submit" color="primary">
@@ -371,19 +339,19 @@ const UnidadesDeMedidas = () => {
         </CSSTransition>
       </TransitionGroup>
       <SweetAlert
-        title="Eliminar UnidadesDeMedidas"
+        title="Eliminar Estilos"
         show={confirmarEliminar}
         showCancel
         confirmBtnText="Eliminar"
         confirmBtnBsStyle="danger"
         cancelBtnText="Cancelar"
-        onConfirm={eliminarUnidadesDeMedidas}
+        onConfirm={eliminarEstilos}
         onCancel={cancelarEliminacion}>
-        ¿Está seguro que desea eliminar la UnidadesDeMedidas?
+        ¿Está seguro que desea eliminar la Estilos?
       </SweetAlert>
       <ToastContainer />
     </Fragment>
   );
 };
 
-export default UnidadesDeMedidas;
+export default Estilos;

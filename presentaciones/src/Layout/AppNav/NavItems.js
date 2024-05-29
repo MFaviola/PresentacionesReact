@@ -74,5 +74,23 @@ export const ComponentsNav = [
 
   },
 
+
+
+  {
+    icon: "pe-7s-display2",
+    label: "Paises",
+    to: "#/tables/pais",
+
+  },
+
+
+
+  {
+    icon: "pe-7s-display2",
+    label: "Estilos",
+    to: "#/tables/estilos",
+
+  },
+
   
 ];
