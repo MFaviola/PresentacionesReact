@@ -1,23 +1,13 @@
-import React, { Fragment, Component } from "react";
+import React, { Fragment, useState, useEffect } from "react";
 import { CSSTransition, TransitionGroup } from 'react-transition-group';
-import {
-  Card,
-  CardBody,
-  Row,
-  Col,
-  Collapse,
-  CardHeader,
-  CardFooter,
-  Input,
-  Button,
-  ListGroup,
-  ListGroupItem,
-} from "reactstrap";
-import axios from 'axios';
-
-
-import MultiStep from "./Wizard";
+import { Row, Col, Card, CardBody, Button, Collapse, Form, FormGroup, Label, Input } from "reactstrap";
+import DataTable from 'react-data-table-component';
 import PageTitle from "../../Layout/AppMain/PageTitle";
+import axios from 'axios';
+import SweetAlert from 'react-bootstrap-sweetalert';
+import { ToastContainer, toast } from "react-toastify";
+import 'react-toastify/dist/ReactToastify.css';
+import MultiStep from "./Wizard";
 import Step1 from "./Steps/Step1";
 import Step2 from "./Steps/Step2";
 import Step3 from "./Steps/Step3";
@@ -31,120 +21,173 @@ const steps = [
   { name: "Finish Wizard", component: <Step4 /> },
 ];
 
-export default class Comerciante extends Component {
-  constructor(props) {
-    super(props);
+const urlAPI = 'https://localhost:44380/api/ComercianteIndividual'; 
+const keyAPI = '4b567cb1c6b24b51ab55248f8e66e5cc';
+const keyencriptada = 'FZWv3nQTyHYyNvdx';
 
-    this.toggle = this.toggle.bind(this);
-    this.onMouseEnter = this.onMouseEnter.bind(this);
-    this.onMouseLeave = this.onMouseLeave.bind(this);
-    this.toggleCollapse = this.toggleCollapse.bind(this);
-    this.handleCancel = this.handleCancel.bind(this);
+const Comerciante = () => {
+  const [data, setData] = useState([]);
+  const [collapse, setCollapse] = useState(false);
+  const [confirmarEliminar, setConfirmarEliminar] = useState(false);
+  const [elimComercianteId, setElimComercianteId] = useState(null);
 
-    this.state = {
-      cSelected: [],
-      dropdownOpen: false,
-      collapse: false,
-    };
+  const toggleCollapse = () => setCollapse(!collapse);
 
-    this.onCheckboxBtnClick = this.onCheckboxBtnClick.bind(this);
-  }
-
-  toggle() {
-    this.setState((prevState) => ({
-      dropdownOpen: !prevState.dropdownOpen,
-    }));
-  }
-
-  toggleCollapse() {
-    this.setState((prevState) => ({
-      collapse: !prevState.collapse,
-    }));
-  }
-  
-  // listarComerciantes() {
-  //   const urlAPI = 'https://localhost:44380/api/Estilos'; 
-  //   const keyAPI = '4b567cb1c6b24b51ab55248f8e66e5cc';
-  //   const keyencriptada = 'FZWv3nQTyHYyNvdx';
-    
-  //   try {
-  //     const response =  axios.get(`${urlAPI}/Listar`, {
-  //       headers: {
-  //         'XApiKey': keyAPI,
-  //         'EncryptionKey': keyencriptada
-  //       }
-  //     });
-  //     setData(response.data.data);
-  //   } catch (error) {
-  //     console.error('Error al listar Estilos', error);
-  //   }
-  // }
-
-  handleCancel() {
-    this.setState({ collapse: false });
-  }
-
-  onMouseEnter() {
-    this.setState({ dropdownOpen: true });
-  }
-
-  onMouseLeave() {
-    this.setState({ dropdownOpen: false });
-  }
-
-  onCheckboxBtnClick(selected) {
-    const index = this.state.cSelected.indexOf(selected);
-    if (index < 0) {
-      this.state.cSelected.push(selected);
-    } else {
-      this.state.cSelected.splice(index, 1);
+  const listarComerciantes = async () => {
+    try {
+      const response = await axios.get(`${urlAPI}/Listar`, {
+        headers: {
+          'XApiKey': keyAPI,
+          'EncryptionKey': keyencriptada
+        }
+      });
+      setData(response.data.data);
+    } catch (error) {
+      console.error('Error al listar Comerciantes', error);
+      toast.error("Error al listar los comerciantes.");
     }
-    this.setState({ cSelected: [...this.state.cSelected] });
-  }
+  };
 
-  render() {
-    return (
-      <Fragment>
-        <TransitionGroup>
-          <CSSTransition
-            component="div"
-            classNames="TabsAnimation"
-            appear={true}
-            timeout={1500}
-            enter={false}
-            exit={false}
-          >
-            <div>
-              <PageTitle
-                heading="Comerciante Individual"
-                icon="pe-7s-portfolio icon-gradient bg-sunny-morning"
-              />
-              <Row>
+  const eliminarComerciante = async () => {
+    try {
+      const fechaActual = new Date().toISOString(); 
+      const ComercianteAEliminar = {
+        comerciante_Id: elimComercianteId,
+        usua_UsuarioEliminacion: 1,
+        comerciante_FechaEliminacion: fechaActual
+      };
+      const response = await axios.post(`${urlAPI}/Eliminar`, ComercianteAEliminar, {
+        headers: {
+          'XApiKey': keyAPI,
+          'EncryptionKey': keyencriptada
+        }
+      });
+
+      listarComerciantes();
+      setConfirmarEliminar(false);
+      toast.success("Comerciante eliminado exitosamente!");
+
+    } catch (error) {
+      console.error('Error al eliminar Comerciante', error);
+      toast.error("Error al eliminar el comerciante.");
+    }
+  };
+
+  const eliminarComercianteClick = (ComercianteId) => {
+    setElimComercianteId(ComercianteId);
+    setConfirmarEliminar(true);
+  };
+
+  const cancelarEliminacion = () => {
+    setElimComercianteId(null);
+    setConfirmarEliminar(false);
+  };
+
+  useEffect(() => {
+    listarComerciantes();
+  }, []);
+
+  const botonesAcciones = row => (
+    <div>
+      <Button className="mb-2 me-2 btn-shadow" color="danger" onClick={() => eliminarComercianteClick(row.comerciante_Id)}>
+        Eliminar
+      </Button>
+    </div>
+  );
+
+  const columns = [
+    {
+      name: "RTN",
+      selector: row => row.pers_RTN,
+      sortable: true,
+    },
+    {
+      name: "Nombre",
+      selector: row => row.pers_Nombre,
+      sortable: true,
+    },
+    {
+      name: "Correo Electronico",
+      selector: row => row.coin_CorreoElectronico,
+      sortable: true,
+    },
+    {
+      name: "Telefono Celular",
+      selector: row => row.coin_TelefonoCelular,
+      sortable: true,
+    },
+    {
+      name: "Oficio",
+      selector: row => row.ofpr_Nombre,
+      sortable: true,
+    },
+    {
+      name: "Acciones",
+      cell: row => botonesAcciones(row),
+      ignoreRowClick: true,
+      allowOverflow: true,
+      button: true,
+      width: "150px", 
+    }
+  ];
+
+  return (
+    <Fragment>
+      <TransitionGroup>
+        <CSSTransition component="div" timeout={1500} enter={false} exit={false}>
+          <div>
+            <PageTitle
+              heading="Comerciante Individual"
+              icon="pe-7s-portfolio icon-gradient bg-sunny-morning"
+            />
+            <Row>
+              <Col md="12">
+                {!collapse && (
+                  <Button color="primary" onClick={toggleCollapse} className="mb-3">Nuevo</Button>
+                )}
+                <Collapse isOpen={collapse}>
+                  <Card className="main-card mb-3">
+                    <CardBody>
+                      <div className="forms-wizard-alt">
+                        <MultiStep showNavigation={true} steps={steps} onCancel={() => setCollapse(false)} />
+                      </div>
+                    </CardBody>
+                  </Card>
+                </Collapse>
+              </Col>
+              {!collapse && (
                 <Col md="12">
-                  {!this.state.collapse && (
-                    <Button
-                      color="primary"
-                      onClick={this.toggleCollapse}
-                      className="mb-3"
-                    >
-                      Nuevo
-                    </Button>
-                  )}
-                  <Collapse isOpen={this.state.collapse}>
-                    <Card className="main-card mb-3">
-                      <CardBody>
-                        <div className="forms-wizard-alt">
-                         <MultiStep showNavigation={true} steps={steps} onCancel={this.handleCancel} />
-                        </div>
-                      </CardBody>
-                    </Card>
-                  </Collapse>
+                  <Card className="main-card mb-3">
+                    <CardBody>
+                      <DataTable
+                        data={data}
+                        columns={columns}
+                        pagination
+                        fixedHeader
+                        fixedHeaderScrollHeight="400px"
+                      />
+                    </CardBody>
+                  </Card>
                 </Col>
-              </Row>
-            </div>
-          </CSSTransition>
-        </TransitionGroup>
-      </Fragment>
-    );
-  }
-}
+              )}
+            </Row>
+          </div>
+        </CSSTransition>
+      </TransitionGroup>
+      <SweetAlert
+        title="Eliminar Comerciante"
+        show={confirmarEliminar}
+        showCancel
+        confirmBtnText="Eliminar"
+        confirmBtnBsStyle="danger"
+        cancelBtnText="Cancelar"
+        onConfirm={eliminarComerciante}
+        onCancel={cancelarEliminacion}>
+        ¿Está seguro que desea eliminar el comerciante?
+      </SweetAlert>
+      <ToastContainer />
+    </Fragment>
+  );
+};
+
+export default Comerciante;
