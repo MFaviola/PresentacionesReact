@@ -3,16 +3,14 @@ import { CSSTransition, TransitionGroup } from 'react-transition-group';
 import { Row, Col, Card, CardBody, Button, Collapse, Form, FormGroup, Label, Input } from "reactstrap";
 import DataTable from 'react-data-table-component';
 import PageTitle from "../../../../Layout/AppMain/PageTitle";
-import axios from 'axios';
 import SweetAlert from 'react-bootstrap-sweetalert';
 import { ToastContainer, toast } from "react-toastify";
 import 'react-toastify/dist/ReactToastify.css';
 import { Formik, Field, ErrorMessage } from 'formik';
 import * as Yup from 'yup';
+import Servicios from '../../../../Servicios/UnidadesDeMedidaServices';
 
-const urlAPI = 'https://localhost:44380/api/UnidadMedidas'; 
-const keyAPI = '4b567cb1c6b24b51ab55248f8e66e5cc';
-const keyencriptada = 'FZWv3nQTyHYyNvdx';
+console.log(Servicios); // Verifica qué se está importando
 
 const UnidadesDeMedidas = () => {
   const [data, setData] = useState([]);
@@ -28,13 +26,10 @@ const UnidadesDeMedidas = () => {
 
   const listarUnidadesDeMedidas = async () => {
     try {
-      const response = await axios.get(`${urlAPI}/Listar`, {
-        headers: {
-          'XApiKey': keyAPI,
-          'EncryptionKey': keyencriptada
-        }
-      });
-      setData(response.data.data);
+      const response = await Servicios.listarUnidadesDeMedidas();
+      const data = Array.isArray(response.data) ? response.data : [];
+      console.log('Datos recibidos de la API:', data); // Verifica que es un array
+      setData(data);
     } catch (error) {
       console.error('Error al listar UnidadesDeMedidas', error);
     }
@@ -52,13 +47,7 @@ const UnidadesDeMedidas = () => {
 
       console.log('Datos enviados para insertar:', UnidadesDeMedidasAInsertar); 
 
-      const response = await axios.post(`${urlAPI}/Insertar`, UnidadesDeMedidasAInsertar, {
-        headers: {
-          'XApiKey': keyAPI,
-          'EncryptionKey': keyencriptada
-        }
-      });
-
+      await Servicios.insertarUnidadesDeMedidas(UnidadesDeMedidasAInsertar);
       await listarUnidadesDeMedidas();
       resetForm();
       setCollapse(false);
@@ -83,13 +72,7 @@ const UnidadesDeMedidas = () => {
 
       console.log('Datos enviados para editar:', UnidadesDeMedidasAEditar); 
 
-      const response = await axios.post(`${urlAPI}/Editar`, UnidadesDeMedidasAEditar, {
-        headers: {
-          'XApiKey': keyAPI,
-          'EncryptionKey': keyencriptada
-        }
-      });
-
+      await Servicios.editarUnidadesDeMedidas(UnidadesDeMedidasAEditar);
       await listarUnidadesDeMedidas();
       resetForm();
       setCollapse(false);
@@ -119,13 +102,8 @@ const UnidadesDeMedidas = () => {
         usua_UsuarioEliminacion: 1,
         unme_FechaEliminacion: fechaActual
       };
-      const response = await axios.post(`${urlAPI}/Eliminar`, UnidadesDeMedidasAEliminar, {
-        headers: {
-          'XApiKey': keyAPI,
-          'EncryptionKey': keyencriptada
-        }
-      });
-  
+
+      await Servicios.eliminarUnidadesDeMedidas(UnidadesDeMedidasAEliminar);
       await listarUnidadesDeMedidas();
       setConfirmarEliminar(false);
       toast.success("UnidadesDeMedidas eliminada exitosamente!");
@@ -138,13 +116,8 @@ const UnidadesDeMedidas = () => {
 
   const obtenerDetalleUnidadesDeMedidas = async (UnidadesDeMedidasId) => {
     try {
-      const response = await axios.get(`${urlAPI}/Listar`, {
-        headers: {
-          'XApiKey': keyAPI,
-          'EncryptionKey': keyencriptada
-        }
-      });
-      const lista = response.data.data;
+      const response = await Servicios.listarUnidadesDeMedidas();
+      const lista = response.data;
       const objeto = lista.find((list) => list.unme_Id === UnidadesDeMedidasId);
       setDetalleUnidadesDeMedidas(objeto);
       setEditar(false);

@@ -3,27 +3,35 @@ import { CSSTransition, TransitionGroup } from 'react-transition-group';
 import { Row, Col, Card, CardBody, Button, Collapse, Form, FormGroup, Label, Input } from "reactstrap";
 import DataTable from 'react-data-table-component';
 import PageTitle from "../../../../Layout/AppMain/PageTitle";
+import axios from 'axios';
 import SweetAlert from 'react-bootstrap-sweetalert';
 import { ToastContainer, toast } from "react-toastify";
 import 'react-toastify/dist/ReactToastify.css';
 import { Formik, Field, ErrorMessage } from 'formik';
 import * as Yup from 'yup';
-import Servicios from '../../../../Servicios/PaisesServices';
+
+const urlAPI = 'https://localhost:44380/api/Paises'; 
+const keyAPI = '4b567cb1c6b24b51ab55248f8e66e5cc';
+const keyencriptada = 'FZWv3nQTyHYyNvdx';
 
 const Paises = () => {
   const [data, setData] = useState([]);
   const [collapse, setCollapse] = useState(false);
   const [editarr, setEditar] = useState(false); 
   const [editPaisesId, setEditPaisesId] = useState(null); 
-  const [nuevaPaises, setNuevaPaises] = useState({ pais_Codigo: "", pais_Nombre: "", pais_prefijo: "+", pais_EsAduana: false });
+  const [nuevaPaises, setNuevaPaises] = useState({ pais_Codigo: "", pais_Nombre: "", pais_prefijo: "", pais_EsAduana: false });
   const [detallePaises, setDetallePaises] = useState(null);
 
   const toggleCollapse = () => setCollapse(!collapse);
 
   const listarPaises = async () => {
     try {
-      const response = await Servicios.listarPaises();
-      console.log('Datos recibidos de la API:', response.data.data); // Verifica que es un array
+      const response = await axios.get(`${urlAPI}/Listar`, {
+        headers: {
+          'XApiKey': keyAPI,
+          'EncryptionKey': keyencriptada
+        }
+      });
       setData(response.data.data);
     } catch (error) {
       console.error('Error al listar Paises', error);
@@ -44,7 +52,13 @@ const Paises = () => {
 
       console.log('Datos enviados para insertar:', PaisesAInsertar);
 
-      await Servicios.insertarPaises(PaisesAInsertar);
+      const response = await axios.post(`${urlAPI}/Insertar`, PaisesAInsertar, {
+        headers: {
+          'XApiKey': keyAPI,
+          'EncryptionKey': keyencriptada
+        }
+      });
+
       await listarPaises();
       resetForm();
       setCollapse(false);
@@ -70,7 +84,13 @@ const Paises = () => {
 
       console.log('Datos enviados para editar:', PaisesAEditar);
 
-      await Servicios.editarPaises(PaisesAEditar);
+      const response = await axios.post(`${urlAPI}/Editar`, PaisesAEditar, {
+        headers: {
+          'XApiKey': keyAPI,
+          'EncryptionKey': keyencriptada
+        }
+      });
+
       await listarPaises();
       resetForm();
       setCollapse(false);
@@ -91,10 +111,14 @@ const Paises = () => {
     setCollapse(true);
     setDetallePaises(null);
   };
-
   const obtenerDetallePaises = async (PaisesId) => {
     try {
-      const response = await Servicios.listarPaises();
+      const response = await axios.get(`${urlAPI}/Listar`, {
+        headers: {
+          'XApiKey': keyAPI,
+          'EncryptionKey': keyencriptada
+        }
+      });
       const lista = response.data.data;
       const objeto = lista.find((list) => list.pais_Codigo === PaisesId);
       setDetallePaises(objeto);
@@ -107,12 +131,13 @@ const Paises = () => {
     }
   };
 
+
   const cancelar = (resetForm) => {
     resetForm();
     setCollapse(false);
     setEditar(false);
     setEditPaisesId(null);
-    setNuevaPaises({ pais_Codigo: "", pais_Nombre: "", pais_prefijo: "+", pais_EsAduana: false });
+    setNuevaPaises({ pais_Codigo: "", pais_Nombre: "", pais_prefijo: "", pais_EsAduana: false });
     setDetallePaises(null);
   };
 
@@ -235,7 +260,7 @@ const Paises = () => {
       .matches(/^[a-zA-Z\s]+$/, "El nombre solo debe contener letras.")
       .required("El campo es requerido."),
     pais_prefijo: Yup.string()
-      .matches(/^\+\d{1,4}$/, "El prefijo debe empezar con '+' seguido de 1 a 4 números.")
+      .matches(/^\d{4}$/, "El prefijo debe contener exactamente 4 números.")
       .required("El campo es requerido."),
   });
 
@@ -302,8 +327,6 @@ const Paises = () => {
                                     name="pais_prefijo"
                                     as={Input}
                                     id="pais_prefijo"
-                                    value={values.pais_prefijo}
-                                    onChange={(e) => setFieldValue('pais_prefijo', e.target.value.startsWith('+') ? e.target.value : `+${e.target.value}`)}
                                   />
                                   <ErrorMessage name="pais_prefijo" component="div" style={{ color: 'red' }} />
                                 </FormGroup>
