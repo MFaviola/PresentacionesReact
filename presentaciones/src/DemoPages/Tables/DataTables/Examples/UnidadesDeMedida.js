@@ -10,7 +10,7 @@ import { Formik, Field, ErrorMessage } from 'formik';
 import * as Yup from 'yup';
 import Servicios from '../../../../Servicios/UnidadesDeMedidaServices';
 
-console.log(Servicios); // Verifica qué se está importando
+console.log(Servicios); 
 
 const UnidadesDeMedidas = () => {
   const [data, setData] = useState([]);

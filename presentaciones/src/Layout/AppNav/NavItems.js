@@ -104,7 +104,7 @@ export const PrincipalesNav = [
   {
     icon: "pe-7s-rocket",
     label: "Persona Juridica",
-    to: "#/principales/comerciante",
+    to: "#/principales/personajuridica",
 
   },
 ];

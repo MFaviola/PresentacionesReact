@@ -25,7 +25,7 @@ const Estilos = () => {
   const listarEstilos = async () => {
     try {
       const response = await Servicios.listarEstilos();
-      console.log('Datos recibidos de la API:', response.data.data); // Verifica que es un array
+      console.log('Datos recibidos de la API:', response.data.data); 
       setData(response.data.data);
     } catch (error) {
       console.error('Error al listar Estilos', error);

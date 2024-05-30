@@ -23,7 +23,7 @@ const Paises = () => {
   const listarPaises = async () => {
     try {
       const response = await Servicios.listarPaises();
-      console.log('Datos recibidos de la API:', response.data.data); // Verifica que es un array
+      console.log('Datos recibidos de la API:', response.data.data); 
       setData(response.data.data);
     } catch (error) {
       console.error('Error al listar Paises', error);
@@ -51,7 +51,7 @@ const Paises = () => {
       toast.success("Paises insertado exitosamente!");
 
     } catch (error) {
-      console.error('Error al insertar Paises:', error.response.data); // Mostrar el error específico
+      console.error('Error al insertar Paises:', error.response.data); 
       toast.error("Error al insertar el Paises.");
     }
   };
@@ -79,7 +79,7 @@ const Paises = () => {
       toast.success("Paises editado exitosamente!");
 
     } catch (error) {
-      console.error('Error al editar Paises:', error.response.data); // Mostrar el error específico
+      console.error('Error al editar Paises:', error.response.data); 
       toast.error("Error al editar el Paises.");
     }
   };
