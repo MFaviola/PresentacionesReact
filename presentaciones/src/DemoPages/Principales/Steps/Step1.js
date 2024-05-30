@@ -94,7 +94,7 @@ const WizardStep1 = ({ setIsStep1Valid }) => {
         ofpr_Id: values.ofpr_Id,
         pers_FormaRepresentacion: values.pers_FormaRepresentacion,
         pers_escvRepresentante: values.pers_escvRepresentante,
-        pers_OfprRepresentante: values.pers_OfprRepresentante,
+        pers_OfprRepresentante: hola,
         usua_UsuarioCreacion: 1,
         coin_FechaCreacion: fechaActual
       };
@@ -122,23 +122,27 @@ const WizardStep1 = ({ setIsStep1Valid }) => {
   };
 
   const validationSchema = Yup.object().shape({
-    pers_RTN: Yup.string().required("El RTN es requerido."),
+    pers_RTN: Yup.string()
+    .required("El RTN es requerido.")
+    .matches(/^\+\d{1,15}$/, "El RTN debe contener -."),
     pers_Nombre: Yup.string().required("El nombre es requerido."),
     ofic_Id: Yup.number().required("La oficina es requerida."),
     escv_Id: Yup.number().required("El estado civil es requerido."),
     ofpr_Id: Yup.number().required("El oficio es requerido."),
     pers_escvRepresentante: Yup.number().required("El estado civil del representante es requerido."),
-    pers_OfprRepresentante: Yup.number().required("El oficio del representante es requerido."),
   });
 
   const handleFormChange = (values) => {
     setIsStep1Valid(validationSchema.isValidSync(values));
   };
 
+  let hola = 0;
   const handleOfprRepresentanteChange = (e, setFieldValue, values) => {
+    hola= e.target.value;
+
     setFieldValue('pers_OfprRepresentante', e.target.value);
     handleFormChange(values);
-    insertarComerciante(values);
+   insertarComerciante(values);
   };
 
   return (
@@ -164,7 +168,7 @@ const WizardStep1 = ({ setIsStep1Valid }) => {
                         onChange={(e) => setFieldValue('pers_RTN', e.target.value)}
                         placeholder="Ingrese su RTN.."
                       />
-                      <ErrorMessage name="pers_RTN" component="div" className="text-danger" />
+                      <ErrorMessage name="pers_RTN" component="div" style={{ color: 'red' }} />
                     </FormGroup>
                   </Col>
                   <Col md={6}>

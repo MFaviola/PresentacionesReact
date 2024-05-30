@@ -1,6 +1,7 @@
 import React from "react";
 import { Button } from "reactstrap";
-
+import { ToastContainer, toast } from "react-toastify";
+import 'react-toastify/dist/ReactToastify.css';
 
 const getNavStates = (indx, length) => {
   let styles = [];
@@ -73,6 +74,8 @@ export default class MultiStep extends React.Component {
 
   next = () => {
     if (this.state.compState === 0 && !this.state.isStep1Valid) {
+      toast.error("Los campos son obligatorios.");
+
       return;
     }
     this.setNavState(this.state.compState + 1);
