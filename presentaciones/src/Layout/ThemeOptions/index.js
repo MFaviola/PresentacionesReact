@@ -149,6 +149,7 @@ class ThemeOptions extends Component {
         const {showing} = this.state;
 
         return (
+            //////
             <div className={"ui-theme-settings " + (showing ? 'settings-open' : '')}>
                 <Button className="btn-open-options" id="TooltipDemo" color="warning" onClick={() => this.setState({showing: !showing})}>
                     <FontAwesomeIcon icon={faCog} spin  color="#573a04" fixedWidth={false} size="2x"/>
@@ -156,7 +157,12 @@ class ThemeOptions extends Component {
                 <UncontrolledTooltip placement="left" target={'TooltipDemo'}>
                     Open Layout Configurator
                 </UncontrolledTooltip>
-                <div className="theme-settings__inner">
+
+
+
+
+
+                {/* <div className="theme-settings__inner">
                     <PerfectScrollbar>
                         <div className="theme-settings__options-wrapper">
                             <h3 className="themeoptions-heading"> Layout Options</h3>
@@ -783,7 +789,7 @@ class ThemeOptions extends Component {
                             </div>
                         </div>
                     </PerfectScrollbar>
-                </div>
+                </div> */}
             </div>
         );
     }

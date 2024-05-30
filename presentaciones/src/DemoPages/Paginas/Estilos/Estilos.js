@@ -3,12 +3,16 @@ import { CSSTransition, TransitionGroup } from 'react-transition-group';
 import { Row, Col, Card, CardBody, Button, Collapse, Form, FormGroup, Label, Input } from "reactstrap";
 import DataTable from 'react-data-table-component';
 import PageTitle from "../../../../Layout/AppMain/PageTitle";
+import axios from 'axios';
 import SweetAlert from 'react-bootstrap-sweetalert';
 import { ToastContainer, toast } from "react-toastify";
 import 'react-toastify/dist/ReactToastify.css';
 import { Formik, Field, ErrorMessage } from 'formik';
 import * as Yup from 'yup';
-import Servicios from '../../../../Servicios/EstilosServices';
+
+const urlAPI = 'https://localhost:44380/api/Estilos'; 
+const keyAPI = '4b567cb1c6b24b51ab55248f8e66e5cc';
+const keyencriptada = 'FZWv3nQTyHYyNvdx';
 
 const Estilos = () => {
   const [data, setData] = useState([]);
@@ -24,8 +28,12 @@ const Estilos = () => {
 
   const listarEstilos = async () => {
     try {
-      const response = await Servicios.listarEstilos();
-      console.log('Datos recibidos de la API:', response.data.data); 
+      const response = await axios.get(`${urlAPI}/Listar`, {
+        headers: {
+          'XApiKey': keyAPI,
+          'EncryptionKey': keyencriptada
+        }
+      });
       setData(response.data.data);
     } catch (error) {
       console.error('Error al listar Estilos', error);
@@ -40,17 +48,20 @@ const Estilos = () => {
         usua_UsuarioCreacion: 1,
         esti_FechaCreacion: fechaActual
       };
+      const response = await axios.post(`${urlAPI}/Insertar`, EstilosAInsertar, {
+        headers: {
+          'XApiKey': keyAPI,
+          'EncryptionKey': keyencriptada
+        }
+      });
 
-      console.log('Datos enviados para insertar:', EstilosAInsertar);
-
-      await Servicios.insertarEstilos(EstilosAInsertar);
-      await listarEstilos();
+      listarEstilos();
       resetForm();
       setCollapse(false);
       toast.success("Estilos insertada exitosamente!");
 
     } catch (error) {
-      console.error('Error al insertar Estilos:', error);
+      console.error('Error al insertar Estilos', error);
       toast.error("Error al insertar la Estilos.");
     }
   };
@@ -64,11 +75,14 @@ const Estilos = () => {
         usua_UsuarioModificacion: 1, 
         esti_FechaModificacion: fechaActual
       };
+      const response = await axios.post(`${urlAPI}/Editar`, EstilosAEditar, {
+        headers: {
+          'XApiKey': keyAPI,
+          'EncryptionKey': keyencriptada
+        }
+      });
 
-      console.log('Datos enviados para editar:', EstilosAEditar);
-
-      await Servicios.editarEstilos(EstilosAEditar);
-      await listarEstilos();
+      listarEstilos();
       resetForm();
       setCollapse(false);
       setEditar(false);
@@ -76,7 +90,7 @@ const Estilos = () => {
       toast.success("Estilos editado exitosamente!");
 
     } catch (error) {
-      console.error('Error al editar Estilos:', error);
+      console.error('Error al editar Estilos', error);
       toast.error("Error al editar la Estilos.");
     }
   };
@@ -97,14 +111,19 @@ const Estilos = () => {
         usua_UsuarioEliminacion: 1,
         esti_FechaEliminacion: fechaActual
       };
-
-      await Servicios.eliminarEstilos(EstilosAEliminar);
-      await listarEstilos();
+      const response = await axios.post(`${urlAPI}/Eliminar`, EstilosAEliminar, {
+        headers: {
+          'XApiKey': keyAPI,
+          'EncryptionKey': keyencriptada
+        }
+      });
+  
+      listarEstilos();
       setConfirmarEliminar(false);
       toast.success("Estilos eliminada exitosamente!");
 
     } catch (error) {
-      console.error('Error al eliminar Estilos:', error);
+      console.error('Error al eliminar Estilos', error);
       toast.error("Error al eliminar la Estilos.");
     }
   };
@@ -116,7 +135,12 @@ const Estilos = () => {
 
   const obtenerDetalleEstilos = async (EstilosId) => {
     try {
-      const response = await Servicios.listarEstilos();
+      const response = await axios.get(`${urlAPI}/Listar`, {
+        headers: {
+          'XApiKey': keyAPI,
+          'EncryptionKey': keyencriptada
+        }
+      });
       const lista = response.data.data;
       const objeto = lista.find((list) => list.esti_Id === EstilosId);
       setDetalleEstilos(objeto);
