@@ -4,7 +4,6 @@ import { Row, Col, Card, CardBody, Button, Collapse, Form, FormGroup, Label, Inp
 import DataTable from 'react-data-table-component';
 import PageTitle from "../../../../Layout/AppMain/PageTitle";
 import axios from 'axios';
-import SweetAlert from 'react-bootstrap-sweetalert';
 import { ToastContainer, toast } from "react-toastify";
 import 'react-toastify/dist/ReactToastify.css';
 import { Formik, Field, ErrorMessage } from 'formik';

@@ -30,6 +30,8 @@ const Comerciante = () => {
   const [collapse, setCollapse] = useState(false);
   const [confirmarEliminar, setConfirmarEliminar] = useState(false);
   const [elimComercianteId, setElimComercianteId] = useState(null);
+  const [elimPersId, setElimPersId] = useState(null);
+  const [detalleComerciante, setDetalleComerciante] = useState(null);
 
   const toggleCollapse = () => setCollapse(!collapse);
 
@@ -50,11 +52,9 @@ const Comerciante = () => {
 
   const eliminarComerciante = async () => {
     try {
-      const fechaActual = new Date().toISOString(); 
       const ComercianteAEliminar = {
-        comerciante_Id: elimComercianteId,
-        usua_UsuarioEliminacion: 1,
-        comerciante_FechaEliminacion: fechaActual
+        coin_Id: elimComercianteId,
+        pers_Id: elimPersId,
       };
       const response = await axios.post(`${urlAPI}/Eliminar`, ComercianteAEliminar, {
         headers: {
@@ -78,9 +78,33 @@ const Comerciante = () => {
     setConfirmarEliminar(true);
   };
 
+  const obtenerDetalleComerciante = async (ComercianteId) => {
+    try {
+      const response = await axios.get(`${urlAPI}/Listar`, {
+        headers: {
+          'XApiKey': keyAPI,
+          'EncryptionKey': keyencriptada
+        }
+      });
+      const lista = response.data.data;
+      const objeto = lista.find((list) => list.coin_Id === ComercianteId);
+      setDetalleComerciante(objeto);
+      setCollapse(true);
+    } catch (error) {
+      console.error('Error al obtener detalles del comerciante', error);
+      toast.error("Error al obtener los detalles del comerciante.");
+    }
+  };
+
   const cancelarEliminacion = () => {
     setElimComercianteId(null);
+    setElimPersId(null);
     setConfirmarEliminar(false);
+  };
+
+  const cancelarr = () => {
+    setCollapse(false);
+    setDetalleComerciante(null);
   };
 
   useEffect(() => {
@@ -89,11 +113,147 @@ const Comerciante = () => {
 
   const botonesAcciones = row => (
     <div>
-      <Button className="mb-2 me-2 btn-shadow" color="danger" onClick={() => eliminarComercianteClick(row.comerciante_Id)}>
+      <Button className="mb-2 me-2 btn-shadow" color="primary" onClick={() => obtenerDetalleComerciante(row.coin_Id)}>
+        Detalles
+      </Button>
+      <Button className="mb-2 me-2 btn-shadow" color="danger" onClick={() => eliminarComercianteClick(row.coin_Id, row.pers_Id)}>
         Eliminar
       </Button>
     </div>
   );
+
+  const DetallesComerciante = ({ detalle }) => {
+    if (!detalle) return null;
+
+    const {
+      pers_RTN,
+      pers_Nombre,
+      coin_TelefonoCelular,
+      coin_TelefonoFijo,
+      coin_CorreoElectronico,
+      alde_Nombre,
+      escv_Nombre,
+      ofic_Nombre,
+      ofpr_Nombre,
+      colo_Nombre,
+      ciud_Nombre,
+      pvin_Nombre,
+      formaRepresentacionDesc,
+      usuarioCreacionNombre,
+      usuarioModificacionNombre,
+      coin_FechaCreacion,
+      coin_FechaModificacion
+    } = detalle;
+
+    const columnsDetalle = [
+      { name: 'Acción', selector: row => row.accion },
+      { name: 'Usuario', selector: row => row.usuario },
+      { name: 'Fecha', selector: row => row.fecha },
+    ];
+
+    const dataDetalle = [
+      { accion: 'Creador', usuario: usuarioCreacionNombre, fecha: coin_FechaCreacion },
+      { accion: 'Modificador', usuario: usuarioModificacionNombre, fecha: coin_FechaModificacion }
+    ];
+
+    return (
+      <div>
+        <Row>
+          <h5><b>Detalles del Comerciante</b></h5>
+          <hr />
+          <Col md={4}>
+            <FormGroup>
+              <Label><b>RTN</b></Label>
+              <p>{pers_RTN}</p>
+            </FormGroup>
+          </Col>
+          <Col md={4}>
+            <FormGroup>
+              <Label><b>Nombre</b></Label>
+              <p>{pers_Nombre}</p>
+            </FormGroup>
+          </Col>
+          <Col md={4}>
+            <FormGroup>
+              <Label><b>Estado Civil</b></Label>
+              <p>{escv_Nombre}</p>
+            </FormGroup>
+          </Col>
+          <Col md={4}>
+            <FormGroup>
+              <Label><b>Oficina</b></Label>
+              <p>{ofic_Nombre}</p>
+            </FormGroup>
+          </Col>
+          <Col md={4}>
+            <FormGroup>
+              <Label><b>Oficio</b></Label>
+              <p>{ofpr_Nombre}</p>
+            </FormGroup>
+          </Col>
+          <Col md={4}>
+            <FormGroup>
+              <Label><b>Colonia</b></Label>
+              <p>{colo_Nombre}</p>
+            </FormGroup>
+          </Col>
+          <Col md={4}>
+            <FormGroup>
+              <Label><b>Ciudad</b></Label>
+              <p>{ciud_Nombre}</p>
+            </FormGroup>
+          </Col>
+          
+          <Col md={4}>
+            <FormGroup>
+              <Label><b>Aldea</b></Label>
+              <p>{alde_Nombre}</p>
+            </FormGroup>
+          </Col>
+          <Col md={4}>
+            <FormGroup>
+              <Label><b>Estado</b></Label>
+              <p>{pvin_Nombre}</p>
+            </FormGroup>
+          </Col>
+          <Col md={4}>
+            <FormGroup>
+              <Label><b>Forma de Representación</b></Label>
+              <p>{formaRepresentacionDesc}</p>
+            </FormGroup>
+          </Col>
+          <Col md={4}>
+            <FormGroup>
+              <Label><b>Teléfono Celular</b></Label>
+              <p>{coin_TelefonoCelular}</p>
+            </FormGroup>
+          </Col>
+          <Col md={4}>
+            <FormGroup>
+              <Label><b>Teléfono Fijo</b></Label>
+              <p>{coin_TelefonoFijo}</p>
+            </FormGroup>
+          </Col>
+          <Col md={4}>
+            <FormGroup>
+              <Label><b>Correo Electrónico</b></Label>
+              <p>{coin_CorreoElectronico}</p>
+            </FormGroup>
+          </Col>
+        </Row>
+        <DataTable
+          data={dataDetalle}
+          columns={columnsDetalle}
+          fixedHeader
+          fixedHeaderScrollHeight="200px"
+        />
+        <hr/>
+        <Button className="mb-2 me-2 btn-shadow" type="button" color="secondary" onClick={() => cancelarr()}>
+          Volver
+        </Button>
+      </div>
+    );
+  };
 
   const columns = [
     {
@@ -127,7 +287,7 @@ const Comerciante = () => {
       ignoreRowClick: true,
       allowOverflow: true,
       button: true,
-      width: "150px", 
+      width: "250px", 
     }
   ];
 
@@ -145,12 +305,19 @@ const Comerciante = () => {
                 {!collapse && (
                   <Button color="primary" onClick={toggleCollapse} className="mb-3">Nuevo</Button>
                 )}
-                <Collapse isOpen={collapse}>
+                <Collapse isOpen={collapse && !detalleComerciante}>
                   <Card className="main-card mb-3">
                     <CardBody>
                       <div className="forms-wizard-alt">
                         <MultiStep showNavigation={true} steps={steps} onCancel={() => setCollapse(false)} />
                       </div>
+                    </CardBody>
+                  </Card>
+                </Collapse>
+                <Collapse isOpen={detalleComerciante !== null}>
+                  <Card className="main-card mb-3">
+                    <CardBody>
+                      <DetallesComerciante detalle={detalleComerciante} />
                     </CardBody>
                   </Card>
                 </Collapse>
