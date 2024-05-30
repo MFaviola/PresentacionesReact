@@ -41,6 +41,7 @@ export default class MultiStep extends React.Component {
     showNextBtn: true,
     compState: 0,
     navState: getNavStates(0, this.props.steps.length),
+    isStep1Valid: false,  
   };
 
   setNavState = (next) => {
@@ -71,6 +72,9 @@ export default class MultiStep extends React.Component {
   };
 
   next = () => {
+    if (this.state.compState === 0 && !this.state.isStep1Valid) {
+      return;
+    }
     this.setNavState(this.state.compState + 1);
   };
 
@@ -99,10 +103,13 @@ export default class MultiStep extends React.Component {
   };
 
   render() {
+    const { steps } = this.props;
+    const { compState, isStep1Valid } = this.state;
+
     return (
       <div onKeyDown={this.handleKeyDown}>
         <ol className="forms-wizard">{this.renderSteps()}</ol>
-        {this.props.steps[this.state.compState].component}
+        {React.cloneElement(steps[compState].component, { setIsStep1Valid: (isValid) => this.setState({ isStep1Valid: isValid }) })}
         <div className="divider" />
         <div className="clearfix">
           <div style={this.props.showNavigation ? {} : { display: "none" }}>

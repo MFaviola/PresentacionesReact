@@ -45,36 +45,39 @@ const Comerciante = () => {
       });
       setData(response.data.data);
     } catch (error) {
-      console.error('Error al listar Comerciantes', error);
       toast.error("Error al listar los comerciantes.");
     }
   };
 
   const eliminarComerciante = async () => {
     try {
-      const ComercianteAEliminar = {
+      const params = new URLSearchParams({
         coin_Id: elimComercianteId,
         pers_Id: elimPersId,
-      };
-      const response = await axios.post(`${urlAPI}/Eliminar`, ComercianteAEliminar, {
+      });
+  
+      const response = await axios.post(`${urlAPI}/Eliminar?${params.toString()}`, null, {
         headers: {
           'XApiKey': keyAPI,
           'EncryptionKey': keyencriptada
         }
       });
-
+  
       listarComerciantes();
       setConfirmarEliminar(false);
+      console.log(response);
       toast.success("Comerciante eliminado exitosamente!");
-
+  
     } catch (error) {
       console.error('Error al eliminar Comerciante', error);
       toast.error("Error al eliminar el comerciante.");
     }
   };
+  
 
-  const eliminarComercianteClick = (ComercianteId) => {
+  const eliminarComercianteClick = (ComercianteId, PersId) => {
     setElimComercianteId(ComercianteId);
+    setElimPersId(PersId);
     setConfirmarEliminar(true);
   };
 
@@ -290,6 +293,7 @@ const Comerciante = () => {
       width: "250px", 
     }
   ];
+  const [isStep1Valid, setIsStep1Valid] = useState(false);
 
   return (
     <Fragment>
@@ -309,7 +313,8 @@ const Comerciante = () => {
                   <Card className="main-card mb-3">
                     <CardBody>
                       <div className="forms-wizard-alt">
-                        <MultiStep showNavigation={true} steps={steps} onCancel={() => setCollapse(false)} />
+                        <MultiStep showNavigation={true} isStep1Valid={isStep1Valid}
+      setIsStep1Valid={setIsStep1Valid} steps={steps} onCancel={() => setCollapse(false)} />
                       </div>
                     </CardBody>
                   </Card>
