@@ -123,14 +123,18 @@ const WizardStep1 = ({ setIsStep1Valid }) => {
 
   const validationSchema = Yup.object().shape({
     pers_RTN: Yup.string()
-    .required("El RTN es requerido.")
-    .matches(/^\+\d{1,15}$/, "El RTN debe contener -."),
-    pers_Nombre: Yup.string().required("El nombre es requerido."),
+      .required("El RTN es requerido.")
+      .matches(/^\d{4}-\d{4}-\d{6}$/, "El RTN debe tener el formato 1234-5678-90123 y solo contener números y guiones."),
+    pers_Nombre: Yup.string()
+      .required("El nombre es requerido.")
+      .matches(/^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$/, "El nombre solo debe contener letras y acentos."),
     ofic_Id: Yup.number().required("La oficina es requerida."),
     escv_Id: Yup.number().required("El estado civil es requerido."),
     ofpr_Id: Yup.number().required("El oficio es requerido."),
     pers_escvRepresentante: Yup.number().required("El estado civil del representante es requerido."),
+    pers_OfprRepresentante: Yup.number().required("El oficio del representante es requerido."),
   });
+  
 
   const handleFormChange = (values) => {
     setIsStep1Valid(validationSchema.isValidSync(values));
@@ -152,10 +156,9 @@ const WizardStep1 = ({ setIsStep1Valid }) => {
           <Formik
             initialValues={nueva}
             validationSchema={validationSchema}
-            onSubmit={(values) => insertarComerciante(values)}
           >
             {({ handleSubmit, values, setFieldValue }) => (
-              <form onSubmit={handleSubmit} onChange={() => handleFormChange(values)}>
+              <form onBlur={handleSubmit} onChange={() => handleFormChange(values)}>
               <Row>
                   <Col md={6}>
                     <FormGroup>
