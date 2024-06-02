@@ -4,7 +4,7 @@ import { Route } from "react-router-dom";
 // Principales
 
 import Comerciante from "./Comerciante";
-import PersonaJuridica from "./Persona Juridica";
+import PersonaJuridica from "./Personas Juridicas/Persona Juridica";
 
 
 
