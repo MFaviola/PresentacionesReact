@@ -42,7 +42,10 @@ export default class MultiStep extends React.Component {
     showNextBtn: true,
     compState: 0,
     navState: getNavStates(0, this.props.steps.length),
-    isStep1Valid: false,  
+    isStep1Valid: false,
+    isStep2Valid: false,
+    isStep3Valid: false,
+    isStep5Valid: false,
   };
 
   setNavState = (next) => {
@@ -74,10 +77,23 @@ export default class MultiStep extends React.Component {
 
   next = () => {
     if (this.state.compState === 0 && !this.state.isStep1Valid) {
-      toast.error("Los campos son obligatorios.");
-
+      toast.error("Los campos del paso 1 son obligatorios.");
       return;
     }
+    if (this.state.compState === 1 && !this.state.isStep2Valid) {
+      toast.error("Los campos del paso 2 son obligatorios.");
+      return;
+    }
+    if (this.state.compState === 2 && !this.state.isStep3Valid) {
+      toast.error("Los campos del paso 3 son obligatorios.");
+      return;
+    }
+    if (this.state.compState === 3 && !this.state.isStep5Valid) {
+      toast.error("Los campos del paso 4 son obligatorios.");
+      return;
+    }
+    toast.success("Validación exitosa!");
+
     this.setNavState(this.state.compState + 1);
   };
 
@@ -107,12 +123,17 @@ export default class MultiStep extends React.Component {
 
   render() {
     const { steps } = this.props;
-    const { compState, isStep1Valid } = this.state;
+    const { compState, isStep1Valid, isStep2Valid, isStep3Valid, isStep5Valid } = this.state;
 
     return (
       <div onKeyDown={this.handleKeyDown}>
         <ol className="forms-wizard">{this.renderSteps()}</ol>
-        {React.cloneElement(steps[compState].component, { setIsStep1Valid: (isValid) => this.setState({ isStep1Valid: isValid }) })}
+        {React.cloneElement(steps[compState].component, { 
+          setIsStep1Valid: (isValid) => this.setState({ isStep1Valid: isValid }),
+          setIsStep2Valid: (isValid) => this.setState({ isStep2Valid: isValid }),
+          setIsStep3Valid: (isValid) => this.setState({ isStep3Valid: isValid }),
+          setIsStep5Valid: (isValid) => this.setState({ isStep5Valid: isValid })
+        })}
         <div className="divider" />
         <div className="clearfix">
           <div style={this.props.showNavigation ? {} : { display: "none" }}>

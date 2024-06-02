@@ -98,7 +98,6 @@ const WizardStep1 = ({ setIsStep1Valid }) => {
         usua_UsuarioCreacion: 1,
         coin_FechaCreacion: fechaActual
       };
-      console.log(ComercianteAInsertar);
 
       const response = await axios.post(`${urlAPI}/Insertar`, ComercianteAInsertar, {
         headers: {
@@ -106,9 +105,7 @@ const WizardStep1 = ({ setIsStep1Valid }) => {
           'EncryptionKey': keyencriptada
         }
       });
-      console.log(response);
 
-      toast.success("Insertado exitosamente!");
       setIsStep1Valid(true);
 
     } catch (error) {

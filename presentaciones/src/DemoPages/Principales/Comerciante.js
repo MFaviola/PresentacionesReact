@@ -12,12 +12,13 @@ import Step1 from "./Steps/Step1";
 import Step2 from "./Steps/Step2";
 import Step3 from "./Steps/Step3";
 import Step4 from "./Steps/Step4";
+import Step5 from "./Steps/Step5";
 
 const steps = [
   { name: "Datos Personales", component: <Step1 /> },
   { name: "Direccion", component: <Step2 /> },
   { name: "Direccion 2", component: <Step3 /> },
-  { name: "A saber", component: <Step3 /> },
+  { name: "A saber", component: <Step5 /> },
   { name: "Finish Wizard", component: <Step4 /> },
 ];
 
