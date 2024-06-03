@@ -38,12 +38,12 @@ const Tap4 = ({ initialValues, pejuId, onNext, childFormikSubmit }) => {
       console.log('Insert response:', response.data);
       setSubmitting(false);
       toast.success("Datos insertados correctamente");
-      onNext(); // Move to the next step
+      onNext(); 
     } catch (error) {
       console.error('Error inserting data', error);
       toast.error("Error al insertar datos.");
       setSubmitting(false);
-      throw error; // Ensure error is caught by the caller
+      throw error; 
     }
   };
 
@@ -100,7 +100,7 @@ const Tap4 = ({ initialValues, pejuId, onNext, childFormikSubmit }) => {
                 </FormGroup>
               </Col>
             </Row>
-            <Button type="submit" color="primary">Guardar</Button>
+            {/* <Button type="submit" color="primary">Guardar</Button> */}
             <ToastContainer />
           </Form>
         );

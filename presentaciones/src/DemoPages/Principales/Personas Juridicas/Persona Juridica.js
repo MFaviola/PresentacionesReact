@@ -11,6 +11,8 @@ import Tap1 from './Tap 1';
 import Tap2 from './Tap 2';
 import Tap3 from './Tap 3';
 import Tap4 from './Tap 4';
+import Tap5 from './Tap 5'; 
+
 import TapFinal from './Tap Final';
 
 import personaJuridicaAPI from './PersonaJuridicaAPI';
@@ -19,7 +21,7 @@ const PersonaJuridica = () => {
   const [data, setData] = useState([]);
   const [collapse, setCollapse] = useState(false);
   const [confirmarEliminar, setConfirmarEliminar] = useState(false);
-  const [elimPersonaJuridicaId, setElimPersonaJuridicaId] = useState(null);
+  const [elimPersonaJuridica, setElimPersonaJuridica] = useState({ peju_Id: null, pers_Id: null });
   const [detallePersonaJuridica, setDetallePersonaJuridica] = useState(null);
   const [pejuId, setPejuId] = useState(null);
 
@@ -32,6 +34,7 @@ const PersonaJuridica = () => {
       const response = await personaJuridicaAPI.listarPersonaJuridicas();
       const filteredData = response.data.data.map(item => ({
         peju_Id: item.peju_Id,
+        pers_Id: item.pers_Id,  
         pers_RTN: item.pers_RTN,
         pers_Nombre: item.pers_Nombre,
         ofic_Nombre: item.ofic_Nombre,
@@ -67,13 +70,7 @@ const PersonaJuridica = () => {
 
   const eliminarPersonaJuridica = async () => {
     try {
-      const fechaActual = new Date().toISOString();
-      const PersonaJuridicaAEliminar = {
-        PersonaJuridica_Id: elimPersonaJuridicaId,
-        usua_UsuarioEliminacion: 1,
-        PersonaJuridica_FechaEliminacion: fechaActual
-      };
-      await personaJuridicaAPI.eliminarPersonaJuridica(PersonaJuridicaAEliminar);
+      await personaJuridicaAPI.eliminarPersonaJuridica(elimPersonaJuridica.peju_Id, elimPersonaJuridica.pers_Id);
 
       listarPersonaJuridicas();
       setConfirmarEliminar(false);
@@ -85,13 +82,13 @@ const PersonaJuridica = () => {
     }
   };
 
-  const eliminarPersonaJuridicaClick = (PersonaJuridicaId) => {
-    setElimPersonaJuridicaId(PersonaJuridicaId);
+  const eliminarPersonaJuridicaClick = (peju_Id, pers_Id) => {
+    setElimPersonaJuridica({ peju_Id, pers_Id });
     setConfirmarEliminar(true);
   };
 
   const cancelarEliminacion = () => {
-    setElimPersonaJuridicaId(null);
+    setElimPersonaJuridica({ peju_Id: null, pers_Id: null });
     setConfirmarEliminar(false);
   };
 
@@ -111,7 +108,7 @@ const PersonaJuridica = () => {
       <Button className="mb-2 me-2 btn-shadow" color="secondary">
         Editar
       </Button>
-      <Button className="mb-2 me-2 btn-shadow" color="danger" onClick={() => eliminarPersonaJuridicaClick(row.peju_Id)}>
+      <Button className="mb-2 me-2 btn-shadow" color="danger" onClick={() => eliminarPersonaJuridicaClick(row.peju_Id, row.pers_Id)}>
         Eliminar
       </Button>
     </div>
@@ -407,7 +404,9 @@ const PersonaJuridica = () => {
     { name: "Dirección 1", component: <Tap2 initialValues={{ ciud_Id: '', alde_Id: '', colo_Id: '', peju_NumeroLocalApart: '', peju_PuntoReferencia: '' }} pejuId={pejuId} childFormikSubmit={React.createRef()} onNext={() => MultiStep.next()} /> },
     { name: "Dirección 2", component: <Tap3 initialValues={{ peju_CiudadIdRepresentante: '', peju_AldeaIdRepresentante: '', peju_ColoniaRepresentante: '', peju_NumeroLocalRepresentante: '', peju_PuntoReferenciaRepresentante: '' }} pejuId={pejuId} childFormikSubmit={React.createRef()} onNext={() => MultiStep.next()} /> },
     { name: "Contacto", component: <Tap4 initialValues={{ peju_TelefonoEmpresa: '', peju_TelefonoFijoRepresentanteLegal: '', peju_TelefonoRepresentanteLegal: '', peju_CorreoElectronico: '', peju_CorreoElectronicoAlternativo: '' }} pejuId={pejuId} onNext={() => this.next()} /> },
-  { name: "Finalización", component: <TapFinal /> },
+    { name: "Subir Documentación", component: <Tap5 pejuId={pejuId} /> }, 
+
+    { name: "Finalización", component: <TapFinal /> },
   ];
 
   return (
