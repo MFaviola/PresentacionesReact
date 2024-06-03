@@ -22,8 +22,8 @@ const WizardStep3 = ({ setIsStep3Valid }) => {
     coin_CiudadRepresentante: "",
     coin_AldeaRepresentante: "",
     coin_coloniaIdRepresentante: "",
-    coin_NumeroLocalDepartRepresentante: "",
-    coin_PuntoReferencia: "",
+    coin_NumeroLocaDepartRepresentante: "",
+    coin_PuntoReferenciaReprentante: "",
   });
 
   useEffect(() => {
@@ -105,7 +105,7 @@ const WizardStep3 = ({ setIsStep3Valid }) => {
         coin_CiudadRepresentante: values.coin_CiudadRepresentante,
         coin_AldeaRepresentante: values.coin_AldeaRepresentante,
         coin_coloniaIdRepresentante: values.coin_coloniaIdRepresentante,
-        coin_NumeroLocalDepartRepresentante: values.coin_NumeroLocalDepartRepresentante,
+        coin_NumeroLocaDepartRepresentante: values.coin_NumeroLocaDepartRepresentante,
         coin_PuntoReferenciaReprentante: hola,
         usua_UsuarioModificacion: 1,
         coin_FechaModificacion: fechaActual,
@@ -119,7 +119,8 @@ const WizardStep3 = ({ setIsStep3Valid }) => {
         }
       });
 
-      setIsStep3Valid(true);
+      if(ComercianteAInsertar != null)
+        setIsStep3Valid(true);
 
     } catch (error) {
       if (error.response && error.response.data) {
@@ -229,7 +230,7 @@ const WizardStep3 = ({ setIsStep3Valid }) => {
                         onChange={(e) => setFieldValue('coin_NumeroLocaDepartRepresentante', e.target.value)}
                         placeholder="Ingrese el numero local del representante.."
                       />
-                      <ErrorMessage name="coin_NumeroLocaDepartRepresentante" component="div" style={{ color: 'red' }} />
+                      <ErrorMessage name="coin_NumeroLocaDepartRepresentante" component="div" className="text-danger" />
                     </FormGroup>
                   </Col>
                 </Row>

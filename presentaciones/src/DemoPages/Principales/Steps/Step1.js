@@ -106,8 +106,9 @@ const WizardStep1 = ({ setIsStep1Valid }) => {
         }
       });
 
-      setIsStep1Valid(true);
-
+      if(ComercianteAInsertar != null)
+        setIsStep1Valid(true);
+      
     } catch (error) {
       if (error.response && error.response.data) {
         console.log("Error al insertar: " + error.response.data);

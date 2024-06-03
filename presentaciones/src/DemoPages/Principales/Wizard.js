@@ -37,7 +37,7 @@ const checkNavState = (currentStep, stepsLength) => {
 };
 
 export default class MultiStep extends React.Component {
-  state = {
+  initialState = {
     showPreviousBtn: false,
     showNextBtn: true,
     compState: 0,
@@ -47,6 +47,8 @@ export default class MultiStep extends React.Component {
     isStep3Valid: false,
     isStep5Valid: false,
   };
+
+  state = { ...this.initialState };
 
   setNavState = (next) => {
     this.setState({
@@ -92,7 +94,6 @@ export default class MultiStep extends React.Component {
       toast.error("Los campos del paso 4 son obligatorios.");
       return;
     }
-    toast.success("Validación exitosa!");
 
     this.setNavState(this.state.compState + 1);
   };
@@ -121,6 +122,13 @@ export default class MultiStep extends React.Component {
     ));
   };
 
+  handleFinish = () => {
+    if (this.props.onCancel) {
+      this.props.onCancel();
+    }
+    this.setState({ ...this.initialState });
+  };
+
   render() {
     const { steps } = this.props;
     const { compState, isStep1Valid, isStep2Valid, isStep3Valid, isStep5Valid } = this.state;
@@ -132,7 +140,8 @@ export default class MultiStep extends React.Component {
           setIsStep1Valid: (isValid) => this.setState({ isStep1Valid: isValid }),
           setIsStep2Valid: (isValid) => this.setState({ isStep2Valid: isValid }),
           setIsStep3Valid: (isValid) => this.setState({ isStep3Valid: isValid }),
-          setIsStep5Valid: (isValid) => this.setState({ isStep5Valid: isValid })
+          setIsStep5Valid: (isValid) => this.setState({ isStep5Valid: isValid }),
+          onFinish: this.handleFinish 
         })}
         <div className="divider" />
         <div className="clearfix">
@@ -147,7 +156,7 @@ export default class MultiStep extends React.Component {
               Siguiente
             </Button>
             <Button color="light" className="mb-2 me-2 btn-shadow btn-wide float-end btn-pill btn-hover-shine"
-              onClick={this.props.onCancel}>
+              onClick={this.handleFinish}>
               Cancelar
             </Button>
           </div>

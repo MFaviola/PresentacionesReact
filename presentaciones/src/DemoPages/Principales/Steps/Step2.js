@@ -95,7 +95,7 @@ const WizardStep2 = ({ setIsStep2Valid }) => {
       const listaentera = response.data.data;
       const ultimoObjeto = listaentera[listaentera.length - 1];
       console.log(ultimoObjeto);
-setUltimoCoinId(ultimoObjeto.coin_Id); 
+      setUltimoCoinId(ultimoObjeto.coin_Id); 
  };
 
   const insertarComerciante = async (values) => {
@@ -120,8 +120,9 @@ setUltimoCoinId(ultimoObjeto.coin_Id);
         }
       });
 
-      setIsStep2Valid(true);
-
+      if(ComercianteAInsertar != null)
+        setIsStep2Valid(true);
+      
     } catch (error) {
       if (error.response && error.response.data) {
         console.log("Error al insertar: " + error.response.data);

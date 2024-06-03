@@ -14,13 +14,7 @@ import Step3 from "./Steps/Step3";
 import Step4 from "./Steps/Step4";
 import Step5 from "./Steps/Step5";
 
-const steps = [
-  { name: "Datos Personales", component: <Step1 /> },
-  { name: "Direccion", component: <Step2 /> },
-  { name: "Direccion 2", component: <Step3 /> },
-  { name: "A saber", component: <Step5 /> },
-  { name: "Finish Wizard", component: <Step4 /> },
-];
+
 
 const urlAPI = 'https://localhost:44380/api/ComercianteIndividual'; 
 const keyAPI = '4b567cb1c6b24b51ab55248f8e66e5cc';
@@ -33,9 +27,16 @@ const Comerciante = () => {
   const [elimComercianteId, setElimComercianteId] = useState(null);
   const [elimPersId, setElimPersId] = useState(null);
   const [detalleComerciante, setDetalleComerciante] = useState(null);
+  const [editarComercianteId, setEditarComercianteId] = useState(null); 
 
   const toggleCollapse = () => setCollapse(!collapse);
-
+  const steps = [
+    { name: "Datos Personales", component: <Step1 coinIdToEdit={editarComercianteId}/> },
+    { name: "Direccion", component: <Step2 /> },
+    { name: "Direccion 2", component: <Step3 /> },
+    { name: "A saber", component: <Step5 coinIdToEdit={editarComercianteId}/> },
+    { name: "Finish Wizard", component: <Step4 /> },
+  ];
   const listarComerciantes = async () => {
     try {
       const response = await axios.get(`${urlAPI}/Listar`, {
@@ -109,6 +110,7 @@ const Comerciante = () => {
   const cancelarr = () => {
     setCollapse(false);
     setDetalleComerciante(null);
+    setEditarComercianteId(null); 
   };
 
   useEffect(() => {
@@ -117,7 +119,10 @@ const Comerciante = () => {
 
   const botonesAcciones = row => (
     <div>
-      <Button className="mb-2 me-2 btn-shadow" color="primary" onClick={() => obtenerDetalleComerciante(row.coin_Id)}>
+      <Button className="mb-2 me-2 btn-shadow" color="primary" onClick={() => editar(row.coin_Id)}>
+        Editar
+      </Button>
+      <Button className="mb-2 me-2 btn-shadow" color="alternate" onClick={() => obtenerDetalleComerciante(row.coin_Id)}>
         Detalles
       </Button>
       <Button className="mb-2 me-2 btn-shadow" color="danger" onClick={() => eliminarComercianteClick(row.coin_Id, row.pers_Id)}>
@@ -125,6 +130,11 @@ const Comerciante = () => {
       </Button>
     </div>
   );
+
+  const editar = (coinid) => {
+    setEditarComercianteId(coinid);
+    setCollapse(true);
+  };
 
   const DetallesComerciante = ({ detalle }) => {
     if (!detalle) return null;
