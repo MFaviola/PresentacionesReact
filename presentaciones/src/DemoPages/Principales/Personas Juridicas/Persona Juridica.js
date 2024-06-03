@@ -11,6 +11,8 @@ import Tap1 from './Tap 1';
 import Tap2 from './Tap 2';
 import Tap3 from './Tap 3';
 import Tap4 from './Tap 4';
+import TapFinal from './Tap Final';
+
 import personaJuridicaAPI from './PersonaJuridicaAPI';
 
 const PersonaJuridica = () => {
@@ -19,6 +21,7 @@ const PersonaJuridica = () => {
   const [confirmarEliminar, setConfirmarEliminar] = useState(false);
   const [elimPersonaJuridicaId, setElimPersonaJuridicaId] = useState(null);
   const [detallePersonaJuridica, setDetallePersonaJuridica] = useState(null);
+  const [pejuId, setPejuId] = useState(null);
 
   useEffect(() => {
     listarPersonaJuridicas();
@@ -105,7 +108,7 @@ const PersonaJuridica = () => {
       <Button className="mb-2 me-2 btn-shadow" color="primary" onClick={() => obtenerDetallePersonaJuridica(row.peju_Id)}>
         Detalles
       </Button>
-      <Button className="mb-2 me-2 btn-shadow" color="secondary" >
+      <Button className="mb-2 me-2 btn-shadow" color="secondary">
         Editar
       </Button>
       <Button className="mb-2 me-2 btn-shadow" color="danger" onClick={() => eliminarPersonaJuridicaClick(row.peju_Id)}>
@@ -399,29 +402,12 @@ const PersonaJuridica = () => {
     }
   ];
 
-  const insertarPersonaJuridica = async (values, { setSubmitting }) => {
-    const fechaActual = new Date().toISOString();
-    const valuesWithExtras = {
-      ...values,
-      usua_UsuarioCreacion: 1,
-      peju_FechaCreacion: fechaActual
-    };
-    try {
-      const response = await personaJuridicaAPI.insertarPersonaJuridica(valuesWithExtras);
-      toast.success("Datos personales insertados exitosamente!");
-      setSubmitting(false);
-    } catch (error) {
-      console.error('Error al insertar datos personales', error);
-      toast.error("Error al insertar datos personales.");
-      setSubmitting(false);
-    }
-  };
-
   const steps = [
-    { name: "Datos Personales", component: <Tap1 initialValues={{ pers_RTN: '', pers_Nombre: '', ofic_Id: '', escv_Id: '', ofpr_Id: '' }} onNext={() => MultiStep.next()} onSubmit={insertarPersonaJuridica} /> },
-    { name: "Dirección 1", component: <Tap2 initialValues={{ ciud_Id: '', alde_Id: '', colo_Id: '', peju_NumeroLocalApart: '', peju_PuntoReferencia: '' }} /> },
-    { name: "Dirección 2", component: <Tap3 initialValues={{ peju_CiudadIdRepresentante: '', peju_AldeaIdRepresentante: '', peju_ColoniaRepresentante: '', peju_NumeroLocalRepresentante: '', peju_PuntoReferenciaRepresentante: '' }} /> },
-    { name: "Contacto", component: <Tap4 initialValues={{ peju_TelefonoEmpresa: '', peju_TelefonoFijoRepresentanteLegal: '', peju_TelefonoRepresentanteLegal: '', peju_CorreoElectronico: '', peju_CorreoElectronicoAlternativo: '' }} /> },
+    { name: "Datos Personales", component: <Tap1 initialValues={{ pers_RTN: '', pers_Nombre: '', ofic_Id: '', escv_Id: '', ofpr_Id: '' }} onNext={() => MultiStep.next()} setPersonaJuridicaId={setPejuId} childFormikSubmit={React.createRef()} /> },
+    { name: "Dirección 1", component: <Tap2 initialValues={{ ciud_Id: '', alde_Id: '', colo_Id: '', peju_NumeroLocalApart: '', peju_PuntoReferencia: '' }} pejuId={pejuId} childFormikSubmit={React.createRef()} onNext={() => MultiStep.next()} /> },
+    { name: "Dirección 2", component: <Tap3 initialValues={{ peju_CiudadIdRepresentante: '', peju_AldeaIdRepresentante: '', peju_ColoniaRepresentante: '', peju_NumeroLocalRepresentante: '', peju_PuntoReferenciaRepresentante: '' }} pejuId={pejuId} childFormikSubmit={React.createRef()} onNext={() => MultiStep.next()} /> },
+    { name: "Contacto", component: <Tap4 initialValues={{ peju_TelefonoEmpresa: '', peju_TelefonoFijoRepresentanteLegal: '', peju_TelefonoRepresentanteLegal: '', peju_CorreoElectronico: '', peju_CorreoElectronicoAlternativo: '' }} pejuId={pejuId} onNext={() => this.next()} /> },
+  { name: "Finalización", component: <TapFinal /> },
   ];
 
   return (

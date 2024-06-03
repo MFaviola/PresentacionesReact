@@ -40,7 +40,6 @@ export default class MultiStep extends Component {
   constructor(props) {
     super(props);
     this.childFormikSubmit = React.createRef();
-
     this.state = {
       showPreviousBtn: false,
       showNextBtn: true,
@@ -136,7 +135,6 @@ export default class MultiStep extends Component {
             </Button>
           </div>
         </div>
-        <ToastContainer />
       </div>
     );
   }

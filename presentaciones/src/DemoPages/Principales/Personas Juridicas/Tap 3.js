@@ -1,31 +1,35 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Formik, Field, ErrorMessage } from 'formik';
 import * as Yup from 'yup';
-import { Form, FormGroup, Label, Input, Col, Row } from 'reactstrap';
-import Select from 'react-select';
+import { Form, FormGroup, Label, Col, Row, Input } from 'reactstrap';
 import axios from 'axios';
+import Select from 'react-select';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
 const validationSchemaStep3 = Yup.object().shape({
-  peju_CiudadIdRepresentante: Yup.number().required('ID de Ciudad Representante es requerido'),
+  peju_CiudadIdRepresentante: Yup.number().required('ID de Ciudad del Representante es requerido'),
   peju_AldeaIdRepresentante: Yup.number().nullable(),
-  peju_ColoniaRepresentante: Yup.number().required('ID de Colonia Representante es requerido'),
-  peju_NumeroLocalRepresentante: Yup.string().required('Número Local Representante es requerido'),
-  peju_PuntoReferenciaRepresentante: Yup.string().required('Punto de Referencia Representante es requerido'),
+  peju_ColoniaRepresentante: Yup.number().required('ID de Colonia del Representante es requerido'),
+  peju_NumeroLocalRepresentante: Yup.string().required('Número Local del Representante es requerido'),
+  peju_PuntoReferenciaRepresentante: Yup.string().required('Punto de Referencia del Representante es requerido'),
 });
 
-const Tap3 = ({ initialValues, childFormikSubmit, onSubmit }) => {
-  const [repCitiesOptions, setRepCitiesOptions] = useState([]);
-  const [repVillagesOptions, setRepVillagesOptions] = useState([]);
-  const [repColoniesOptions, setRepColoniesOptions] = useState([]);
+const Tap3 = ({ pejuId, childFormikSubmit, onNext }) => {
+  const [aldeasOptions, setAldeasOptions] = useState([]);
+  const [coloniasOptions, setColoniasOptions] = useState([]);
+  const [ciudadesOptions, setCiudadesOptions] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
 
   const urlAPI = 'https://localhost:44380/api';
   const keyAPI = '4b567cb1c6b24b51ab55248f8e66e5cc';
   const keyencriptada = 'FZWv3nQTyHYyNvdx';
 
-  const buscarRepCities = async (inputValue) => {
+  useEffect(() => {
+    // Aquí puedes inicializar los valores si es necesario
+  }, []);
+
+  const buscarCiudades = async (inputValue) => {
     if (!inputValue || inputValue.trim() === '') return;
     setIsLoading(true);
     try {
@@ -40,7 +44,7 @@ const Tap3 = ({ initialValues, childFormikSubmit, onSubmit }) => {
           value: ciudad.ciud_Id,
           label: ciudad.ciud_Nombre
         }));
-        setRepCitiesOptions(options);
+        setCiudadesOptions(options);
       } else {
         console.error('La respuesta del API no contiene el formato esperado');
       }
@@ -51,7 +55,7 @@ const Tap3 = ({ initialValues, childFormikSubmit, onSubmit }) => {
     }
   };
 
-  const buscarRepVillages = async (ciud_Id, inputValue) => {
+  const buscarAldeas = async (ciud_Id, inputValue) => {
     if (!ciud_Id || !inputValue || inputValue.trim() === '') return;
     setIsLoading(true);
     try {
@@ -66,7 +70,7 @@ const Tap3 = ({ initialValues, childFormikSubmit, onSubmit }) => {
           value: aldea.alde_Id,
           label: aldea.alde_Nombre
         }));
-        setRepVillagesOptions(options);
+        setAldeasOptions(options);
       } else {
         console.error('La respuesta del API no contiene el formato esperado');
       }
@@ -77,7 +81,7 @@ const Tap3 = ({ initialValues, childFormikSubmit, onSubmit }) => {
     }
   };
 
-  const buscarRepColonies = async (ciud_Id, inputValue) => {
+  const buscarColonias = async (ciud_Id, inputValue) => {
     if (!ciud_Id || !inputValue || inputValue.trim() === '') return;
     setIsLoading(true);
     try {
@@ -92,7 +96,7 @@ const Tap3 = ({ initialValues, childFormikSubmit, onSubmit }) => {
           value: colonia.colo_Id,
           label: colonia.colo_Nombre
         }));
-        setRepColoniesOptions(options);
+        setColoniasOptions(options);
       } else {
         console.error('La respuesta del API no contiene el formato esperado');
       }
@@ -103,28 +107,36 @@ const Tap3 = ({ initialValues, childFormikSubmit, onSubmit }) => {
     }
   };
 
-  const handleRepCityChange = (selectedOption, setFieldValue) => {
-    const peju_CiudadIdRepresentante = selectedOption ? selectedOption.value : '';
-    setFieldValue('peju_CiudadIdRepresentante', peju_CiudadIdRepresentante);
+  const handleCityChange = (selectedOption, setFieldValue) => {
+    const ciud_Id = selectedOption ? selectedOption.value : '';
+    setFieldValue('peju_CiudadIdRepresentante', ciud_Id);
     setFieldValue('peju_AldeaIdRepresentante', '');
     setFieldValue('peju_ColoniaRepresentante', '');
-    setRepVillagesOptions([]);
-    setRepColoniesOptions([]);
+    setAldeasOptions([]);
+    setColoniasOptions([]);
   };
 
-  const handleRepVillageChange = (selectedOption, setFieldValue) => {
-    const peju_AldeaIdRepresentante = selectedOption ? selectedOption.value : '';
-    setFieldValue('peju_AldeaIdRepresentante', peju_AldeaIdRepresentante);
+  const handleVillageChange = (selectedOption, setFieldValue) => {
+    const alde_Id = selectedOption ? selectedOption.value : '';
+    setFieldValue('peju_AldeaIdRepresentante', alde_Id);
   };
 
-  const handleRepColoniaChange = (selectedOption, setFieldValue) => {
-    const peju_ColoniaRepresentante = selectedOption ? selectedOption.value : '';
-    setFieldValue('peju_ColoniaRepresentante', peju_ColoniaRepresentante);
+  const handleColoniaChange = (selectedOption, setFieldValue) => {
+    const colo_Id = selectedOption ? selectedOption.value : '';
+    setFieldValue('peju_ColoniaRepresentante', colo_Id);
   };
 
   const handleSubmit = async (values, { setSubmitting }) => {
     try {
-      const response = await axios.post(`${urlAPI}/PersonaJuridica/InsertarTap3`, values, {
+      const fechaActual = new Date().toISOString(); 
+      const dataToSubmit = {
+        ...values,
+        peju_Id: pejuId, // Añadir el ID capturado del primer tap
+        usua_UsuarioModificacion: 1,
+        peju_FechaModificacion: fechaActual
+      };
+      
+      const response = await axios.post(`${urlAPI}/PersonaJuridica/InsertarTap3`, dataToSubmit, {
         headers: {
           'XApiKey': keyAPI,
           'EncryptionKey': keyencriptada
@@ -132,7 +144,8 @@ const Tap3 = ({ initialValues, childFormikSubmit, onSubmit }) => {
       });
       console.log('Insert response:', response.data);
       setSubmitting(false);
-      onSubmit(); // Call the onNext function to move to the next step
+      toast.success("Datos insertados correctamente");
+      onNext(); // Move to the next step
     } catch (error) {
       console.error('Error inserting data', error);
       toast.error("Error al insertar datos.");
@@ -143,7 +156,13 @@ const Tap3 = ({ initialValues, childFormikSubmit, onSubmit }) => {
 
   return (
     <Formik
-      initialValues={initialValues}
+      initialValues={{
+        peju_CiudadIdRepresentante: '',
+        peju_AldeaIdRepresentante: '',
+        peju_ColoniaRepresentante: '',
+        peju_NumeroLocalRepresentante: '',
+        peju_PuntoReferenciaRepresentante: ''
+      }}
       validationSchema={validationSchemaStep3}
       onSubmit={handleSubmit}
     >
@@ -156,19 +175,19 @@ const Tap3 = ({ initialValues, childFormikSubmit, onSubmit }) => {
             <Row>
               <Col md={6}>
                 <FormGroup>
-                  <Label for="peju_CiudadIdRepresentante">Ciudad Representante</Label>
+                  <Label for="peju_CiudadIdRepresentante">Ciudad del Representante</Label>
                   <Select
                     id="peju_CiudadIdRepresentante"
                     name="peju_CiudadIdRepresentante"
-                    options={repCitiesOptions}
+                    options={ciudadesOptions}
                     onInputChange={(value) => {
                       if (value) {
-                        buscarRepCities(value);
+                        buscarCiudades(value);
                       }
                     }}
-                    onChange={(selectedOption) => handleRepCityChange(selectedOption, setFieldValue)}
+                    onChange={(selectedOption) => handleCityChange(selectedOption, setFieldValue)}
                     isLoading={isLoading}
-                    placeholder="Seleccione Ciudad Representante"
+                    placeholder="Seleccione Ciudad"
                     noOptionsMessage={() => "No hay opciones"}
                   />
                   <ErrorMessage name="peju_CiudadIdRepresentante" component="div" style={{ color: 'red' }} />
@@ -176,19 +195,19 @@ const Tap3 = ({ initialValues, childFormikSubmit, onSubmit }) => {
               </Col>
               <Col md={6}>
                 <FormGroup>
-                  <Label for="peju_AldeaIdRepresentante">Aldea Representante</Label>
+                  <Label for="peju_AldeaIdRepresentante">Aldea del Representante</Label>
                   <Select
                     id="peju_AldeaIdRepresentante"
                     name="peju_AldeaIdRepresentante"
-                    options={repVillagesOptions}
+                    options={aldeasOptions}
                     onInputChange={(value) => {
                       if (value && values.peju_CiudadIdRepresentante) {
-                        buscarRepVillages(values.peju_CiudadIdRepresentante, value);
+                        buscarAldeas(values.peju_CiudadIdRepresentante, value);
                       }
                     }}
-                    onChange={(selectedOption) => handleRepVillageChange(selectedOption, setFieldValue)}
+                    onChange={(selectedOption) => handleVillageChange(selectedOption, setFieldValue)}
                     isLoading={isLoading}
-                    placeholder="Seleccione Aldea Representante"
+                    placeholder="Seleccione Aldea"
                     noOptionsMessage={() => "No hay opciones"}
                     isDisabled={!values.peju_CiudadIdRepresentante}
                   />
@@ -199,19 +218,19 @@ const Tap3 = ({ initialValues, childFormikSubmit, onSubmit }) => {
             <Row>
               <Col md={6}>
                 <FormGroup>
-                  <Label for="peju_ColoniaRepresentante">Colonia Representante</Label>
+                  <Label for="peju_ColoniaRepresentante">Colonia del Representante</Label>
                   <Select
                     id="peju_ColoniaRepresentante"
                     name="peju_ColoniaRepresentante"
-                    options={repColoniesOptions}
+                    options={coloniasOptions}
                     onInputChange={(value) => {
                       if (value && values.peju_CiudadIdRepresentante) {
-                        buscarRepColonies(values.peju_CiudadIdRepresentante, value);
+                        buscarColonias(values.peju_CiudadIdRepresentante, value);
                       }
                     }}
-                    onChange={(selectedOption) => handleRepColoniaChange(selectedOption, setFieldValue)}
+                    onChange={(selectedOption) => handleColoniaChange(selectedOption, setFieldValue)}
                     isLoading={isLoading}
-                    placeholder="Seleccione Colonia Representante"
+                    placeholder="Seleccione Colonia"
                     noOptionsMessage={() => "No hay opciones"}
                     isDisabled={!values.peju_CiudadIdRepresentante}
                   />
@@ -220,7 +239,7 @@ const Tap3 = ({ initialValues, childFormikSubmit, onSubmit }) => {
               </Col>
               <Col md={6}>
                 <FormGroup>
-                  <Label for="peju_NumeroLocalRepresentante">Número Local Representante</Label>
+                  <Label for="peju_NumeroLocalRepresentante">Número Local del Representante</Label>
                   <Field name="peju_NumeroLocalRepresentante" as={Input} />
                   <ErrorMessage name="peju_NumeroLocalRepresentante" component="div" style={{ color: 'red' }} />
                 </FormGroup>
@@ -229,7 +248,7 @@ const Tap3 = ({ initialValues, childFormikSubmit, onSubmit }) => {
             <Row>
               <Col md={6}>
                 <FormGroup>
-                  <Label for="peju_PuntoReferenciaRepresentante">Punto de Referencia Representante</Label>
+                  <Label for="peju_PuntoReferenciaRepresentante">Punto de Referencia del Representante</Label>
                   <Field name="peju_PuntoReferenciaRepresentante" as={Input} />
                   <ErrorMessage name="peju_PuntoReferenciaRepresentante" component="div" style={{ color: 'red' }} />
                 </FormGroup>

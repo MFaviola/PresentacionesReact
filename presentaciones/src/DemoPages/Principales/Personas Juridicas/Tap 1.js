@@ -14,12 +14,11 @@ const validationSchemaStep1 = Yup.object().shape({
   ofpr_Id: Yup.number().required('Oficio es requerido'),
 });
 
-const Tap1 = ({ initialValues, onNext, setIsStep1Valid, childFormikSubmit }) => {
+const Tap1 = ({ initialValues, onNext, setPersonaJuridicaId, childFormikSubmit }) => {
   const [Oficinas, setOficinas] = useState([]);
   const [Oficio_Profesiones, setOficio_Profesiones] = useState([]);
   const [EstadosCiviles, setEstadosCiviles] = useState([]);
   const urlAPI = 'https://localhost:44380/api/PersonaJuridica'; 
-
   const urlOficina = 'https://localhost:44380/api/Oficinas'; 
   const urlCivil = 'https://localhost:44380/api/EstadosCiviles'; 
   const urlOficios = 'https://localhost:44380/api/Oficio_Profesiones'; 
@@ -46,15 +45,9 @@ const Tap1 = ({ initialValues, onNext, setIsStep1Valid, childFormikSubmit }) => 
     }
   };
 
-  const sesionesaduana = 0;
-  let esaduana = false;
-  if (sesionesaduana) {
-    esaduana = true;
-  }
-
   const listarCiviles = async () => {
     try {
-      const response = await axios.get(`${urlCivil}/Listar?escv_EsAduana=${esaduana}`, {
+      const response = await axios.get(`${urlCivil}/Listar?escv_EsAduana=true`, {
         headers: {
           'XApiKey': keyAPI,
           'EncryptionKey': keyencriptada
@@ -95,14 +88,16 @@ const Tap1 = ({ initialValues, onNext, setIsStep1Valid, childFormikSubmit }) => 
           'EncryptionKey': keyencriptada
         }
       });
-      console.log('Insert response:', response.data);
+      const fullId = response.data.data.messageStatus;  // Example: "123.456"
+      const peju_Id = fullId.split('.')[0];  // Take only the part before the dot
+      setPersonaJuridicaId(peju_Id);  
       setSubmitting(false);
-      onNext(); // Call the onNext function to move to the next step
+      onNext(); 
     } catch (error) {
       console.error('Error inserting data', error);
       toast.error("Error al insertar datos.");
       setSubmitting(false);
-      throw error; // Ensure error is caught by the caller
+      throw error; 
     }
   };
 
@@ -118,7 +113,6 @@ const Tap1 = ({ initialValues, onNext, setIsStep1Valid, childFormikSubmit }) => 
           childFormikSubmit.current = handleSubmit;
         }
         return (
-        <>
           <Form onSubmit={handleSubmit}>
             <Row>
               <Col md={6}>
@@ -178,8 +172,8 @@ const Tap1 = ({ initialValues, onNext, setIsStep1Valid, childFormikSubmit }) => 
             </Row>
             <ToastContainer />
           </Form>
-        </>
-      )}}
+        );
+      }}
     </Formik>
   );
 };

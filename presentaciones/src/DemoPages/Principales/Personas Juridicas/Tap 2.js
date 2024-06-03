@@ -15,30 +15,35 @@ const validationSchemaStep2 = Yup.object().shape({
   peju_PuntoReferencia: Yup.string().required('Punto de Referencia es requerido'),
 });
 
-const Tap2 = ({ initialValues, childFormikSubmit, onSubmit }) => {
+const Tap2 = ({ pejuId, childFormikSubmit, onNext }) => {
   const [aldeasOptions, setAldeasOptions] = useState([]);
   const [coloniasOptions, setColoniasOptions] = useState([]);
   const [ciudadesOptions, setCiudadesOptions] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
 
-  const urlAPI = 'https://localhost:44380/api';
+  const urlAPI = 'https://localhost:44380/api/PersonaJuridica';
+  const urlCiudad = 'https://localhost:44380/api/Ciudades';
+  const urlAldea = 'https://localhost:44380/api/Aldea';
+  const urlColonia = 'https://localhost:44380/api/Colonias';
   const keyAPI = '4b567cb1c6b24b51ab55248f8e66e5cc';
   const keyencriptada = 'FZWv3nQTyHYyNvdx';
+
+  useEffect(() => {}, []);
 
   const buscarCiudades = async (inputValue) => {
     if (!inputValue || inputValue.trim() === '') return;
     setIsLoading(true);
     try {
-      const response = await axios.get(`${urlAPI}/Ciudades/Listar?ciud_EsAduana=true&search=${inputValue}`, {
+      const response = await axios.get(`${urlCiudad}/Listar?ciud_EsAduana=true&search=${inputValue}`, {
         headers: {
           'XApiKey': keyAPI,
-          'EncryptionKey': keyencriptada
-        }
+          'EncryptionKey': keyencriptada,
+        },
       });
       if (response.data && Array.isArray(response.data)) {
-        const options = response.data.map(ciudad => ({
+        const options = response.data.map((ciudad) => ({
           value: ciudad.ciud_Id,
-          label: ciudad.ciud_Nombre
+          label: ciudad.ciud_Nombre,
         }));
         setCiudadesOptions(options);
       } else {
@@ -55,16 +60,16 @@ const Tap2 = ({ initialValues, childFormikSubmit, onSubmit }) => {
     if (!ciud_Id || !inputValue || inputValue.trim() === '') return;
     setIsLoading(true);
     try {
-      const response = await axios.get(`${urlAPI}/Aldea/FiltrarPorCiudades?alde_Id=${ciud_Id}&search=${inputValue}`, {
+      const response = await axios.get(`${urlAldea}/FiltrarPorCiudades?alde_Id=${ciud_Id}&search=${inputValue}`, {
         headers: {
           'XApiKey': keyAPI,
-          'EncryptionKey': keyencriptada
-        }
+          'EncryptionKey': keyencriptada,
+        },
       });
       if (response.data && Array.isArray(response.data)) {
-        const options = response.data.map(aldea => ({
+        const options = response.data.map((aldea) => ({
           value: aldea.alde_Id,
-          label: aldea.alde_Nombre
+          label: aldea.alde_Nombre,
         }));
         setAldeasOptions(options);
       } else {
@@ -81,16 +86,16 @@ const Tap2 = ({ initialValues, childFormikSubmit, onSubmit }) => {
     if (!ciud_Id || !inputValue || inputValue.trim() === '') return;
     setIsLoading(true);
     try {
-      const response = await axios.get(`${urlAPI}/Colonias/FiltrarPorCiudad?ciud_Id=${ciud_Id}&search=${inputValue}`, {
+      const response = await axios.get(`${urlColonia}/FiltrarPorCiudad?ciud_Id=${ciud_Id}&search=${inputValue}`, {
         headers: {
           'XApiKey': keyAPI,
-          'EncryptionKey': keyencriptada
-        }
+          'EncryptionKey': keyencriptada,
+        },
       });
       if (response.data && Array.isArray(response.data)) {
-        const options = response.data.map(colonia => ({
+        const options = response.data.map((colonia) => ({
           value: colonia.colo_Id,
-          label: colonia.colo_Nombre
+          label: colonia.colo_Nombre,
         }));
         setColoniasOptions(options);
       } else {
@@ -124,26 +129,41 @@ const Tap2 = ({ initialValues, childFormikSubmit, onSubmit }) => {
 
   const handleSubmit = async (values, { setSubmitting }) => {
     try {
-      const response = await axios.post(`${urlAPI}/PersonaJuridica/InsertarTap2`, values, {
+      const dataToSubmit = {
+        ...values,
+        peju_Id: pejuId,
+      };
+
+      console.log('Submitting data to API:', dataToSubmit); // Debug log
+      const response = await axios.post(`${urlAPI}/InsertarTap2`, dataToSubmit, {
         headers: {
           'XApiKey': keyAPI,
-          'EncryptionKey': keyencriptada
-        }
+          'EncryptionKey': keyencriptada,
+        },
       });
-      console.log('Insert response:', response.data);
+      console.log('API response:', response.data); // Debug log
       setSubmitting(false);
-      onSubmit(); // Call the onNext function to move to the next step
+      toast.success('Datos insertados correctamente');
+      onNext(); // Move to the next step
     } catch (error) {
       console.error('Error inserting data', error);
-      toast.error("Error al insertar datos.");
+      if (error.response) {
+        console.error('Response data:', error.response.data); // Debug log for response data
+      }
+      toast.error('Error al insertar datos.');
       setSubmitting(false);
-      throw error; // Ensure error is caught by the caller
     }
   };
 
   return (
     <Formik
-      initialValues={initialValues}
+      initialValues={{
+        ciud_Id: '',
+        alde_Id: '',
+        colo_Id: '',
+        peju_NumeroLocalApart: '',
+        peju_PuntoReferencia: '',
+      }}
       validationSchema={validationSchemaStep2}
       onSubmit={handleSubmit}
     >
@@ -151,6 +171,7 @@ const Tap2 = ({ initialValues, childFormikSubmit, onSubmit }) => {
         if (childFormikSubmit) {
           childFormikSubmit.current = handleSubmit;
         }
+        console.log('pejuId:', pejuId); // Debug log
         return (
           <Form onSubmit={handleSubmit}>
             <Row>
@@ -169,7 +190,7 @@ const Tap2 = ({ initialValues, childFormikSubmit, onSubmit }) => {
                     onChange={(selectedOption) => handleCityChange(selectedOption, setFieldValue)}
                     isLoading={isLoading}
                     placeholder="Seleccione Ciudad"
-                    noOptionsMessage={() => "No hay opciones"}
+                    noOptionsMessage={() => 'No hay opciones'}
                   />
                   <ErrorMessage name="ciud_Id" component="div" style={{ color: 'red' }} />
                 </FormGroup>
@@ -189,7 +210,7 @@ const Tap2 = ({ initialValues, childFormikSubmit, onSubmit }) => {
                     onChange={(selectedOption) => handleVillageChange(selectedOption, setFieldValue)}
                     isLoading={isLoading}
                     placeholder="Seleccione Aldea"
-                    noOptionsMessage={() => "No hay opciones"}
+                    noOptionsMessage={() => 'No hay opciones'}
                     isDisabled={!values.ciud_Id}
                   />
                   <ErrorMessage name="alde_Id" component="div" style={{ color: 'red' }} />
@@ -212,7 +233,7 @@ const Tap2 = ({ initialValues, childFormikSubmit, onSubmit }) => {
                     onChange={(selectedOption) => handleColoniaChange(selectedOption, setFieldValue)}
                     isLoading={isLoading}
                     placeholder="Seleccione Colonia"
-                    noOptionsMessage={() => "No hay opciones"}
+                    noOptionsMessage={() => 'No hay opciones'}
                     isDisabled={!values.ciud_Id}
                   />
                   <ErrorMessage name="colo_Id" component="div" style={{ color: 'red' }} />
