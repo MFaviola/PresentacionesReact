@@ -70,7 +70,7 @@ const WizardStep5 = ({ setIsStep5Valid, coinIdToEdit }) => {
         coin_TelefonoCelular: values.coin_TelefonoCelular,
         coin_TelefonoFijo: values.coin_TelefonoFijo,
         coin_CorreoElectronico: values.coin_CorreoElectronico,
-        coin_CorreoElectronicoAlternativo: alternativo,
+        coin_CorreoElectronicoAlternativo: hola,
         usua_UsuarioModificacion: 1,
         coin_FechaModificacion: fechaActual,
       };
@@ -113,9 +113,10 @@ const WizardStep5 = ({ setIsStep5Valid, coinIdToEdit }) => {
   const handleFormChange = (values) => {
     setIsStep5Valid(validationSchema.isValidSync(values));
   };
+  let hola = "";
 
   const handleinsertaraChange = (e, setFieldValue, values) => {
-    setalternativo(e.target.value);
+    hola= e.target.value;
 
     setFieldValue('coin_CorreoElectronicoAlternativo', e.target.value);
     handleFormChange(values);
