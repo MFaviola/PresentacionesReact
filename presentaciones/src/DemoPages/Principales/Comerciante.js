@@ -30,13 +30,7 @@ const Comerciante = () => {
   const [editarComercianteId, setEditarComercianteId] = useState(null); 
 
   const toggleCollapse = () => setCollapse(!collapse);
-  const steps = [
-    { name: "Datos Personales", component: <Step1 coinIdToEdit={editarComercianteId}/> },
-    { name: "Direccion", component: <Step2 /> },
-    { name: "Direccion 2", component: <Step3 /> },
-    { name: "A saber", component: <Step5 coinIdToEdit={editarComercianteId}/> },
-    { name: "Finish Wizard", component: <Step4 /> },
-  ];
+ 
   const listarComerciantes = async () => {
     try {
       const response = await axios.get(`${urlAPI}/Listar`, {
@@ -305,7 +299,13 @@ const Comerciante = () => {
     }
   ];
   const [isStep1Valid, setIsStep1Valid] = useState(false);
-
+  const steps = [
+    { name: "Datos Personales", component: <Step1 coinIdToEdit={editarComercianteId} onNext={() => MultiStep.next()}/> },
+    { name: "Direccion", component: <Step2 /> },
+    { name: "Direccion 2", component: <Step3 /> },
+    { name: "A saber", component: <Step5 coinIdToEdit={editarComercianteId}/> },
+    { name: "Finish Wizard", component: <Step4 /> },
+  ];
   return (
     <Fragment>
       <TransitionGroup>
