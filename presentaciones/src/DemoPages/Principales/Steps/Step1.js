@@ -3,7 +3,7 @@ import { Row, Col, FormGroup, Label, Input } from "reactstrap";
 import { ToastContainer, toast } from "react-toastify";
 import 'react-toastify/dist/ReactToastify.css';
 import axios from 'axios';
-import { Formik, Field, ErrorMessage } from 'formik';
+import { Formik,Form, Field, ErrorMessage } from 'formik';
 import * as Yup from 'yup';
 
 const urlOficina = 'https://localhost:44380/api/Oficinas'; 
@@ -13,21 +13,10 @@ const urlOficios = 'https://localhost:44380/api/Oficio_Profesiones';
 const keyAPI = '4b567cb1c6b24b51ab55248f8e66e5cc';
 const keyencriptada = 'FZWv3nQTyHYyNvdx';
 
-const WizardStep1 = ({ setIsStep1Valid }) => {
+const WizardStep1 = ({ setIsStep1Valid,onNext }) => {
   const [dataOficina, setDataOficina] = useState([]);
   const [dataCivil, setDataCivil] = useState([]);
   const [dataOficios, setDataOficios] = useState([]);
-  const [nueva, setNueva] = useState({
-    pers_RTN: "",
-    pers_Nombre: "",
-    ofic_Id: "",
-    escv_Id: "",
-    ofpr_Id: "",
-    pers_FormaRepresentacion: false,
-    pers_escvRepresentante: "",
-    pers_OfprRepresentante: ""
-  });
-
   useEffect(() => {
     listarOficinas();
     listarCiviles();
@@ -83,43 +72,7 @@ const WizardStep1 = ({ setIsStep1Valid }) => {
     }
   };
 
-  const insertarComerciante = async (values) => {
-    try {
-      const fechaActual = new Date().toISOString(); 
-      const ComercianteAInsertar = {
-        pers_RTN: values.pers_RTN,
-        pers_Nombre: values.pers_Nombre,
-        ofic_Id: values.ofic_Id,
-        escv_Id: values.escv_Id,
-        ofpr_Id: values.ofpr_Id,
-        pers_FormaRepresentacion: values.pers_FormaRepresentacion,
-        pers_escvRepresentante: values.pers_escvRepresentante,
-        pers_OfprRepresentante: hola,
-        usua_UsuarioCreacion: 1,
-        coin_FechaCreacion: fechaActual
-      };
-      console.log(ComercianteAInsertar);
-
-      const response = await axios.post(`${urlAPI}/Insertar`, ComercianteAInsertar, {
-        headers: {
-          'XApiKey': keyAPI,
-          'EncryptionKey': keyencriptada
-        }
-      });
-      console.log(response);
-
-      toast.success("Insertado exitosamente!");
-      setIsStep1Valid(true);
-
-    } catch (error) {
-      if (error.response && error.response.data) {
-        console.log("Error al insertar: " + error.response.data);
-      } else {
-        console.log("Error al insertar: " + error.message);
-      }
-      setIsStep1Valid(false);
-    }
-  };
+ 
 
   const validationSchema = Yup.object().shape({
     pers_RTN: Yup.string()
@@ -138,172 +91,209 @@ const WizardStep1 = ({ setIsStep1Valid }) => {
 
   const handleFormChange = (values) => {
     setIsStep1Valid(validationSchema.isValidSync(values));
+    setIsStep1Valid(true);
+
   };
 
-  let hola = 0;
-  const handleOfprRepresentanteChange = (e, setFieldValue, values) => {
-    hola= e.target.value;
 
-    setFieldValue('pers_OfprRepresentante', e.target.value);
+  const handleSubmit = async (values, { setSubmitting }) => {
+    const fechaActual = new Date().toISOString(); 
     handleFormChange(values);
-   insertarComerciante(values);
-  };
 
+    const ComercianteAInsertarr = {
+      pers_RTN: values.pers_RTN,
+      pers_Nombre: values.pers_Nombre,
+      ofic_Id: values.ofic_Id,
+      escv_Id: values.escv_Id,
+      ofpr_Id: values.ofpr_Id,
+      pers_FormaRepresentacion: values.pers_FormaRepresentacion,
+      pers_escvRepresentante: values.pers_escvRepresentante,
+      pers_OfprRepresentante: values.pers_OfprRepresentante,
+      usua_UsuarioCreacion: 1,
+      coin_FechaCreacion: fechaActual
+    };
+    console.log('insertar 4', ComercianteAInsertarr);
+
+    try {
+      const response = await axios.post(`${urlAPI}/Insertar`, ComercianteAInsertarr, {
+        headers: {
+          'XApiKey': keyAPI,
+          'EncryptionKey': keyencriptada
+        }
+      });
+      console.log(response);
+
+      if (ComercianteAInsertarr != null)
+        setIsStep1Valid(true);      
+      
+      setSubmitting(false);
+      onNext(); 
+    } catch (error) {
+      console.error('Error inserting data', error);
+      toast.error("Error al insertar datos.");
+      setSubmitting(false);
+      setIsStep1Valid(false);
+
+      throw error; 
+    }
+  };
   return (
-    <Fragment>
-      <div className="form-wizard-content">
-        <Row>
-          <Formik
-            initialValues={nueva}
-            validationSchema={validationSchema}
-          >
-            {({ handleSubmit, values, setFieldValue }) => (
-              <form onBlur={handleSubmit} onChange={() => handleFormChange(values)}>
-              <Row>
-                  <Col md={6}>
-                    <FormGroup>
-                      <Label for="pers_RTN">RTN</Label>
-                      <Input
-                        type="text"
-                        name="pers_RTN"
-                        id="pers_RTN"
-                        value={values.pers_RTN}
-                        onChange={(e) => setFieldValue('pers_RTN', e.target.value)}
-                        placeholder="Ingrese su RTN.."
-                      />
-                      <ErrorMessage name="pers_RTN" component="div" style={{ color: 'red' }} />
-                    </FormGroup>
-                  </Col>
-                  <Col md={6}>
-                    <FormGroup>
-                      <Label for="pers_Nombre">Nombre</Label>
-                      <Input
-                        type="text"
-                        name="pers_Nombre"
-                        id="pers_Nombre"
-                        value={values.pers_Nombre}
-                        onChange={(e) => setFieldValue('pers_Nombre', e.target.value)}
-                        placeholder="Ingrese su nombre.."
-                      />
-                      <ErrorMessage name="pers_Nombre" component="div" className="text-danger" />
-                    </FormGroup>
-                  </Col>
-                </Row>
-                <Row>
-                  <Col md={6}>
-                    <FormGroup>
-                      <Label for="ofic_Id">Oficina</Label>
-                      <Input
-                        type="select"
-                        name="ofic_Id"
-                        id="ofic_Id"
-                        value={values.ofic_Id}
-                        onChange={(e) => setFieldValue('ofic_Id', e.target.value)}
-                      >
-                        <option value="">Seleccione su oficina</option>
-                        {dataOficina.map((oficina) => (
-                          <option key={oficina.ofic_Id} value={oficina.ofic_Id}>{oficina.ofic_Nombre}</option>
-                        ))}
-                      </Input>
-                      <ErrorMessage name="ofic_Id" component="div" className="text-danger" />
-                    </FormGroup>
-                  </Col>
-                  <Col md={6}>
-                    <FormGroup>
-                      <Label for="escv_Id">Estado Civil</Label>
-                      <Input
-                        type="select"
-                        name="escv_Id"
-                        id="escv_Id"
-                        value={values.escv_Id}
-                        onChange={(e) => setFieldValue('escv_Id', e.target.value)}
-                      >
-                        <option value="">Seleccione su estado civil</option>
-                        {dataCivil.map((civil) => (
-                          <option key={civil.escv_Id} value={civil.escv_Id}>{civil.escv_Nombre}</option>
-                        ))}
-                      </Input>
-                      <ErrorMessage name="escv_Id" component="div" className="text-danger" />
-                    </FormGroup>
-                  </Col>
-                </Row>
-                <Row>
-                  <Col md={6}>
-                    <FormGroup>
-                      <Label for="ofpr_Id">Oficio</Label>
-                      <Input
-                        type="select"
-                        name="ofpr_Id"
-                        id="ofpr_Id"
-                        value={values.ofpr_Id}
-                        onChange={(e) => setFieldValue('ofpr_Id', e.target.value)}
-                      >
-                        <option value="">Seleccione su oficio</option>
-                        {dataOficios.map((oficio) => (
-                          <option key={oficio.ofpr_Id} value={oficio.ofpr_Id}>{oficio.ofpr_Nombre}</option>
-                        ))}
-                      </Input>
-                      <ErrorMessage name="ofpr_Id" component="div" className="text-danger" />
-                    </FormGroup>
-                  </Col>
-                  <Col md={6}>
-                    <FormGroup>
-                      <Label for="pers_FormaRepresentacion">Representante</Label>
-                      <Input
-                        type="checkbox"
-                        name="pers_FormaRepresentacion"
-                        id="pers_FormaRepresentacion"
-                        checked={values.pers_FormaRepresentacion}
-                        onChange={(e) => setFieldValue('pers_FormaRepresentacion', e.target.checked)}
-                      />
-                    </FormGroup>
-                  </Col>
-                </Row>
-                  <Row>
-                    <Col md={6}>
-                      <FormGroup>
-                        <Label for="pers_escvRepresentante">Estado Civil del Representante</Label>
-                        <Input
-                          type="select"
-                          name="pers_escvRepresentante"
-                          id="pers_escvRepresentante"
-                          value={values.pers_escvRepresentante}
-                          onChange={(e) => setFieldValue('pers_escvRepresentante', e.target.value)}
-                        >
-                          <option value="">Seleccione el estado civil del representante</option>
-                          {dataCivil.map((civil) => (
-                            <option key={civil.escv_Id} value={civil.escv_Id}>{civil.escv_Nombre}</option>
-                          ))}
-                        </Input>
-                        <ErrorMessage name="pers_escvRepresentante" component="div" className="text-danger" />
-                      </FormGroup>
-                    </Col>
-                    <Col md={6}>
-                      <FormGroup>
-                        <Label for="pers_OfprRepresentante">Oficio del Representante</Label>
-                        <Input
-                          type="select"
-                          name="pers_OfprRepresentante"
-                          id="pers_OfprRepresentante"
-                          value={values.pers_OfprRepresentante}
-                          onChange={(e) => handleOfprRepresentanteChange(e, setFieldValue, values)}
-                        >
-                          <option value="">Seleccione el oficio del representante</option>
-                          {dataOficios.map((oficio) => (
-                            <option key={oficio.ofpr_Id} value={oficio.ofpr_Id}>{oficio.ofpr_Nombre}</option>
-                          ))}
-                        </Input>
-                        <ErrorMessage name="pers_OfprRepresentante" component="div" className="text-danger" />
-                      </FormGroup>
-                    </Col>
-                  </Row>
-              </form>
-            )}
-          </Formik>
-        </Row>
-      </div>
-      <ToastContainer />
-    </Fragment>
+    <Formik
+      initialValues={{
+        pers_RTN: "",
+        pers_Nombre: "",
+        ofic_Id: "",
+        escv_Id: "",
+        ofpr_Id: "",
+        pers_FormaRepresentacion: false,
+        pers_escvRepresentante: "",
+        pers_OfprRepresentante: ""
+      }}
+      validationSchema={validationSchema}
+      onSubmit={handleSubmit}
+    >
+      {({ values, setFieldValue, handleSubmit }) => (
+        <Form onSubmit={handleSubmit} onChange={() => handleFormChange(values)}>
+          <Row>
+            <Col md={6}>
+              <FormGroup>
+                <Label for="pers_RTN">RTN</Label>
+                <Field
+                  name="pers_RTN"
+                  as={Input}
+                  className="form-control"
+                  placeholder="Ingrese su RTN.."
+                />
+                  <ErrorMessage name="pers_RTN" component="div" style={{ color: 'red' }} />
+              </FormGroup>
+            </Col>
+            <Col md={6}>
+              <FormGroup>
+                <Label for="pers_Nombre">Nombre</Label>
+                <Field
+                  name="pers_Nombre"
+                  as={Input}
+                  className="form-control"
+                  placeholder="Ingrese su nombre.."
+                />
+                  <ErrorMessage name="pers_Nombre" component="div" style={{ color: 'red' }} />
+              </FormGroup>
+            </Col>
+          </Row>
+          <Row>
+            <Col md={6}>
+              <FormGroup>
+                <Label for="ofic_Id">Oficina</Label>
+                <Field
+                  name="ofic_Id"
+                  as="select"
+                  className="form-control"
+                >
+                  <option value="">Seleccione su oficina</option>
+                  {dataOficina.map(oficina => (
+                      <option key={oficina.ofic_Id} value={oficina.ofic_Id}>{oficina.ofic_Nombre}</option>
+                    ))}
+                </Field>
+                <ErrorMessage name="ofic_Id" component="div" className="text-danger" />
+              </FormGroup>
+            </Col>
+            <Col md={6}>
+              <FormGroup>
+                <Label for="escv_Id">Estado Civil</Label>
+                <Field
+                  name="escv_Id"
+                  as="select"
+                  className="form-control"
+                >
+                  <option value="">Seleccione su estado civil</option>
+                  {dataCivil.map(civil => (
+                    <option key={civil.escv_Id} value={civil.escv_Id}>
+                      {civil.escv_Nombre}
+                    </option>
+                  ))}
+                  
+                </Field>
+                <ErrorMessage name="escv_Id" component="div" className="text-danger" />
+              </FormGroup>
+            </Col>
+          </Row>
+          <Row>
+            <Col md={6}>
+              <FormGroup>
+                <Label for="ofpr_Id">Oficio</Label>
+                <Field
+                  name="ofpr_Id"
+                  as="select"
+                  className="form-control"
+                >
+                  <option value="">Seleccione su oficio</option>
+                  {dataOficios.map(oficio => (
+                    <option key={oficio.ofpr_Id} value={oficio.ofpr_Id}>
+                      {oficio.ofpr_Nombre}
+                    </option>
+                  ))}
+                </Field>
+                <ErrorMessage name="ofpr_Id" component="div" className="text-danger" />
+              </FormGroup>
+            </Col>
+            <Col md={6}>
+              <FormGroup>
+                <Label for="pers_FormaRepresentacion">Forma de representacion</Label>
+                <Col sm={6} style={{ padding: 0 }}>
+                <Field
+                  type="checkbox"
+                  name="pers_FormaRepresentacion"
+                  as={Input}
+                  checked={values.pers_FormaRepresentacion}
+                  onChange={() => setFieldValue('pers_FormaRepresentacion', !values.pers_FormaRepresentacion)}
+                  id="pers_FormaRepresentacion"
+                />
+                </Col>
+              </FormGroup>
+            </Col>
+          </Row>
+          <Row>
+          <Col md={6}>
+              <FormGroup>
+                <Label for="pers_escvRepresentante">Estado Civil Representante</Label>
+                <Field
+                  name="pers_escvRepresentante"
+                  as="select"
+                  className="form-control"
+                >
+                  <option value="">Seleccione el estado civil del representante</option>
+                  {dataCivil.map(civil => (
+                    <option key={civil.escv_Id} value={civil.escv_Id}>
+                      {civil.escv_Nombre}
+                    </option>
+                  ))}
+                </Field>
+                <ErrorMessage name="pers_escvRepresentante" component="div" className="text-danger" />
+              </FormGroup>
+            </Col>
+            <Col md={6}>
+              <FormGroup>
+                <Label for="pers_OfprRepresentante">Oficio Representante</Label>
+                <Field
+                  name="pers_OfprRepresentante"
+                  as="select"
+                  className="form-control"
+                >
+                  <option value="">Seleccione el oficio del representante</option>
+                  {dataOficios.map(oficio => (
+                    <option key={oficio.ofpr_Id} value={oficio.ofpr_Id}>
+                      {oficio.ofpr_Descripcion}
+                    </option>
+                  ))}
+                </Field>
+                <ErrorMessage name="pers_OfprRepresentante" component="div" className="text-danger" />
+              </FormGroup>
+            </Col>
+          </Row>
+          <ToastContainer />
+        </Form>
+      )}
+    </Formik>
   );
 };
 

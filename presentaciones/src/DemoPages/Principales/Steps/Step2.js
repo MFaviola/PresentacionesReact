@@ -13,7 +13,7 @@ const urlColonia = 'https://localhost:44380/api/Colonias';
 const keyAPI = '4b567cb1c6b24b51ab55248f8e66e5cc';
 const keyencriptada = 'FZWv3nQTyHYyNvdx';
 
-const WizardStep2 = ({ setIsStep1Valid }) => {
+const WizardStep2 = ({ setIsStep2Valid }) => {
   const [data, setData] = useState([]);
   const [dataCiudad, setDataCiudad] = useState([]);
   const [dataAldea, setDataAldea] = useState([]);
@@ -30,7 +30,7 @@ const WizardStep2 = ({ setIsStep1Valid }) => {
     listarCiudades();
     listarAldeas();
     listarColonias();
-    setIsStep1Valid(false);
+   listarComerciantes();
 
   }, []);
 
@@ -82,7 +82,7 @@ const WizardStep2 = ({ setIsStep1Valid }) => {
     }
   };
 
-  let tab1 = 0;
+  const [ultimoCoinId, setUltimoCoinId] = useState(null);
 
   const listarComerciantes = async () => {
       const response = await axios.get(`${urlAPI}/Listar`, {
@@ -95,14 +95,14 @@ const WizardStep2 = ({ setIsStep1Valid }) => {
       const listaentera = response.data.data;
       const ultimoObjeto = listaentera[listaentera.length - 1];
       console.log(ultimoObjeto);
-      tab1 = ultimoObjeto.coin_Id;
-  };
+      setUltimoCoinId(ultimoObjeto.coin_Id); 
+ };
 
   const insertarComerciante = async (values) => {
     try {
       const fechaActual = new Date().toISOString(); 
       const ComercianteAInsertar = {
-        coin_Id: tab1,
+        coin_Id: ultimoCoinId,
         ciud_Id: values.ciud_Id,
         alde_Id: values.alde_Id,
         colo_Id: values.colo_Id,
@@ -111,7 +111,7 @@ const WizardStep2 = ({ setIsStep1Valid }) => {
         usua_UsuarioModificacion: 1,
         coin_FechaModificacion: fechaActual,
       };
-      console.log(ComercianteAInsertar);
+      console.log('insertar 2',ComercianteAInsertar);
 
       const response = await axios.post(`${urlAPI}/InsertarTap2`, ComercianteAInsertar, {
         headers: {
@@ -119,18 +119,17 @@ const WizardStep2 = ({ setIsStep1Valid }) => {
           'EncryptionKey': keyencriptada
         }
       });
-      console.log(response);
 
-      toast.success("Insertado exitosamente!");
-      setIsStep1Valid(true);
-
+      if(ComercianteAInsertar != null)
+        setIsStep2Valid(true);
+      
     } catch (error) {
       if (error.response && error.response.data) {
         console.log("Error al insertar: " + error.response.data);
       } else {
         console.log("Error al insertar: " + error.message);
       }
-      setIsStep1Valid(false);
+      setIsStep2Valid(false);
     }
   };
 
@@ -145,7 +144,7 @@ const WizardStep2 = ({ setIsStep1Valid }) => {
   });
 
   const handleFormChange = (values) => {
-    setIsStep1Valid(validationSchema.isValidSync(values));
+    setIsStep2Valid(validationSchema.isValidSync(values));
   };
 
   let hola = "";
@@ -155,7 +154,6 @@ const WizardStep2 = ({ setIsStep1Valid }) => {
     setFieldValue('coin_PuntoReferencia', e.target.value);
     handleFormChange(values);
    insertarComerciante(values);
-   listarComerciantes();
   };
 
   return (
@@ -246,7 +244,7 @@ const WizardStep2 = ({ setIsStep1Valid }) => {
                         name="coin_PuntoReferencia"
                         id="coin_PuntoReferencia"
                         value={values.coin_PuntoReferencia}
-                        onBlur={(e) => handleinsertarChange(e, setFieldValue, values)}
+                        onChange={(e) => handleinsertarChange(e, setFieldValue, values)}
                         placeholder="Ingrese su punto de referencia.."
                       />
                       <ErrorMessage name="coin_PuntoReferencia" component="div" style={{ color: 'red' }} />
