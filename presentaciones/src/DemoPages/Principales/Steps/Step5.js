@@ -43,6 +43,7 @@ const WizardStep5 = ({ onNext, childFormikSubmit,ideditar }) => {
           });
           const lista = response.data.data;
           const registroo = lista.find((list) => list.coin_Id === ideditar);
+          console.log('dldld',registroo);
           setRegistro(registroo);
         }
       } catch (error) {
@@ -160,6 +161,66 @@ const confirmarcodigo = async (codigo) => {
       toast.error("Código incorrecto.");
   }
 };
+const [confirmacionCodigo2, setConfirmacionCodigo2] = useState('');
+const [enviarCodigo2, setEnviarCodigo2] = useState('');
+
+
+const codigoenviado2 = async (correo) => {
+  const fechaActual = new Date().toISOString(); 
+
+  const insertarcorreo = {
+      coin_Id: tab3,
+      coin_CorreoElectronicoAlternativo: correo,
+      usua_UsuarioModificacion: 1,
+      coin_FechaModificacion: fechaActual,
+      coin_TelefonoCelular: "",
+      coin_TelefonoFijo: "",
+      coin_CorreoElectronicoAlternativo: "",
+  };
+  console.log(insertarcorreo);
+
+  try {
+      await axios.post(`${urlAPI}/InsertarTap4`, insertarcorreo, {
+          headers: {
+              'XApiKey': keyAPI,
+              'EncryptionKey': keyencriptada
+          }
+      });
+
+      const response = await axios.get(`${urlAPI}/EnviarCodigo2?correo=${correo}`, {
+          headers: {
+              'XApiKey': keyAPI,
+              'EncryptionKey': keyencriptada
+          }
+      });
+
+      console.log(response);
+
+      toast.success("Código enviado con éxito!");
+  } catch (error) {
+      toast.error("Error al enviar el código.");
+  }
+};
+
+
+const confirmarcodigo2 = async (codigo) => {
+try {
+    const response = await axios.post(`${urlAPI}/ConfirmarCodigo2?codigo=${codigo}`, {}, {
+        headers: {
+            'XApiKey': keyAPI,
+            'EncryptionKey': keyencriptada
+        }
+    });
+
+    if (response.data.message === "Exito") {
+        toast.success("Correo confirmado con éxito!");
+    } else {
+        toast.error("Código incorrecto.");
+    }
+} catch (error) {
+    toast.error("Código incorrecto.");
+}
+};
 
 
   return (
@@ -212,17 +273,15 @@ const confirmarcodigo = async (codigo) => {
                     <FormGroup>
                       <Label for="coin_CorreoElectronico">Correo Electrónico</Label>
                       <Field
-  name="coin_CorreoElectronico"
-  as={Input}
-  className="form-control"
-  placeholder="Ingrese su correo electrónico..."
-  onChange={(e) => {
-    setFieldValue('coin_CorreoElectronico', e.target.value);
-    setEnviarCodigo(e.target.value);
-  }}
-/>
-<ErrorMessage name="coin_CorreoElectronico" component="div" className="text-danger"/>
-
+                        name="coin_CorreoElectronico"
+                        as={Input}
+                        className="form-control"
+                        placeholder="Ingrese su correo electrónico..."
+                        onChange={(e) => {
+                          setFieldValue('coin_CorreoElectronico', e.target.value);
+                          setEnviarCodigo(e.target.value);
+                        }}
+                      />
                       <ErrorMessage name="coin_CorreoElectronico" component="div" className="text-danger"/>
                     </FormGroup>
                   </Col>
@@ -239,12 +298,12 @@ const confirmarcodigo = async (codigo) => {
                     <FormGroup>
                       <Label>Codigo confirmacion</Label>
                       <Field
-  as={Input}
-  name="codigoConfirmacion"
-  className="form-control"
-  placeholder="Ingrese el código de confirmación.."
-  onChange={(e) => setConfirmacionCodigo(e.target.value)}
-/>
+                        as={Input}
+                        name="codigoConfirmacion"
+                        className="form-control"
+                        placeholder="Ingrese el código de confirmación.."
+                        onChange={(e) => setConfirmacionCodigo(e.target.value)}
+                      />
 
                     </FormGroup>
                   </Col>
@@ -261,7 +320,7 @@ const confirmarcodigo = async (codigo) => {
                   
                 </Row>
                 <Row>
-                <Col md={6}>
+                  <Col md={4}>
                     <FormGroup>
                       <Label for="coin_CorreoElectronicoAlternativo">Correo Electrónico Alternativo</Label>
                       <Field
@@ -269,10 +328,47 @@ const confirmarcodigo = async (codigo) => {
                         as={Input}
                         className="form-control"
                         placeholder="Ingrese su correo electrónico alternativo..."
+                        onChange={(e) => {
+                          setFieldValue('coin_CorreoElectronicoAlternativo', e.target.value);
+                          setEnviarCodigo2(e.target.value);
+                        }}
                       />
                       <ErrorMessage name="coin_CorreoElectronicoAlternativo" component="div" className="text-danger"/>
                     </FormGroup>
                   </Col>
+                  <Col md={2}>
+                    <FormGroup>
+                      <br></br>
+                    <Button className=" btn-shadow" color="alternate" onClick={() => codigoenviado2(enviarCodigo)}>
+                    Enviar codigo
+                  </Button>
+                    </FormGroup>
+                  
+                  </Col>
+                  <Col md={4}>
+                    <FormGroup>
+                      <Label>Codigo confirmacion</Label>
+                      <Field
+                        as={Input}
+                        name="codigoConfirmacion"
+                        className="form-control"
+                        placeholder="Ingrese el código de confirmación.."
+                        onChange={(e) => setConfirmacionCodigo2(e.target.value)}
+                      />
+
+                    </FormGroup>
+                  </Col>
+                  <Col md={2}>
+                    <FormGroup>
+                      <br></br>
+                      <Button className="btn-shadow" color="alternate" onClick={() => confirmarcodigo2(confirmacionCodigo)}>
+                        Confirmar Codigo
+                      </Button>
+
+                    </FormGroup>
+                  
+                  </Col>
+                  
                 </Row>
                 <ToastContainer />
               </Form>

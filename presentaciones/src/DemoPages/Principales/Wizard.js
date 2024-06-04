@@ -45,6 +45,7 @@ export default class MultiStep extends Component {
       showNextBtn: true,
       compState: 0,
       navState: getNavStates(0, this.props.steps.length),
+      isValid: false,
     };
   }
 
@@ -76,8 +77,8 @@ export default class MultiStep extends Component {
   };
   next = async () => {
     if (this.childFormikSubmit.current) {
-      const isValid = await this.childFormikSubmit.current(); 
-      if (isValid) {
+      console.log(this.state.isValid);
+      if (this.state.isValid) {
         this.setNavState(this.state.compState + 1); 
       } else {
         toast.error("Por favor, complete todos los campos obligatorios o corríjalos."); 

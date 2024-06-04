@@ -33,6 +33,8 @@ const WizardStep1 = ({ onNext, childFormikSubmit,ideditar }) => {
   const [dataOficios, setDataOficios] = useState([]);
   const [registro, setRegistro] = useState(null);
   const [cargando, setcargando] = useState(true);
+ 
+  
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -102,10 +104,17 @@ const WizardStep1 = ({ onNext, childFormikSubmit,ideditar }) => {
       toast.error("Error al listar los oficios.");
     }
   };
+  let seenvio = false;
+  const [isValid, setisValid] = useState([]);
+
 
   const handleSubmit = async (values, { setSubmitting }) => {
+  //   if (seenvio) return;
+  
+  // seenvio = true; 
+  
     const fechaActual = new Date().toISOString(); 
-
+    console.log('entra');
     let ComercianteAInsertarr = {};
     if(ideditar != null){
       ComercianteAInsertarr = {
@@ -136,22 +145,39 @@ const WizardStep1 = ({ onNext, childFormikSubmit,ideditar }) => {
       };
     }
     console.log('insertar 1', ComercianteAInsertarr);
+    const rtnvalidado = /^\d{4}-\d{4}-\d{6}$/.test(values.pers_RTN);
+    console.log(rtnvalidado)
 
-    try {
-      const response = await axios.post(`${urlAPI}/Insertar`, ComercianteAInsertarr, {
-        headers: {
-          'XApiKey': keyAPI,
-          'EncryptionKey': keyencriptada
+    if(ComercianteAInsertarr != null && rtnvalidado){
+      if(rtnvalidado){
+        try {
+          const response = await axios.post(`${urlAPI}/Insertar`, ComercianteAInsertarr, {
+            headers: {
+              'XApiKey': keyAPI,
+              'EncryptionKey': keyencriptada
+            }
+          });
+          console.log('1 ',response);
+          setSubmitting(false);
+          onNext(); 
+        toast.success("GUARDARO");
+        setisValid(true);
+
+
+        } catch (error) {
+          toast.error("Error al insertar datos.");
+          setSubmitting(false);
+          throw error; 
         }
-      });
-      console.log(response);
-      setSubmitting(false);
-      onNext(); 
-    } catch (error) {
-      toast.error("Error al insertar datos.");
-      setSubmitting(false);
-      throw error; 
+      }else{
+        toast.error("Inserte un RTN Valido");
+      }
+      
     }
+    else{
+      toast.error("Por favor, complete todos los campos obligatorios."); 
+    }
+   
   };
 
   return (
