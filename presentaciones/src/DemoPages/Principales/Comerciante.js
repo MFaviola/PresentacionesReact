@@ -13,6 +13,7 @@ import Step2 from "./Steps/Step2";
 import Step3 from "./Steps/Step3";
 import Step4 from "./Steps/Step4";
 import Step5 from "./Steps/Step5";
+import Step6 from "./Steps/Step6";
 
 const urlAPI = 'https://localhost:44380/api/ComercianteIndividual'; 
 const keyAPI = '4b567cb1c6b24b51ab55248f8e66e5cc';
@@ -302,7 +303,8 @@ const Comerciante = () => {
     { name: "Datos Personales", component: <Step1 ideditar={editarComercianteId} childFormikSubmit={React.createRef()} onNext={() => wizardRef.current.next()} /> },
     { name: "Dirección", component: <Step2 ideditar={editarComercianteId} childFormikSubmit={React.createRef()} onNext={() => wizardRef.current.next()} /> },
     { name: "Dirección Representante", component: <Step3 ideditar={editarComercianteId} childFormikSubmit={React.createRef()} onNext={() => wizardRef.current.next()} /> },
-    { name: "Comunicacion", component: <Step5 ideditar={editarComercianteId} childFormikSubmit={React.createRef()} onNext={() => wizardRef.current.next()} /> },
+    { name: "Contacto", component: <Step5 ideditar={editarComercianteId} childFormikSubmit={React.createRef()} onNext={() => wizardRef.current.next()} /> },
+    { name: "Documentos", component: <Step6 ideditar={editarComercianteId} childFormikSubmit={React.createRef()} onNext={() => wizardRef.current.next()} /> },
     { name: "Finalizar", component: <Step4 /> },
   ];
 
@@ -324,7 +326,10 @@ const Comerciante = () => {
                   <Card className="main-card mb-3">
                     <CardBody>
                       <div className="forms-wizard-alt">
-                        <MultiStep ref={wizardRef} showNavigation={true} steps={steps}onCancel={() => setCollapse(false)} />
+                      <MultiStep ref={wizardRef} showNavigation={true}  steps={steps} onCancel={() => {
+                        setCollapse(false);
+                        listarComerciantes();
+                      }}/>
                       </div>
                     </CardBody>
                   </Card>

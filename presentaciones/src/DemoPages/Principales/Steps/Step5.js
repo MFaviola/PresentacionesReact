@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Row, Col, FormGroup, Label, Input, Form,Button } from "reactstrap";
+import { Row, Col, FormGroup, Label, Input, Form,Button, InputGroup,InputGroupText } from "reactstrap";
 import { ToastContainer, toast } from "react-toastify";
 import 'react-toastify/dist/ReactToastify.css';
 import axios from 'axios';
@@ -15,7 +15,6 @@ const validationSchema = Yup.object().shape({
     .matches(/^\d+$/, "El teléfono celular solo debe contener números.")
     .required("El teléfono celular es requerido."),
   coin_TelefonoFijo: Yup.string()
-    .matches(/^\d+$/, "El teléfono fijo solo debe contener números.")
     .required("El teléfono fijo es requerido."),
   coin_CorreoElectronico: Yup.string()
     .email("El correo electrónico no es válido.")
@@ -71,8 +70,11 @@ const WizardStep5 = ({ onNext, childFormikSubmit,ideditar }) => {
     const ultimo = listaentera[listaentera.length - 1];
     setTab3(ultimo.coin_Id);
   };
-
+let seenvio = false
   const handleSubmit = async (values, { setSubmitting }) => {
+    if (seenvio) return;
+     
+      seenvio = true; 
     const fechaActual = new Date().toISOString(); 
 
     const ComercianteAInsertar = {
@@ -93,7 +95,6 @@ const WizardStep5 = ({ onNext, childFormikSubmit,ideditar }) => {
       });
       console.log(response);
       setSubmitting(false);
-      onNext();
     } catch (error) {
       toast.error("Error al insertar datos.");
       setSubmitting(false);
@@ -269,106 +270,74 @@ try {
                   </Col>
                 </Row>
                 <Row>
-                  <Col md={4}>
+                  <Col md={6}>
                     <FormGroup>
                       <Label for="coin_CorreoElectronico">Correo Electrónico</Label>
+                      <InputGroup>
                       <Field
                         name="coin_CorreoElectronico"
                         as={Input}
                         className="form-control"
-                        placeholder="Ingrese su correo electrónico..."
+                        placeholder="Ingrese su correo electrónico."
                         onChange={(e) => {
                           setFieldValue('coin_CorreoElectronico', e.target.value);
                           setEnviarCodigo(e.target.value);
                         }}
                       />
+                      <InputGroupText>
+                      <Button className=" btn-shadow"  color="alternate" onClick={() => codigoenviado(enviarCodigo)}>Enviar código</Button>
+                    </InputGroupText>
+                  </InputGroup>
                       <ErrorMessage name="coin_CorreoElectronico" component="div" className="text-danger"/>
-                    </FormGroup>
-                  </Col>
-                  <Col md={2}>
-                    <FormGroup>
-                      <br></br>
-                    <Button className=" btn-shadow" color="alternate" onClick={() => codigoenviado(enviarCodigo)}>
-                    Enviar codigo
-                  </Button>
-                    </FormGroup>
-                  
-                  </Col>
-                  <Col md={4}>
-                    <FormGroup>
-                      <Label>Codigo confirmacion</Label>
-                      <Field
-                        as={Input}
-                        name="codigoConfirmacion"
-                        className="form-control"
-                        placeholder="Ingrese el código de confirmación.."
-                        onChange={(e) => setConfirmacionCodigo(e.target.value)}
-                      />
-
-                    </FormGroup>
-                  </Col>
-                  <Col md={2}>
-                    <FormGroup>
-                      <br></br>
+                      <InputGroup className="mt-2">
+                    <Field
+                      name="codigoConfirmacion"
+                      as={Input}
+                      placeholder="Código de confirmación."
+                      onChange={(e) => setConfirmacionCodigo(e.target.value)}
+                    />
+                    <InputGroupText>
                       <Button className="btn-shadow" color="alternate" onClick={() => confirmarcodigo(confirmacionCodigo)}>
-                        Confirmar Codigo
+                        Confirmar Código
                       </Button>
-
+                    </InputGroupText>
+                  </InputGroup>
                     </FormGroup>
-                  
                   </Col>
-                  
-                </Row>
-                <Row>
-                  <Col md={4}>
+                  <Col md={6}>
                     <FormGroup>
                       <Label for="coin_CorreoElectronicoAlternativo">Correo Electrónico Alternativo</Label>
+                      <InputGroup>
                       <Field
                         name="coin_CorreoElectronicoAlternativo"
                         as={Input}
                         className="form-control"
-                        placeholder="Ingrese su correo electrónico alternativo..."
+                        placeholder="Ingrese su correo electrónico."
                         onChange={(e) => {
                           setFieldValue('coin_CorreoElectronicoAlternativo', e.target.value);
-                          setEnviarCodigo2(e.target.value);
+                          setEnviarCodigo(e.target.value);
                         }}
                       />
+                      <InputGroupText>
+                      <Button className=" btn-shadow"  color="alternate" onClick={() => codigoenviado2(enviarCodigo)}>Enviar código</Button>
+                    </InputGroupText>
+                  </InputGroup>
                       <ErrorMessage name="coin_CorreoElectronicoAlternativo" component="div" className="text-danger"/>
-                    </FormGroup>
-                  </Col>
-                  <Col md={2}>
-                    <FormGroup>
-                      <br></br>
-                    <Button className=" btn-shadow" color="alternate" onClick={() => codigoenviado2(enviarCodigo)}>
-                    Enviar codigo
-                  </Button>
-                    </FormGroup>
-                  
-                  </Col>
-                  <Col md={4}>
-                    <FormGroup>
-                      <Label>Codigo confirmacion</Label>
-                      <Field
-                        as={Input}
-                        name="codigoConfirmacion"
-                        className="form-control"
-                        placeholder="Ingrese el código de confirmación.."
-                        onChange={(e) => setConfirmacionCodigo2(e.target.value)}
-                      />
-
-                    </FormGroup>
-                  </Col>
-                  <Col md={2}>
-                    <FormGroup>
-                      <br></br>
+                      <InputGroup className="mt-2">
+                    <Field
+                      name="codigoConfirmacion"
+                      as={Input}
+                      placeholder="Código de confirmación."
+                      onChange={(e) => setConfirmacionCodigo2(e.target.value)}
+                    />
+                    <InputGroupText>
                       <Button className="btn-shadow" color="alternate" onClick={() => confirmarcodigo2(confirmacionCodigo)}>
-                        Confirmar Codigo
+                        Confirmar Código
                       </Button>
-
+                    </InputGroupText>
+                  </InputGroup>
                     </FormGroup>
-                  
                   </Col>
-                  
                 </Row>
                 <ToastContainer />
               </Form>

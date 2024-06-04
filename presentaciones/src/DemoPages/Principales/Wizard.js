@@ -45,7 +45,6 @@ export default class MultiStep extends Component {
       showNextBtn: true,
       compState: 0,
       navState: getNavStates(0, this.props.steps.length),
-      isValid: false,
     };
   }
 
@@ -75,18 +74,19 @@ export default class MultiStep extends Component {
       this.setNavState(evt.currentTarget.value);
     }
   };
+  
   next = async () => {
     if (this.childFormikSubmit.current) {
-      console.log(this.state.isValid);
-      if (this.state.isValid) {
+      const isValid = await this.childFormikSubmit.current(); 
+      if (isValid) {
         this.setNavState(this.state.compState + 1); 
       } else {
-        toast.error("Por favor, complete todos los campos obligatorios o corríjalos."); 
+        this.setNavState(this.state.compState + 1); 
+
+       // toast.error("Por favor, complete todos los campos obligatorios o corríjalos."); 
       }
     }
   };
-  
-  
 
   previous = () => {
     if (this.state.compState > 0) {

@@ -24,7 +24,6 @@ const validationSchema = Yup.object().shape({
     .matches(/^[a-zA-Z0-9]+$/, "El número local solo debe contener letras y números."),
   coin_PuntoReferenciaReprentante: Yup.string()
     .required("El punto de referencia es requerido.")
-    .matches(/^[a-zA-Z0-9]+$/, "El punto de referencia solo debe contener letras y números."),
 });
 
 const WizardStep3 = ({ onNext, childFormikSubmit,ideditar }) => {
@@ -157,7 +156,11 @@ const WizardStep3 = ({ onNext, childFormikSubmit,ideditar }) => {
     await listarColonias(ciudadId);
   };
 
+  let seenvio = false;
   const handleSubmit = async (values, { setSubmitting }) => {
+    if (seenvio) return;
+     
+      seenvio = true; 
     const fechaActual = new Date().toISOString(); 
 
     const ComercianteAInsertar = {
@@ -179,7 +182,6 @@ const WizardStep3 = ({ onNext, childFormikSubmit,ideditar }) => {
         }
       });
       setSubmitting(false);
-      onNext();
     } catch (error) {
       toast.error("Error al insertar datos.");
       setSubmitting(false);

@@ -7,121 +7,17 @@ import { ToastContainer, toast } from "react-toastify";
 import 'react-toastify/dist/ReactToastify.css';
 
 const urlAPI = 'https://localhost:44380/api/ComercianteIndividual';
-const urlProvincia = 'https://localhost:44380/api/Provincias';
-const urlCiudad = 'https://localhost:44380/api/Ciudades';
-const urlAldea = 'https://localhost:44380/api/Aldea';
-const urlColonia = 'https://localhost:44380/api/Colonias';
+const urlDocumento= 'https://localhost:44380/api/DocumentosContratos';
 const keyAPI = '4b567cb1c6b24b51ab55248f8e66e5cc';
 const keyencriptada = 'FZWv3nQTyHYyNvdx';
 
-const validationSchema = Yup.object().shape({
-  pvin_Id: Yup.number().required("La provincia es requerida."),
-  ciud_Id: Yup.number().required("La ciudad es requerida."),
-  alde_Id: Yup.number().required("La aldea es requerida."),
-  colo_Id: Yup.number().required("La colonia es requerida."),
-  coin_NumeroLocalApart: Yup.string()
-    .required("El número local del apartamento es requerido.")
-    .matches(/^[a-zA-Z0-9]+$/, "El número local solo debe contener letras y números."),
-  coin_PuntoReferencia: Yup.string()
-    .required("El punto de referencia es requerido.")
-    .matches(/^[a-zA-Z0-9]+$/, "El punto de referencia solo debe contener letras y números."),
-});
-
-const WizardStep2 = ({ onNext, childFormikSubmit,ideditar }) => {
-  const [dataProvincia, setDataProvincia] = useState([]);
-  const [dataCiudad, setDataCiudad] = useState([]);
-  const [dataAldea, setDataAldea] = useState([]);
-  const [dataColonia, setDataColonia] = useState([]);
+const WizardStep6 = ({ onNext, childFormikSubmit,ideditar }) => {
   const [ultimoCoinId, setUltimoCoinId] = useState(null);
-  const [selectedProvincia, setSelectedProvincia] = useState("");
-const [selectedCiudad, setSelectedCiudad] = useState("");
-const [registro, setRegistro] = useState(null);
-const [cargando, setcargando] = useState(true);
 
-useEffect(() => {
-  const fetchData = async () => {
-    try {
-      await listarProvincias();
-      await listarComerciantes();
-      if (ideditar) {
-        const response = await axios.get(`${urlAPI}/Listar`, {
-          headers: {
-            'XApiKey': keyAPI,
-            'EncryptionKey': keyencriptada
-          }
-        });
-        const lista = response.data.data;
-        const registroo = lista.find((list) => list.coin_Id === ideditar);
-        console.log('ddd',registroo);
-        setRegistro(registroo);
 
-        const provinciaId = registroo.pvin_Id;
-        const ciudadId = registroo.ciud_Id;
-        await listarCiudades(provinciaId); await listarAldeas(ciudadId); await listarColonias(ciudadId);
-      }
-    } catch (error) {
-      console.error('Error al obtener detalles del comerciante', error);
-      toast.error("Error al obtener los detalles del comerciante.");
-    } finally {
-      setcargando(false);
-    }
-  };
-
-  fetchData();
-}, [ideditar]);
-
-  const listarProvincias = async () => {
-      const response = await axios.get(`${urlProvincia}/Listar?pvin_EsAduana=false`, {
-        headers: {
-          'XApiKey': keyAPI,
-          'EncryptionKey': keyencriptada
-        }
-      });
-      setDataProvincia(response.data.data|| []);
-  };
-
-  const listarCiudades = async (provinciaId) => {
-    try {
-      const response = await axios.get(`${urlCiudad}/CiudadesFiltradaPorProvincias?pvin_Id=${provinciaId}`, {
-        headers: {
-          'XApiKey': keyAPI,
-          'EncryptionKey': keyencriptada
-        }
-      });
-      setDataCiudad(response.data.data || []);
-    } catch (error) {
-      toast.error("Error al listar las ciudades.");
-    }
-  };
-  
-  const listarAldeas = async (ciudadId) => {
-    try {
-      const response = await axios.get(`${urlAldea}/FiltrarPorCiudades?alde_Id=${ciudadId}`, {
-        headers: {
-          'XApiKey': keyAPI,
-          'EncryptionKey': keyencriptada,
-        }
-      });
-      setDataAldea(response.data || []);
-    } catch (error) {
-      toast.error("Error al listar las aldeas.");
-    }
-  };
-  
-  const listarColonias = async (ciudadId) => {
-    try {
-      const response = await axios.get(`${urlColonia}/FiltrarPorCiudad?ciud_Id=${ciudadId}`, {
-        headers: {
-          'XApiKey': keyAPI,
-          'EncryptionKey': keyencriptada
-        }
-      });
-      setDataColonia(response.data || []);
-    } catch (error) {
-      toast.error("Error al listar las colonias.");
-    }
-  };
-  
+  useEffect(() => {
+    listarComerciantes();
+  }, []);
 
   const listarComerciantes = async () => {
     try {
@@ -139,21 +35,6 @@ useEffect(() => {
     }
   };
 
-  const ProvinciaCambio = async (event, setFieldValue) => {
-    const provinciaId = event.target.value;
-    setSelectedProvincia(provinciaId);
-    setFieldValue('pvin_Id', provinciaId);
-    await listarCiudades(provinciaId);
-  };
-
-  const CiudadCambio = async (event, setFieldValue) => {
-    const ciudadId = event.target.value;
-    console.log(ciudadId);
-    setSelectedCiudad(ciudadId);
-    setFieldValue('ciud_Id', ciudadId);
-    await listarAldeas(ciudadId);
-    await listarColonias(ciudadId);
-  };
   
   let seenvio = false;
   const handleSubmit = async (values, { setSubmitting }) => {
@@ -172,7 +53,7 @@ useEffect(() => {
       usua_UsuarioModificacion: 1,
       coin_FechaModificacion: fechaActual,
     };
-    console.log('insertar2',ComercianteAInsertar);
+    console.log('insertar6',ComercianteAInsertar);
 
     try {
       const response = await axios.post(`${urlAPI}/InsertarTap2`, ComercianteAInsertar, {
@@ -191,15 +72,14 @@ useEffect(() => {
 
   return (
     <Row>
-    {!cargando && (
     <Formik
       initialValues={{
-        pvin_Id: registro ? registro.pvin_Id:"",
-        ciud_Id: registro ? registro.ciud_Id:"",
-        alde_Id:registro ? registro.alde_Id: "",
-        colo_Id: registro ? registro.colo_Id:"",
-        coin_NumeroLocalApart:registro ? registro.coin_NumeroLocalApart: "",
-        coin_PuntoReferencia: registro ? registro.coin_PuntoReferencia:""
+        pvin_Id: "",
+        ciud_Id: "",
+        alde_Id: "",
+        colo_Id: "",
+        coin_NumeroLocalApart:"",
+        coin_PuntoReferencia: ""
       }}
       validationSchema={validationSchema}
       onSubmit={handleSubmit}
@@ -313,9 +193,8 @@ useEffect(() => {
             );
           }}
         </Formik>
-      )}
     </Row>
   );
 };
 
-export default WizardStep2;
+export default WizardStep6;
