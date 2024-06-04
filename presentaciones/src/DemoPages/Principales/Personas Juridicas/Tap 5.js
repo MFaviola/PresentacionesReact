@@ -68,7 +68,7 @@ const Tap5 = ({ pejuId, onNext }) => {
               )}
             </Col>
           </Row>
-          <Button type="submit" color="primary">Subir</Button>
+          {/* <Button type="submit" color="primary">Subir</Button> */}
           <ToastContainer />
         </Form>
       )}

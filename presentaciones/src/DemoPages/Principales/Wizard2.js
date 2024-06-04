@@ -74,15 +74,18 @@ export default class MultiStep extends Component {
       this.setNavState(evt.currentTarget.value);
     }
   };
-
   next = async () => {
-    try {
-      await this.childFormikSubmit.current();
-      this.setNavState(this.state.compState + 1);
-    } catch (error) {
-      toast.error("Los campos son obligatorios.");
+    if (this.childFormikSubmit.current) {
+      const isValid = await this.childFormikSubmit.current(); 
+      if (isValid) {
+        this.setNavState(this.state.compState + 1); 
+      } else {
+        toast.error("Por favor, complete todos los campos obligatorios o corríjalos."); 
+      }
     }
   };
+  
+  
 
   previous = () => {
     if (this.state.compState > 0) {
@@ -108,6 +111,13 @@ export default class MultiStep extends Component {
     ));
   };
 
+  handleFinish = () => {
+    if (this.props.onCancel) {
+      this.props.onCancel();
+    }
+    this.setState({ ...this.initialState });
+  };
+
   render() {
     const { steps } = this.props;
     const { compState } = this.state;
@@ -115,30 +125,23 @@ export default class MultiStep extends Component {
     return (
       <div onKeyDown={this.handleKeyDown}>
         <ol className="forms-wizard">{this.renderSteps()}</ol>
-        {React.cloneElement(steps[compState].component, { childFormikSubmit: this.childFormikSubmit })}
+        {React.cloneElement(steps[compState].component, { childFormikSubmit: this.childFormikSubmit,onFinish: this.handleFinish})}
         <div className="divider" />
         <div className="clearfix">
-          <div style={this.props.showNavigation ? {} : { display: "none" }}>
-            <Button color="secondary" className="btn-shadow float-start btn-wide btn-pill" outline
-              style={this.state.showPreviousBtn ? {} : { display: "none" }} onClick={this.previous}>
-              Volver
-            </Button>
-           
-            <Button color="primary" className="btn-shadow btn-wide float-end btn-pill btn-hover-shine"
-              style={this.state.showNextBtn ? {} : { display: "none" }} onClick={this.next}>
-              Siguiente
-            </Button>
-            <Button color="light" className="mb-2 me-2 btn-shadow btn-wide float-end btn-pill btn-hover-shine"
-              onClick={this.props.onCancel}>
+          <Button color="secondary" className="btn-shadow float-start btn-wide btn-pill" outline
+            style={this.state.showPreviousBtn ? {} : { display: "none" }} onClick={this.previous}>
+            Volver
+          </Button>
+          <Button color="primary" className="btn-shadow btn-wide float-end btn-pill btn-hover-shine"
+            style={this.state.showNextBtn ? {} : { display: "none" }} onClick={this.next}>
+            Siguiente
+          </Button>
+          <Button color="light" className="mb-2 me-2 btn-shadow btn-wide float-end btn-pill btn-hover-shine"
+              onClick={this.handleFinish}>
               Cancelar
-            </Button>
-          </div>
+          </Button>
         </div>
       </div>
     );
   }
 }
-
-MultiStep.defaultProps = {
-  showNavigation: true,
-};
