@@ -1,5 +1,5 @@
-import React, { Fragment, useState, useEffect } from "react";
-import { Row, Col, FormGroup, Label, Input } from "reactstrap";
+import React, { useState, useEffect } from "react";
+import { Row, Col, FormGroup, Label, Input, Form,Button } from "reactstrap";
 import { ToastContainer, toast } from "react-toastify";
 import 'react-toastify/dist/ReactToastify.css';
 import axios from 'axios';
@@ -10,20 +10,31 @@ const urlAPI = 'https://localhost:44380/api/ComercianteIndividual';
 const keyAPI = '4b567cb1c6b24b51ab55248f8e66e5cc';
 const keyencriptada = 'FZWv3nQTyHYyNvdx';
 
-const WizardStep5 = ({ setIsStep5Valid, coinIdToEdit }) => {
+const validationSchema = Yup.object().shape({
+  coin_TelefonoCelular: Yup.string()
+    .matches(/^\d+$/, "El teléfono celular solo debe contener números.")
+    .required("El teléfono celular es requerido."),
+  coin_TelefonoFijo: Yup.string()
+    .matches(/^\d+$/, "El teléfono fijo solo debe contener números.")
+    .required("El teléfono fijo es requerido."),
+  coin_CorreoElectronico: Yup.string()
+    .email("El correo electrónico no es válido.")
+    .required("El correo electrónico es requerido."),
+  coin_CorreoElectronicoAlternativo: Yup.string()
+    .email("El correo electrónico alternativo no es válido.")
+    .required("El correo electrónico alternativo es requerido.")
+});
+
+const WizardStep5 = ({ onNext, childFormikSubmit,ideditar }) => {
   const [data, setData] = useState([]);
-  const [nueva, setNueva] = useState({
-    coin_TelefonoCelular: "",
-    coin_TelefonoFijo: "",
-  });
   const [registro, setRegistro] = useState(null);
-  const [isLoading, setIsLoading] = useState(true);
+  const [cargabdo, setcargabdo] = useState(true);
 
   useEffect(() => {
     const fetchData = async () => {
       try {
         await listarComerciantes();
-        if (coinIdToEdit) {
+        if (ideditar) {
           const response = await axios.get(`${urlAPI}/Listar`, {
             headers: {
               'XApiKey': keyAPI,
@@ -31,19 +42,19 @@ const WizardStep5 = ({ setIsStep5Valid, coinIdToEdit }) => {
             }
           });
           const lista = response.data.data;
-          const registroo = lista.find((list) => list.coin_Id === coinIdToEdit);
+          const registroo = lista.find((list) => list.coin_Id === ideditar);
           setRegistro(registroo);
         }
       } catch (error) {
         console.error('Error al obtener detalles del comerciante', error);
         toast.error("Error al obtener los detalles del comerciante.");
       } finally {
-        setIsLoading(false);
+        setcargabdo(false);
       }
     };
   
     fetchData();
-  }, [coinIdToEdit]);
+  }, [ideditar]);
 
   const [tab3, setTab3] = useState(null);
 
@@ -60,154 +71,126 @@ const WizardStep5 = ({ setIsStep5Valid, coinIdToEdit }) => {
     setTab3(ultimo.coin_Id);
   };
 
-  const [alternativo, setalternativo] = useState(null);
+  const handleSubmit = async (values, { setSubmitting }) => {
+    const fechaActual = new Date().toISOString(); 
 
-  const insertarComerciante = async (values) => {
+    const ComercianteAInsertar = {
+      coin_Id: ideditar || tab3,
+      coin_TelefonoCelular: values.coin_TelefonoCelular,
+      coin_TelefonoFijo: values.coin_TelefonoFijo,
+      coin_CorreoElectronico: values.coin_CorreoElectronico,
+      coin_CorreoElectronicoAlternativo: values.coin_CorreoElectronicoAlternativo,
+      usua_UsuarioModificacion: 1,
+      coin_FechaModificacion: fechaActual,
+    };
+
     try {
-      const fechaActual = new Date().toISOString();
-      const ComercianteAInsertar = {
-        coin_Id: coinIdToEdit || tab3,
-        coin_TelefonoCelular: values.coin_TelefonoCelular,
-        coin_TelefonoFijo: values.coin_TelefonoFijo,
-        coin_CorreoElectronico: values.coin_CorreoElectronico,
-        coin_CorreoElectronicoAlternativo: hola,
-        usua_UsuarioModificacion: 1,
-        coin_FechaModificacion: fechaActual,
-      };
-      console.log('insertar 4', ComercianteAInsertar);
-
       const response = await axios.post(`${urlAPI}/InsertarTap4`, ComercianteAInsertar, {
         headers: {
           'XApiKey': keyAPI,
           'EncryptionKey': keyencriptada
         }
       });
-
-      setIsStep5Valid(true);
-
+      setSubmitting(false);
+      onNext();
     } catch (error) {
-      if (error.response && error.response.data) {
-        console.log("Error al insertar: " + error.response.data);
-      } else {
-        console.log("Error al insertar: " + error.message);
-      }
-      setIsStep5Valid(false);
+      toast.error("Error al insertar datos.");
+      setSubmitting(false);
+      throw error;
     }
   };
 
-  const validationSchema = Yup.object().shape({
-    coin_TelefonoCelular: Yup.string()
-      .matches(/^\d+$/, "El teléfono celular solo debe contener números.")
-      .required("El teléfono celular es requerido."),
-    coin_TelefonoFijo: Yup.string()
-      .matches(/^\d+$/, "El teléfono fijo solo debe contener números.")
-      .required("El teléfono fijo es requerido."),
-    coin_CorreoElectronico: Yup.string()
-      .email("El correo electrónico no es válido.")
-      .required("El correo electrónico es requerido."),
-    coin_CorreoElectronicoAlternativo: Yup.string()
-      .email("El correo electrónico alternativo no es válido.")
-      .required("El correo electrónico alternativo es requerido.")
-  });
-
-  const handleFormChange = (values) => {
-    setIsStep5Valid(validationSchema.isValidSync(values));
-  };
-  let hola = "";
-
-  const handleinsertaraChange = (e, setFieldValue, values) => {
-    hola= e.target.value;
-
-    setFieldValue('coin_CorreoElectronicoAlternativo', e.target.value);
-    handleFormChange(values);
-    insertarComerciante(values);
+  const confirmarcorreo = () => {
   };
 
   return (
-    <Fragment>
-      <div className="form-wizard-content">
-        <Row>
-          {!isLoading && (
-            <Formik
-              initialValues={{
-                coin_TelefonoCelular: registro ? registro.coin_TelefonoCelular : "",
-                coin_TelefonoFijo: registro ? registro.coin_TelefonoFijo : "",
-                coin_CorreoElectronico: registro ? registro.coin_CorreoElectronico : "",
-                coin_CorreoElectronicoAlternativo: registro ? registro.coin_CorreoElectronicoAlternativo : ""
-              }}
-              validationSchema={validationSchema}
-            >
-              {({ handleSubmit, values, setFieldValue }) => (
-                <form onBlur={handleSubmit} onChange={() => handleFormChange(values)}>
-                  <Row>
-                    <Col md={6}>
-                      <FormGroup>
-                        <Label for="coin_TelefonoCelular">Telefono celular</Label>
-                        <Input
-                          type="text"
-                          name="coin_TelefonoCelular"
-                          id="coin_TelefonoCelular"
-                          value={values.coin_TelefonoCelular}
-                          onChange={(e) => setFieldValue('coin_TelefonoCelular', e.target.value)}
-                          placeholder="Ingrese su telefono celular.."
-                        />
-                        <ErrorMessage name="coin_TelefonoCelular" component="div" className="text-danger" />
-                      </FormGroup>
-                    </Col>
-                    <Col md={6}>
-                      <FormGroup>
-                        <Label for="coin_TelefonoFijo">Telefono fijo</Label>
-                        <Input
-                          type="text"
-                          name="coin_TelefonoFijo"
-                          id="coin_TelefonoFijo"
-                          value={values.coin_TelefonoFijo}
-                          onChange={(e) => setFieldValue('coin_TelefonoFijo', e.target.value)}
-                          placeholder="Ingrese su telefono fijo.."
-                        />
-                        <ErrorMessage name="coin_TelefonoFijo" component="div" className="text-danger" />
-                      </FormGroup>
-                    </Col>
-                  </Row>
-                  <Row>
+    <Row>
+      {!cargabdo && (
+        <Formik
+          initialValues={{
+            coin_TelefonoCelular: registro ? registro.coin_TelefonoCelular : "",
+            coin_TelefonoFijo: registro ? registro.coin_TelefonoFijo : "",
+            coin_CorreoElectronico: registro ? registro.coin_CorreoElectronico : "",
+            coin_CorreoElectronicoAlternativo: registro ? registro.coin_CorreoElectronicoAlternativo : ""
+          }}
+          validationSchema={validationSchema}
+          onSubmit={handleSubmit}
+        >
+          {({ handleSubmit, setFieldValue }) => {
+            if (childFormikSubmit) {
+              childFormikSubmit.current = handleSubmit;
+            }
+            return (
+              <Form onSubmit={handleSubmit}>
+                <Row>
                   <Col md={6}>
-                      <FormGroup>
-                        <Label for="coin_CorreoElectronico">Correo electronico</Label>
-                        <Input
-                          type="text"
-                          name="coin_CorreoElectronico"
-                          id="coin_CorreoElectronico"
-                          value={values.coin_CorreoElectronico}
-                          onChange={(e) => setFieldValue('coin_CorreoElectronico', e.target.value)}
-                          placeholder="Ingrese su correo electronico.."
-                        />
-                        <ErrorMessage name="coin_CorreoElectronico" component="div" className="text-danger" />
-                      </FormGroup>
-                    </Col>
-                    <Col md={6}>
-                      <FormGroup>
-                        <Label for="coin_CorreoElectronicoAlternativo">Correo electronico alternativo</Label>
-                        <Input
-                          type="text"
-                          name="coin_CorreoElectronicoAlternativo"
-                          id="coin_CorreoElectronicoAlternativo"
-                          value={values.coin_CorreoElectronicoAlternativo}
-                          onChange={(e) => handleinsertaraChange(e, setFieldValue, values)}
-                          placeholder="Ingrese su correo electronico alternativo.."
-                        />
-                        <ErrorMessage name="coin_CorreoElectronicoAlternativo" component="div" style={{ color: 'red' }} />
-                      </FormGroup>
-                    </Col>
-                  </Row>
-                </form>
-              )}
-            </Formik>
-          )}
-          {isLoading && <div>Cargando datos del comerciante...</div>}
-        </Row>
-      </div>
-      <ToastContainer />
-    </Fragment>
+                    <FormGroup>
+                      <Label for="coin_TelefonoCelular">Teléfono Celular</Label>
+                      <Field
+                        name="coin_TelefonoCelular"
+                        as={Input}
+                        className="form-control"
+                        placeholder="Ingrese su teléfono celular..."
+                      />
+                      <ErrorMessage name="coin_TelefonoCelular" component="div"className="text-danger" />
+                    </FormGroup>
+                  </Col>
+                  <Col md={6}>
+                    <FormGroup>
+                      <Label for="coin_TelefonoFijo">Teléfono Fijo</Label>
+                      <Field
+                        name="coin_TelefonoFijo"
+                        as={Input}
+                        className="form-control"
+                        placeholder="Ingrese su teléfono fijo..."
+                      />
+                      <ErrorMessage name="coin_TelefonoFijo" component="div" className="text-danger" />
+                    </FormGroup>
+                  </Col>
+                </Row>
+                <Row>
+                  <Col md={4}>
+                    <FormGroup>
+                      <Label for="coin_CorreoElectronico">Correo Electrónico</Label>
+                      <Field
+                        name="coin_CorreoElectronico"
+                        as={Input}
+                        className="form-control"
+                        placeholder="Ingrese su correo electrónico..."
+                      />
+                      <ErrorMessage name="coin_CorreoElectronico" component="div" className="text-danger"/>
+                    </FormGroup>
+                  </Col>
+                  <Col md={2}>
+                    <FormGroup>
+                      <br></br>
+                    <Button className=" btn-shadow" color="alternate" onClick={() => confirmarcorreo()}>
+                    Confirmar Correo
+                  </Button>
+                    </FormGroup>
+                  
+                  </Col>
+                 
+                  <Col md={6}>
+                    <FormGroup>
+                      <Label for="coin_CorreoElectronicoAlternativo">Correo Electrónico Alternativo</Label>
+                      <Field
+                        name="coin_CorreoElectronicoAlternativo"
+                        as={Input}
+                        className="form-control"
+                        placeholder="Ingrese su correo electrónico alternativo..."
+                      />
+                      <ErrorMessage name="coin_CorreoElectronicoAlternativo" component="div" className="text-danger"/>
+                    </FormGroup>
+                  </Col>
+                </Row>
+                <ToastContainer />
+              </Form>
+            );
+          }}
+        </Formik>
+      )}
+    </Row>
   );
 };
 
