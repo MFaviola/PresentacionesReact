@@ -37,10 +37,10 @@ const Tap5 = ({ pejuId, onNext }) => {
       console.log('Insert response:', response.data);
       setSubmitting(false);
       toast.success("Documento subido correctamente");
-      onNext(); // Move to the next step
+      onNext(); 
     } catch (error) {
-      console.error('Error uploading document', error);
-      toast.error("Error al subir el documento.");
+      // console.error('Error uploading document', error);
+      // toast.error("Error al subir el documento.");
       setSubmitting(false);
       throw error;
     }

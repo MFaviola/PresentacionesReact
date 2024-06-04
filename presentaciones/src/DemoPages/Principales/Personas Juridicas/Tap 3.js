@@ -143,11 +143,10 @@ const Tap3 = ({ pejuId, childFormikSubmit, onNext }) => {
       });
       console.log('Insert response:', response.data);
       setSubmitting(false);
-      toast.success("Datos insertados correctamente");
+      // toast.success("Datos insertados correctamente");
       onNext(); 
     } catch (error) {
-      console.error('Error inserting data', error);
-      toast.error("Error al insertar datos.");
+      // toast.error("Error al insertar datos.");
       setSubmitting(false);
       throw error; 
     }
