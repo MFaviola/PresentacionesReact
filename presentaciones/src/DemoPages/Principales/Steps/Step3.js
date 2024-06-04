@@ -1,263 +1,283 @@
-import React, { Fragment, useState, useEffect } from "react";
-import { Row, Col, FormGroup, Label, Input } from "reactstrap";
-import { ToastContainer, toast } from "react-toastify";
+import React, { useEffect, useState } from "react";
+import { Formik, Field, ErrorMessage } from "formik";
+import * as Yup from "yup";
+import { Form, FormGroup, Label, Input, Col, Row } from "reactstrap";
+import axios from "axios";
+import { ToastContainer,toast } from "react-toastify";
 import 'react-toastify/dist/ReactToastify.css';
-import axios from 'axios';
-import { Formik, Field, ErrorMessage } from 'formik';
-import * as Yup from 'yup';
 
-const urlAPI = 'https://localhost:44380/api/ComercianteIndividual'; 
-const urlCiudad = 'https://localhost:44380/api/Ciudades'; 
-const urlAldea = 'https://localhost:44380/api/Aldea'; 
-const urlColonia = 'https://localhost:44380/api/Colonias'; 
+const urlAPI = 'https://localhost:44380/api/ComercianteIndividual';
+const urlProvincia = 'https://localhost:44380/api/Provincias';
+const urlCiudad = 'https://localhost:44380/api/Ciudades';
+const urlAldea = 'https://localhost:44380/api/Aldea';
+const urlColonia = 'https://localhost:44380/api/Colonias';
 const keyAPI = '4b567cb1c6b24b51ab55248f8e66e5cc';
 const keyencriptada = 'FZWv3nQTyHYyNvdx';
 
-const WizardStep3 = ({ setIsStep3Valid }) => {
-  const [data, setData] = useState([]);
+const validationSchema = Yup.object().shape({
+  coin_CiudadRepresentante: Yup.number().required("La ciudad es requerida."),
+  coin_AldeaRepresentante: Yup.number().required("La aldea es requerida."),
+  coin_coloniaIdRepresentante: Yup.number().required("La colonia es requerida."),
+  coin_NumeroLocaDepartRepresentante: Yup.string()
+    .required("El número local del apartamento es requerido.")
+    .matches(/^[a-zA-Z0-9]+$/, "El número local solo debe contener letras y números."),
+  coin_PuntoReferenciaReprentante: Yup.string()
+    .required("El punto de referencia es requerido.")
+    .matches(/^[a-zA-Z0-9]+$/, "El punto de referencia solo debe contener letras y números."),
+});
+
+const WizardStep3 = ({ onNext, childFormikSubmit }) => {
+  const [dataProvincia, setDataProvincia] = useState([]);
   const [dataCiudad, setDataCiudad] = useState([]);
   const [dataAldea, setDataAldea] = useState([]);
   const [dataColonia, setDataColonia] = useState([]);
-  const [nueva, setNueva] = useState({
-    coin_CiudadRepresentante: "",
-    coin_AldeaRepresentante: "",
-    coin_coloniaIdRepresentante: "",
-    coin_NumeroLocaDepartRepresentante: "",
-    coin_PuntoReferenciaReprentante: "",
-  });
+  const [ultimoCoinId, setUltimoCoinId] = useState(null);
+  const [selectedProvincia, setSelectedProvincia] = useState("");
+  const [selectedCiudad, setSelectedCiudad] = useState("");
 
   useEffect(() => {
-    listarCiudades();
-    listarAldeas();
-    listarColonias();
-   listarComerciantes();
-
+    listarProvincias();
+    listarComerciantes();
   }, []);
 
-  const sesionesaduana = 0;
-  let esaduana = false;
-  if(sesionesaduana)
-    {
-      esaduana = true;
-    }
-  const listarCiudades = async () => {
+  const listarProvincias = async () => {
     try {
-      const response = await axios.get(`${urlCiudad}/Listar?ciud_EsAduana=${esaduana}`, {
+      const response = await axios.get(`${urlProvincia}/Listar?pvin_EsAduana=false`, {
         headers: {
           'XApiKey': keyAPI,
           'EncryptionKey': keyencriptada
         }
       });
-      setDataCiudad(response.data.data);
+      setDataProvincia(response.data.data || []);
+    } catch (error) {
+      toast.error("Error al listar las provincias.");
+    }
+  };
+
+  const listarCiudades = async (provinciaId) => {
+    try {
+      const response = await axios.get(`${urlCiudad}/CiudadesFiltradaPorProvincias?pvin_Id=${provinciaId}`, {
+        headers: {
+          'XApiKey': keyAPI,
+          'EncryptionKey': keyencriptada
+        }
+      });
+      setDataCiudad(response.data.data || []);
     } catch (error) {
       toast.error("Error al listar las ciudades.");
     }
   };
 
-  const listarAldeas = async () => {
+ 
+  const listarAldeas = async (ciudadId) => {
     try {
-      const response = await axios.get(`${urlAldea}/Listar`, {
+      const response = await axios.get(`${urlAldea}/FiltrarPorCiudades?alde_Id=${ciudadId}`, {
         headers: {
           'XApiKey': keyAPI,
           'EncryptionKey': keyencriptada,
         }
       });
-      setDataAldea(response.data.data);
+      setDataAldea(response.data || []);
     } catch (error) {
       toast.error("Error al listar las aldeas.");
     }
   };
-
-  const listarColonias = async () => {
+  
+  const listarColonias = async (ciudadId) => {
     try {
-      const response = await axios.get(`${urlColonia}/Listar`, {
+      const response = await axios.get(`${urlColonia}/FiltrarPorCiudad?ciud_Id=${ciudadId}`, {
         headers: {
           'XApiKey': keyAPI,
           'EncryptionKey': keyencriptada
         }
       });
-      setDataColonia(response.data.data);
+      setDataColonia(response.data || []);
     } catch (error) {
       toast.error("Error al listar las colonias.");
     }
   };
-
-  const [ultimoCoinId, setUltimoCoinId] = useState(null);
+  
 
   const listarComerciantes = async () => {
+    try {
       const response = await axios.get(`${urlAPI}/Listar`, {
         headers: {
           'XApiKey': keyAPI,
           'EncryptionKey': keyencriptada
         }
       });
-      setData(response.data.data);
-      const listaentera = response.data.data;
-      const ultimoObjeto = listaentera[listaentera.length - 1];
-      setUltimoCoinId(ultimoObjeto.coin_Id); 
- };
+      const lista = response.data.data;
+      const ultimoObjeto = lista[lista.length - 1];
+      setUltimoCoinId(ultimoObjeto.coin_Id);
+    } catch (error) {
+      toast.error("Error al listar los comerciantes.");
+    }
+  };
 
-  const insertarComerciante = async (values) => {
+  const handleProvinciaChange = async (event, setFieldValue) => {
+    const provinciaId = event.target.value;
+    setSelectedProvincia(provinciaId);
+    setFieldValue('pvin_Id', provinciaId);
+    await listarCiudades(provinciaId);
+  };
+
+  const handleCiudadChange = async (event, setFieldValue) => {
+    const ciudadId = event.target.value;
+    setSelectedCiudad(ciudadId);
+    setFieldValue('coin_CiudadRepresentante', ciudadId);
+    await listarAldeas(ciudadId);
+    await listarColonias(ciudadId);
+  };
+
+  const handleSubmit = async (values, { setSubmitting }) => {
+    const fechaActual = new Date().toISOString(); 
+
+    const ComercianteAInsertar = {
+      coin_Id: ultimoCoinId,
+      coin_CiudadRepresentante: values.coin_CiudadRepresentante,
+      coin_AldeaRepresentante: values.coin_AldeaRepresentante,
+      coin_coloniaIdRepresentante: values.coin_coloniaIdRepresentante,
+      coin_NumeroLocaDepartRepresentante: values.coin_NumeroLocaDepartRepresentante,
+      coin_PuntoReferenciaReprentante: values.coin_PuntoReferenciaReprentante,
+      usua_UsuarioModificacion: 1,
+      coin_FechaModificacion: fechaActual,
+    };
+    console.log('insertar 3',ComercianteAInsertar);
     try {
-      const fechaActual = new Date().toISOString(); 
-      const ComercianteAInsertar = {
-        coin_Id: ultimoCoinId,
-        coin_CiudadRepresentante: values.coin_CiudadRepresentante,
-        coin_AldeaRepresentante: values.coin_AldeaRepresentante,
-        coin_coloniaIdRepresentante: values.coin_coloniaIdRepresentante,
-        coin_NumeroLocaDepartRepresentante: values.coin_NumeroLocaDepartRepresentante,
-        coin_PuntoReferenciaReprentante: hola,
-        usua_UsuarioModificacion: 1,
-        coin_FechaModificacion: fechaActual,
-      };
-      console.log('insertar 3',ComercianteAInsertar);
-
       const response = await axios.post(`${urlAPI}/InsertarTap3`, ComercianteAInsertar, {
         headers: {
           'XApiKey': keyAPI,
           'EncryptionKey': keyencriptada
         }
       });
-
-      if(ComercianteAInsertar != null)
-        setIsStep3Valid(true);
-
+      setSubmitting(false);
+      onNext();
     } catch (error) {
-      if (error.response && error.response.data) {
-        console.log("Error al insertar: " + error.response.data);
-      } else {
-        console.log("Error al insertar: " + error.message);
-      }
-      setIsStep3Valid(false);
+      toast.error("Error al insertar datos.");
+      setSubmitting(false);
+      throw error;
     }
   };
 
-  const validationSchema = Yup.object().shape({
-    coin_CiudadRepresentante: Yup.number().required("La ciudad es requerida."),
-    coin_AldeaRepresentante: Yup.number().required("La aldea es requerida."),
-    coin_coloniaIdRepresentante: Yup.number().required("La colonia es requerida."),
-    coin_NumeroLocaDepartRepresentante: Yup.string().required("El numero locar del representante es requerido.")
-    .matches(/^[a-zA-Z0-9]+$/, "El numero del local solo debe contener letras y números."), 
-    coin_PuntoReferenciaReprentante: Yup.string().required("El punto de referencia del representante es requerido.")    
-    .matches(/^[a-zA-Z0-9]+$/, "El punto de referencia solo debe contener letras y números."), 
-  });
-
-  const handleFormChange = (values) => {
-    setIsStep3Valid(validationSchema.isValidSync(values));
-  };
-
-  let hola = "";
-  const handleinsertarChange = (e, setFieldValue, values) => {
-    hola= e.target.value;
-
-    setFieldValue('coin_PuntoReferenciaReprentante', e.target.value);
-    handleFormChange(values);
-   insertarComerciante(values);
-  };
-
   return (
-    <Fragment>
-      <div className="form-wizard-content">
-        <Row>
-          <Formik
-            initialValues={nueva}
-            validationSchema={validationSchema}
-          >
-            {({ handleSubmit, values, setFieldValue }) => (
-              <form onBlur={handleSubmit} onChange={() => handleFormChange(values)}>
-              <Row>
-                 <Col md={6}>
-                    <FormGroup>
-                      <Label for="coin_CiudadRepresentante">Ciudad del representante</Label>
-                      <Input
-                        type="select"
-                        name="coin_CiudadRepresentante"
-                        id="coin_CiudadRepresentante"
-                        value={values.coin_CiudadRepresentante}
-                        onChange={(e) => setFieldValue('coin_CiudadRepresentante', e.target.value)}>
-                        <option value="">Seleccione la ciudad del representante</option>
-                        {dataCiudad.map((ciudad) => (
-                          <option key={ciudad.ciud_Id} value={ciudad.ciud_Id}>{ciudad.ciud_Nombre}</option>
-                        ))}
-                      </Input>
-                      <ErrorMessage name="coin_CiudadRepresentante" component="div" style={{ color: 'red' }} />
-                    </FormGroup>
-                  </Col>
-                  <Col md={6}>
-                    <FormGroup>
-                      <Label for="coin_AldeaRepresentante">Aldea del representante</Label>
-                      <Input
-                        type="select"
-                        name="coin_AldeaRepresentante"
-                        id="coin_AldeaRepresentante"
-                        value={values.coin_AldeaRepresentante}
-                        onChange={(e) => setFieldValue('coin_AldeaRepresentante', e.target.value)}>
-                        <option value="">Seleccione la aldea del representante</option>
-                        {dataAldea.map((aldea) => (
-                          <option key={aldea.alde_Id} value={aldea.alde_Id}>{aldea.alde_Nombre}</option>
-                        ))}
-                      </Input>
-                      <ErrorMessage name="coin_AldeaRepresentante" component="div" style={{ color: 'red' }} />
-                    </FormGroup>
-                  </Col>
-                </Row>
-                <Row>
-                <Col md={6}>
-                    <FormGroup>
-                      <Label for="coin_coloniaIdRepresentante">Colonia del representante</Label>
-                      <Input
-                        type="select"
-                        name="coin_coloniaIdRepresentante"
-                        id="coin_coloniaIdRepresentante"
-                        value={values.coin_coloniaIdRepresentante}
-                        onChange={(e) => setFieldValue('coin_coloniaIdRepresentante', e.target.value)}>
-                        <option value="">Seleccione la colonia del representante</option>
-                        {dataColonia.map((colonia) => (
-                          <option key={colonia.colo_Id} value={colonia.colo_Id}>{colonia.colo_Nombre}</option>
-                        ))}
-                      </Input>
-                      <ErrorMessage name="coin_coloniaIdRepresentante" component="div" style={{ color: 'red' }} />
-                    </FormGroup>
-                  </Col>
-                  <Col md={6}>
-                    <FormGroup>
-                      <Label for="coin_NumeroLocaDepartRepresentante">Numero local del representante</Label>
-                      <Input
-                        type="text"
-                        name="coin_NumeroLocaDepartRepresentante"
-                        id="coin_NumeroLocaDepartRepresentante"
-                        value={values.coin_NumeroLocaDepartRepresentante}
-                        onChange={(e) => setFieldValue('coin_NumeroLocaDepartRepresentante', e.target.value)}
-                        placeholder="Ingrese el numero local del representante.."
-                      />
-                      <ErrorMessage name="coin_NumeroLocaDepartRepresentante" component="div" className="text-danger" />
-                    </FormGroup>
-                  </Col>
-                </Row>
-                <Row>
-                <Col md={6}>
-                    <FormGroup>
-                      <Label for="coin_PuntoReferenciaReprentante">Punto referencia representante</Label>
-                      <Input
-                        type="text"
-                        name="coin_PuntoReferenciaReprentante"
-                        id="coin_PuntoReferenciaReprentante"
-                        value={values.coin_PuntoReferenciaReprentante}
-                        onChange={(e) => handleinsertarChange(e, setFieldValue, values)}
-                        placeholder="Ingrese el punto de referencia del representante.."
-                      />
-                      <ErrorMessage name="coin_PuntoReferenciaReprentante" component="div" style={{ color: 'red' }} />
-                    </FormGroup>
-                  </Col>
-                 
-                </Row>
-              </form>
-            )}
-          </Formik>
-        </Row>
-      </div>
-      <ToastContainer />
-    </Fragment>
+    <Formik
+      initialValues={{
+        coin_CiudadRepresentante: "",
+        coin_AldeaRepresentante: "",
+        coin_coloniaIdRepresentante: "",
+        coin_NumeroLocaDepartRepresentante: "",
+        coin_PuntoReferenciaReprentante: ""
+      }}
+      validationSchema={validationSchema}
+      onSubmit={handleSubmit}
+    >
+      {({ handleSubmit, setFieldValue }) => {
+        if (childFormikSubmit) {
+          childFormikSubmit.current = handleSubmit;
+        }
+        return (
+          <Form onSubmit={handleSubmit}>
+            <Row>
+              <Col md={6}>
+                <FormGroup>
+                  <Label for="pvin_Id">Provincia</Label>
+                  <Field
+                    name="pvin_Id"
+                    as="select"
+                    className="form-control"
+                    onChange={(e) => handleProvinciaChange(e, setFieldValue)}
+                  >
+                    <option value="">Seleccione su provincia</option>
+                    {dataProvincia.map(provincia => (
+                      <option key={provincia.pvin_Id} value={provincia.pvin_Id}>{provincia.pvin_Nombre}</option>
+                    ))}
+                  </Field>
+                  <ErrorMessage name="pvin_Id" component="div" className="text-danger" />
+                </FormGroup>
+              </Col>
+              <Col md={6}>
+                <FormGroup>
+                  <Label for="coin_CiudadRepresentante">Ciudad del representante</Label>
+                  <Field
+                    name="coin_CiudadRepresentante"
+                    as="select"
+                    className="form-control"
+                    onChange={(e) => handleCiudadChange(e, setFieldValue)}
+                  >
+                    <option value="">Seleccione su ciudad</option>
+                    {dataCiudad.map(ciudad => (
+                      <option key={ciudad.ciud_Id} value={ciudad.ciud_Id}>{ciudad.ciud_Nombre}</option>
+                    ))}
+                  </Field>
+                  <ErrorMessage name="coin_CiudadRepresentante" component="div" className="text-danger" />
+                </FormGroup>
+              </Col>
+            </Row>
+            <Row>
+              <Col md={6}>
+                <FormGroup>
+                  <Label for="coin_AldeaRepresentante">Aldea del representante</Label>
+                  <Field
+                    name="coin_AldeaRepresentante"
+                    as="select"
+                    className="form-control"
+                  >
+                    <option value="">Seleccione su aldea</option>
+                    {dataAldea.map(aldea => (
+                      <option key={aldea.alde_Id} value={aldea.alde_Id}>{aldea.alde_Nombre}</option>
+                    ))}
+                  </Field>
+                  <ErrorMessage name="coin_AldeaRepresentante" component="div" className="text-danger" />
+                </FormGroup>
+              </Col>
+              <Col md={6}>
+                <FormGroup>
+                  <Label for="coin_coloniaIdRepresentante">Colonia del representante</Label>
+                  <Field
+                    name="coin_coloniaIdRepresentante"
+                    as="select"
+                    className="form-control"
+                  >
+                    <option value="">Seleccione su colonia</option>
+                    {dataColonia.map(colonia => (
+                      <option key={colonia.colo_Id} value={colonia.colo_Id}>{colonia.colo_Nombre}</option>
+                    ))}
+                  </Field>
+                  <ErrorMessage name="coin_coloniaIdRepresentante" component="div" className="text-danger" />
+                </FormGroup>
+              </Col>
+            </Row>
+            <Row>
+              <Col md={6}>
+                <FormGroup>
+                  <Label for="coin_NumeroLocaDepartRepresentante">Número Local del Apartamento</Label>
+                  <Field
+                    name="coin_NumeroLocaDepartRepresentante"
+                    as={Input}
+                    className="form-control"
+                    placeholder="Ingrese su número local..."
+                  />
+                  <ErrorMessage name="coin_NumeroLocaDepartRepresentante" component="div" style={{ color: 'red' }} />
+                </FormGroup>
+              </Col>
+              <Col md={6}>
+                <FormGroup>
+                  <Label for="coin_PuntoReferenciaReprentante">Punto de Referencia</Label>
+                  <Field
+                    name="coin_PuntoReferenciaReprentante"
+                    as={Input}
+                    className="form-control"
+                    placeholder="Ingrese su punto de referencia..."
+                  />
+                  <ErrorMessage name="coin_PuntoReferenciaReprentante" component="div" style={{ color: 'red' }} />
+                </FormGroup>
+              </Col>
+            </Row>
+            <ToastContainer />
+          </Form>
+        );
+      }}
+    </Formik>
   );
 };
 

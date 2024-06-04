@@ -1,4 +1,4 @@
-import React, { Fragment, useState, useEffect } from "react";
+import React, { Fragment, useState, useEffect,useRef  } from "react";
 import { CSSTransition, TransitionGroup } from 'react-transition-group';
 import { Row, Col, Card, CardBody, Button, Collapse, Form, FormGroup, Label, Input } from "reactstrap";
 import DataTable from 'react-data-table-component';
@@ -14,8 +14,6 @@ import Step3 from "./Steps/Step3";
 import Step4 from "./Steps/Step4";
 import Step5 from "./Steps/Step5";
 
-
-
 const urlAPI = 'https://localhost:44380/api/ComercianteIndividual'; 
 const keyAPI = '4b567cb1c6b24b51ab55248f8e66e5cc';
 const keyencriptada = 'FZWv3nQTyHYyNvdx';
@@ -30,7 +28,8 @@ const Comerciante = () => {
   const [editarComercianteId, setEditarComercianteId] = useState(null); 
 
   const toggleCollapse = () => setCollapse(!collapse);
- 
+  const wizardRef = useRef(null);
+
   const listarComerciantes = async () => {
     try {
       const response = await axios.get(`${urlAPI}/Listar`, {
@@ -40,6 +39,7 @@ const Comerciante = () => {
         }
       });
       setData(response.data.data);
+      console.log(response);
     } catch (error) {
       toast.error("Error al listar los comerciantes.");
     }
@@ -211,7 +211,6 @@ const Comerciante = () => {
               <p>{ciud_Nombre}</p>
             </FormGroup>
           </Col>
-          
           <Col md={4}>
             <FormGroup>
               <Label><b>Aldea</b></Label>
@@ -298,14 +297,15 @@ const Comerciante = () => {
       width: "250px", 
     }
   ];
-  const [isStep1Valid, setIsStep1Valid] = useState(false);
+
   const steps = [
-    { name: "Datos Personales", component: <Step1 coinIdToEdit={editarComercianteId} onNext={() => MultiStep.next()}/> },
-    { name: "Direccion", component: <Step2 /> },
-    { name: "Direccion 2", component: <Step3 /> },
-    { name: "A saber", component: <Step5 coinIdToEdit={editarComercianteId}/> },
-    { name: "Finish Wizard", component: <Step4 /> },
+    { name: "Datos Personales", component: <Step1 ideditar={editarComercianteId} childFormikSubmit={React.createRef()} onNext={() => wizardRef.current.next()} /> },
+    { name: "Dirección", component: <Step2 ideditar={editarComercianteId} childFormikSubmit={React.createRef()} onNext={() => wizardRef.current.next()} /> },
+    { name: "Dirección Representante", component: <Step3 ideditar={editarComercianteId} childFormikSubmit={React.createRef()} onNext={() => wizardRef.current.next()} /> },
+    { name: "Comunicacion", component: <Step5 ideditar={editarComercianteId} childFormikSubmit={React.createRef()} onNext={() => wizardRef.current.next()} /> },
+    { name: "Finalizar", component: <Step4 /> },
   ];
+
   return (
     <Fragment>
       <TransitionGroup>
@@ -324,8 +324,7 @@ const Comerciante = () => {
                   <Card className="main-card mb-3">
                     <CardBody>
                       <div className="forms-wizard-alt">
-                        <MultiStep showNavigation={true} isStep1Valid={isStep1Valid}
-      setIsStep1Valid={setIsStep1Valid} steps={steps} onCancel={() => setCollapse(false)} />
+                        <MultiStep ref={wizardRef} showNavigation={true} steps={steps} onCancel={() => {}} />
                       </div>
                     </CardBody>
                   </Card>
