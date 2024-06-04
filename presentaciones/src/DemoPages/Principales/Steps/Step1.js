@@ -16,7 +16,7 @@ const keyencriptada = 'FZWv3nQTyHYyNvdx';
 const validationSchema = Yup.object().shape({
   pers_RTN: Yup.string()
     .required("El RTN es requerido.")
-    .matches(/^\d{4}-\d{4}-\d{6}$/, "El RTN debe tener el formato 1234-5678-90123 y solo contener números y guiones."),
+    .matches(/^\d{4}-\d{4}-\d{6}$/, "El RTN debe tener el formato 1234-5678-901232 y solo contener números y guiones."),
   pers_Nombre: Yup.string()
     .required("El nombre es requerido.")
     .matches(/^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$/, "El nombre solo debe contener letras y acentos."),
