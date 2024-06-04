@@ -134,23 +134,23 @@ const Tap2 = ({ pejuId, childFormikSubmit, onNext }) => {
         peju_Id: pejuId,
       };
 
-      console.log('Submitting data to API:', dataToSubmit); 
+      console.log('Submitting data to API:', dataToSubmit); // Debug log
       const response = await axios.post(`${urlAPI}/InsertarTap2`, dataToSubmit, {
         headers: {
           'XApiKey': keyAPI,
           'EncryptionKey': keyencriptada,
         },
       });
-      console.log('API response:', response.data); 
+      console.log('API response:', response.data); // Debug log
       setSubmitting(false);
-      // toast.success('Datos insertados correctamente');
-      onNext(); 
+      toast.success('Datos insertados correctamente');
+      onNext(); // Move to the next step
     } catch (error) {
       console.error('Error inserting data', error);
       if (error.response) {
-        console.error('Response data:', error.response.data); 
+        console.error('Response data:', error.response.data); // Debug log for response data
       }
-      // toast.error('Error al insertar datos.');
+      toast.error('Error al insertar datos.');
       setSubmitting(false);
     }
   };
@@ -171,7 +171,7 @@ const Tap2 = ({ pejuId, childFormikSubmit, onNext }) => {
         if (childFormikSubmit) {
           childFormikSubmit.current = handleSubmit;
         }
-        console.log('pejuId:', pejuId); 
+        console.log('pejuId:', pejuId); // Debug log
         return (
           <Form onSubmit={handleSubmit}>
             <Row>

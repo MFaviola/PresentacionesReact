@@ -45,6 +45,7 @@ export default class MultiStep extends Component {
       showNextBtn: true,
       compState: 0,
       navState: getNavStates(0, this.props.steps.length),
+      isStep1Valid: false,
     };
   }
 

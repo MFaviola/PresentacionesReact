@@ -1,3 +1,4 @@
+// personaJuridicaAPI.js
 import axios from 'axios';
 
 const urlAPI = 'https://localhost:44380/api/PersonaJuridica';
@@ -31,9 +32,8 @@ const editarPersonaJuridica = (data) => {
   });
 };
 
-const eliminarPersonaJuridica = (peju_Id, pers_Id) => {
-  return axios.post(`${urlAPI}/EliminarJuridica`, null, {
-    params: { peju_Id, pers_Id },
+const eliminarPersonaJuridica = (data) => {
+  return axios.post(`${urlAPI}/Eliminar`, data, {
     headers: {
       'XApiKey': keyAPI,
       'EncryptionKey': keyencriptada
