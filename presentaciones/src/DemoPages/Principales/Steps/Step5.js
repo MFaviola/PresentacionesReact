@@ -78,7 +78,6 @@ const WizardStep5 = ({ onNext, childFormikSubmit,ideditar }) => {
       coin_Id: ideditar || tab3,
       coin_TelefonoCelular: values.coin_TelefonoCelular,
       coin_TelefonoFijo: values.coin_TelefonoFijo,
-      coin_CorreoElectronico: values.coin_CorreoElectronico,
       coin_CorreoElectronicoAlternativo: values.coin_CorreoElectronicoAlternativo,
       usua_UsuarioModificacion: 1,
       coin_FechaModificacion: fechaActual,
@@ -100,7 +99,50 @@ const WizardStep5 = ({ onNext, childFormikSubmit,ideditar }) => {
     }
   };
 
-  const confirmarcorreo = () => {
+  const [confirmacionCodigo, setConfirmacionCodigo] = useState('');
+  const [enviarCodigo, setEnviarCodigo] = useState('');
+
+
+  const codigoenviado = (correo) => {
+    const fechaActual = new Date().toISOString(); 
+
+    const insertarcorreo = {
+      coin_Id: tab3,
+      coin_CorreoElectronico: correo,
+      usua_UsuarioModificacion: 1,
+      coin_FechaModificacion: fechaActual,
+    };
+    console.log(insertarcorreo);
+
+      const response =  axios.post(`${urlAPI}/InsertarTap4`, insertarcorreo, {
+        headers: {
+          'XApiKey': keyAPI,
+          'EncryptionKey': keyencriptada
+        }
+      });
+
+      const escorreo = insertarcorreo.coin_CorreoElectronico;
+      console.log(escorreo);
+
+      const responsee = axios.get(`${urlAPI}/EnviarCodigo?correo=${escorreo}`, {
+        headers: {
+          'XApiKey': keyAPI,
+          'EncryptionKey': keyencriptada
+        }
+      });
+  };
+  
+  const confirmarcodigo = (codigo) => {
+    const fechaActual = new Date().toISOString(); 
+
+      const response =  axios.post(`${urlAPI}/ConfirmarCodigo?codigo=${codigo}`, {
+        headers: {
+          'XApiKey': keyAPI,
+          'EncryptionKey': keyencriptada
+        }
+      });
+
+      toast.success("Correo confirmado con exito!");
   };
 
   return (
@@ -157,6 +199,8 @@ const WizardStep5 = ({ onNext, childFormikSubmit,ideditar }) => {
                         as={Input}
                         className="form-control"
                         placeholder="Ingrese su correo electrónico..."
+                        onChange={(e) => setEnviarCodigo(e.target.value)}
+
                       />
                       <ErrorMessage name="coin_CorreoElectronico" component="div" className="text-danger"/>
                     </FormGroup>
@@ -164,14 +208,37 @@ const WizardStep5 = ({ onNext, childFormikSubmit,ideditar }) => {
                   <Col md={2}>
                     <FormGroup>
                       <br></br>
-                    <Button className=" btn-shadow" color="alternate" onClick={() => confirmarcorreo()}>
-                    Confirmar Correo
+                    <Button className=" btn-shadow" color="alternate" onClick={() => codigoenviado(enviarCodigo)}>
+                    Enviar codigo
                   </Button>
                     </FormGroup>
                   
                   </Col>
-                 
-                  <Col md={6}>
+                  <Col md={4}>
+                    <FormGroup>
+                      <Label>Codigo confirmacion</Label>
+                      <Field
+                        as={Input}
+                        className="form-control"
+                        placeholder="Ingrese el codigo de confirmacion.."
+                        onChange={(e) => setConfirmacionCodigo(e.target.value)}
+                      />
+                    </FormGroup>
+                  </Col>
+                  <Col md={2}>
+                    <FormGroup>
+                      <br></br>
+                      <Button className="btn-shadow" color="alternate" onClick={() => confirmarcodigo(confirmacionCodigo)}>
+                        Confirmar Codigo
+                      </Button>
+
+                    </FormGroup>
+                  
+                  </Col>
+                  
+                </Row>
+                <Row>
+                <Col md={6}>
                     <FormGroup>
                       <Label for="coin_CorreoElectronicoAlternativo">Correo Electrónico Alternativo</Label>
                       <Field
