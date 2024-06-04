@@ -82,7 +82,7 @@ const WizardStep5 = ({ onNext, childFormikSubmit,ideditar }) => {
       usua_UsuarioModificacion: 1,
       coin_FechaModificacion: fechaActual,
     };
-
+    console.log('tab4',ComercianteAInsertar);
     try {
       const response = await axios.post(`${urlAPI}/InsertarTap4`, ComercianteAInsertar, {
         headers: {
@@ -90,6 +90,7 @@ const WizardStep5 = ({ onNext, childFormikSubmit,ideditar }) => {
           'EncryptionKey': keyencriptada
         }
       });
+      console.log(response);
       setSubmitting(false);
       onNext();
     } catch (error) {
@@ -103,47 +104,63 @@ const WizardStep5 = ({ onNext, childFormikSubmit,ideditar }) => {
   const [enviarCodigo, setEnviarCodigo] = useState('');
 
 
-  const codigoenviado = (correo) => {
+  const codigoenviado = async (correo) => {
     const fechaActual = new Date().toISOString(); 
 
     const insertarcorreo = {
-      coin_Id: tab3,
-      coin_CorreoElectronico: correo,
-      usua_UsuarioModificacion: 1,
-      coin_FechaModificacion: fechaActual,
+        coin_Id: tab3,
+        coin_CorreoElectronico: correo,
+        usua_UsuarioModificacion: 1,
+        coin_FechaModificacion: fechaActual,
+        coin_TelefonoCelular: "",
+        coin_TelefonoFijo: "",
+        coin_CorreoElectronicoAlternativo: "",
     };
     console.log(insertarcorreo);
 
-      const response =  axios.post(`${urlAPI}/InsertarTap4`, insertarcorreo, {
-        headers: {
-          'XApiKey': keyAPI,
-          'EncryptionKey': keyencriptada
-        }
-      });
+    try {
+        await axios.post(`${urlAPI}/InsertarTap4`, insertarcorreo, {
+            headers: {
+                'XApiKey': keyAPI,
+                'EncryptionKey': keyencriptada
+            }
+        });
 
-      const escorreo = insertarcorreo.coin_CorreoElectronico;
-      console.log(escorreo);
+        const response = await axios.get(`${urlAPI}/EnviarCodigo?correo=${correo}`, {
+            headers: {
+                'XApiKey': keyAPI,
+                'EncryptionKey': keyencriptada
+            }
+        });
 
-      const responsee = axios.get(`${urlAPI}/EnviarCodigo?correo=${escorreo}`, {
-        headers: {
-          'XApiKey': keyAPI,
-          'EncryptionKey': keyencriptada
-        }
-      });
-  };
+        console.log(response);
+
+        toast.success("Código enviado con éxito!");
+    } catch (error) {
+        toast.error("Error al enviar el código.");
+    }
+};
+
   
-  const confirmarcodigo = (codigo) => {
-    const fechaActual = new Date().toISOString(); 
-
-      const response =  axios.post(`${urlAPI}/ConfirmarCodigo?codigo=${codigo}`, {
-        headers: {
-          'XApiKey': keyAPI,
-          'EncryptionKey': keyencriptada
-        }
+const confirmarcodigo = async (codigo) => {
+  try {
+      const response = await axios.post(`${urlAPI}/ConfirmarCodigo?codigo=${codigo}`, {}, {
+          headers: {
+              'XApiKey': keyAPI,
+              'EncryptionKey': keyencriptada
+          }
       });
 
-      toast.success("Correo confirmado con exito!");
-  };
+      if (response.data.message === "Exito") {
+          toast.success("Correo confirmado con éxito!");
+      } else {
+          toast.error("Código incorrecto.");
+      }
+  } catch (error) {
+      toast.error("Código incorrecto.");
+  }
+};
+
 
   return (
     <Row>
@@ -195,13 +212,17 @@ const WizardStep5 = ({ onNext, childFormikSubmit,ideditar }) => {
                     <FormGroup>
                       <Label for="coin_CorreoElectronico">Correo Electrónico</Label>
                       <Field
-                        name="coin_CorreoElectronico"
-                        as={Input}
-                        className="form-control"
-                        placeholder="Ingrese su correo electrónico..."
-                        onChange={(e) => setEnviarCodigo(e.target.value)}
+  name="coin_CorreoElectronico"
+  as={Input}
+  className="form-control"
+  placeholder="Ingrese su correo electrónico..."
+  onChange={(e) => {
+    setFieldValue('coin_CorreoElectronico', e.target.value);
+    setEnviarCodigo(e.target.value);
+  }}
+/>
+<ErrorMessage name="coin_CorreoElectronico" component="div" className="text-danger"/>
 
-                      />
                       <ErrorMessage name="coin_CorreoElectronico" component="div" className="text-danger"/>
                     </FormGroup>
                   </Col>
@@ -218,11 +239,13 @@ const WizardStep5 = ({ onNext, childFormikSubmit,ideditar }) => {
                     <FormGroup>
                       <Label>Codigo confirmacion</Label>
                       <Field
-                        as={Input}
-                        className="form-control"
-                        placeholder="Ingrese el codigo de confirmacion.."
-                        onChange={(e) => setConfirmacionCodigo(e.target.value)}
-                      />
+  as={Input}
+  name="codigoConfirmacion"
+  className="form-control"
+  placeholder="Ingrese el código de confirmación.."
+  onChange={(e) => setConfirmacionCodigo(e.target.value)}
+/>
+
                     </FormGroup>
                   </Col>
                   <Col md={2}>

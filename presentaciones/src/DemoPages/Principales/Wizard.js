@@ -125,7 +125,7 @@ export default class MultiStep extends Component {
     return (
       <div onKeyDown={this.handleKeyDown}>
         <ol className="forms-wizard">{this.renderSteps()}</ol>
-        {React.cloneElement(steps[compState].component, { childFormikSubmit: this.childFormikSubmit })}
+        {React.cloneElement(steps[compState].component, { childFormikSubmit: this.childFormikSubmit,onFinish: this.handleFinish})}
         <div className="divider" />
         <div className="clearfix">
           <Button color="secondary" className="btn-shadow float-start btn-wide btn-pill" outline

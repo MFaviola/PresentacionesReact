@@ -324,7 +324,7 @@ const Comerciante = () => {
                   <Card className="main-card mb-3">
                     <CardBody>
                       <div className="forms-wizard-alt">
-                        <MultiStep ref={wizardRef} showNavigation={true} steps={steps} onCancel={() => {}} />
+                        <MultiStep ref={wizardRef} showNavigation={true} steps={steps}onCancel={() => setCollapse(false)} />
                       </div>
                     </CardBody>
                   </Card>
