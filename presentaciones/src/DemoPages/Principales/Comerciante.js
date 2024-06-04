@@ -13,7 +13,7 @@ import Step2 from "./Steps/Step2";
 import Step3 from "./Steps/Step3";
 import Step4 from "./Steps/Step4";
 import Step5 from "./Steps/Step5";
-import Step6 from "./Steps/Step6";
+// import Step6 from "./Steps/Step6";
 
 const urlAPI = 'https://localhost:44380/api/ComercianteIndividual'; 
 const keyAPI = '4b567cb1c6b24b51ab55248f8e66e5cc';
