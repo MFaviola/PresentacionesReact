@@ -15,6 +15,7 @@ const keyAPI = '4b567cb1c6b24b51ab55248f8e66e5cc';
 const keyencriptada = 'FZWv3nQTyHYyNvdx';
 
 const validationSchema = Yup.object().shape({
+  pvin_Id: Yup.number().required("La provincia es requerida."),
   coin_CiudadRepresentante: Yup.number().required("La ciudad es requerida."),
   coin_AldeaRepresentante: Yup.number().required("La aldea es requerida."),
   coin_coloniaIdRepresentante: Yup.number().required("La colonia es requerida."),
@@ -26,7 +27,7 @@ const validationSchema = Yup.object().shape({
     .matches(/^[a-zA-Z0-9]+$/, "El punto de referencia solo debe contener letras y números."),
 });
 
-const WizardStep3 = ({ onNext, childFormikSubmit }) => {
+const WizardStep3 = ({ onNext, childFormikSubmit,ideditar }) => {
   const [dataProvincia, setDataProvincia] = useState([]);
   const [dataCiudad, setDataCiudad] = useState([]);
   const [dataAldea, setDataAldea] = useState([]);
@@ -34,12 +35,39 @@ const WizardStep3 = ({ onNext, childFormikSubmit }) => {
   const [ultimoCoinId, setUltimoCoinId] = useState(null);
   const [selectedProvincia, setSelectedProvincia] = useState("");
   const [selectedCiudad, setSelectedCiudad] = useState("");
-
+  const [registro, setRegistro] = useState(null);
+  const [cargabdo, setcargabdo] = useState(true);
   useEffect(() => {
-    listarProvincias();
-    listarComerciantes();
-  }, []);
+    const fetchData = async () => {
+      try {
+        await listarProvincias();
+        await listarComerciantes();
+        if (ideditar) {
+          const response = await axios.get(`${urlAPI}/Listar`, {
+            headers: {
+              'XApiKey': keyAPI,
+              'EncryptionKey': keyencriptada
+            }
+          });
+          const lista = response.data.data;
+          const registroo = lista.find((list) => list.coin_Id === ideditar);
+          console.log('fkfkf',registroo);
+          setRegistro(registroo);
 
+          const provinciaId = registroo.pvin_Id;
+        const ciudadId = registroo.ciud_Id;
+        await listarCiudades(provinciaId); await listarAldeas(ciudadId); await listarColonias(ciudadId);
+        }
+      } catch (error) {
+        console.error('Error al obtener detalles del comerciante', error);
+        toast.error("Error al obtener los detalles del comerciante.");
+      } finally {
+        setcargabdo(false);
+      }
+    };
+  
+    fetchData();
+  }, [ideditar]);
   const listarProvincias = async () => {
     try {
       const response = await axios.get(`${urlProvincia}/Listar?pvin_EsAduana=false`, {
@@ -133,7 +161,7 @@ const WizardStep3 = ({ onNext, childFormikSubmit }) => {
     const fechaActual = new Date().toISOString(); 
 
     const ComercianteAInsertar = {
-      coin_Id: ultimoCoinId,
+      coin_Id: ideditar||ultimoCoinId,
       coin_CiudadRepresentante: values.coin_CiudadRepresentante,
       coin_AldeaRepresentante: values.coin_AldeaRepresentante,
       coin_coloniaIdRepresentante: values.coin_coloniaIdRepresentante,
@@ -160,13 +188,16 @@ const WizardStep3 = ({ onNext, childFormikSubmit }) => {
   };
 
   return (
-    <Formik
-      initialValues={{
-        coin_CiudadRepresentante: "",
-        coin_AldeaRepresentante: "",
-        coin_coloniaIdRepresentante: "",
-        coin_NumeroLocaDepartRepresentante: "",
-        coin_PuntoReferenciaReprentante: ""
+    <Row>
+      {!cargabdo && (
+        <Formik
+          initialValues={{
+            pvin_Id: registro ? registro.pvin_Id:"",
+        coin_CiudadRepresentante: registro ? registro.coin_CiudadRepresentante:"",
+        coin_AldeaRepresentante: registro ? registro.coin_AldeaRepresentante:"",
+        coin_coloniaIdRepresentante: registro ? registro.coin_coloniaIdRepresentante:"",
+        coin_NumeroLocaDepartRepresentante: registro ? registro.coin_NumeroLocaDepartRepresentante:"",
+        coin_PuntoReferenciaReprentante:registro ? registro.coin_PuntoReferenciaReprentante: ""
       }}
       validationSchema={validationSchema}
       onSubmit={handleSubmit}
@@ -274,10 +305,12 @@ const WizardStep3 = ({ onNext, childFormikSubmit }) => {
               </Col>
             </Row>
             <ToastContainer />
-          </Form>
-        );
-      }}
-    </Formik>
+            </Form>
+            );
+          }}
+        </Formik>
+      )}
+    </Row>
   );
 };
 

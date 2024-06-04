@@ -27,7 +27,7 @@ const validationSchema = Yup.object().shape({
     .matches(/^[a-zA-Z0-9]+$/, "El punto de referencia solo debe contener letras y números."),
 });
 
-const WizardStep2 = ({ onNext, childFormikSubmit }) => {
+const WizardStep2 = ({ onNext, childFormikSubmit,ideditar }) => {
   const [dataProvincia, setDataProvincia] = useState([]);
   const [dataCiudad, setDataCiudad] = useState([]);
   const [dataAldea, setDataAldea] = useState([]);
@@ -35,12 +35,40 @@ const WizardStep2 = ({ onNext, childFormikSubmit }) => {
   const [ultimoCoinId, setUltimoCoinId] = useState(null);
   const [selectedProvincia, setSelectedProvincia] = useState("");
 const [selectedCiudad, setSelectedCiudad] = useState("");
+const [registro, setRegistro] = useState(null);
+const [cargando, setcargando] = useState(true);
 
+useEffect(() => {
+  const fetchData = async () => {
+    try {
+      await listarProvincias();
+      await listarComerciantes();
+      if (ideditar) {
+        const response = await axios.get(`${urlAPI}/Listar`, {
+          headers: {
+            'XApiKey': keyAPI,
+            'EncryptionKey': keyencriptada
+          }
+        });
+        const lista = response.data.data;
+        const registroo = lista.find((list) => list.coin_Id === ideditar);
+        console.log('ddd',registroo);
+        setRegistro(registroo);
 
-  useEffect(() => {
-    listarProvincias();
-    listarComerciantes();
-  }, []);
+        const provinciaId = registroo.pvin_Id;
+        const ciudadId = registroo.ciud_Id;
+        await listarCiudades(provinciaId); await listarAldeas(ciudadId); await listarColonias(ciudadId);
+      }
+    } catch (error) {
+      console.error('Error al obtener detalles del comerciante', error);
+      toast.error("Error al obtener los detalles del comerciante.");
+    } finally {
+      setcargando(false);
+    }
+  };
+
+  fetchData();
+}, [ideditar]);
 
   const listarProvincias = async () => {
       const response = await axios.get(`${urlProvincia}/Listar?pvin_EsAduana=false`, {
@@ -131,7 +159,7 @@ const [selectedCiudad, setSelectedCiudad] = useState("");
     const fechaActual = new Date().toISOString(); 
 
     const ComercianteAInsertar = {
-      coin_Id: ultimoCoinId,
+      coin_Id: ideditar || ultimoCoinId,
       ciud_Id: values.ciud_Id,
       alde_Id: values.alde_Id,
       colo_Id: values.colo_Id,
@@ -159,14 +187,16 @@ const [selectedCiudad, setSelectedCiudad] = useState("");
   };
 
   return (
+    <Row>
+    {!cargando && (
     <Formik
       initialValues={{
-        pvin_Id: "",
-        ciud_Id: "",
-        alde_Id: "",
-        colo_Id: "",
-        coin_NumeroLocalApart: "",
-        coin_PuntoReferencia: ""
+        pvin_Id: registro ? registro.pvin_Id:"",
+        ciud_Id: registro ? registro.ciud_Id:"",
+        alde_Id:registro ? registro.alde_Id: "",
+        colo_Id: registro ? registro.colo_Id:"",
+        coin_NumeroLocalApart:registro ? registro.coin_NumeroLocalApart: "",
+        coin_PuntoReferencia: registro ? registro.coin_PuntoReferencia:""
       }}
       validationSchema={validationSchema}
       onSubmit={handleSubmit}
@@ -276,10 +306,12 @@ const [selectedCiudad, setSelectedCiudad] = useState("");
               </Col>
             </Row>
             <ToastContainer />
-          </Form>
-        );
-      }}
-    </Formik>
+            </Form>
+            );
+          }}
+        </Formik>
+      )}
+    </Row>
   );
 };
 
