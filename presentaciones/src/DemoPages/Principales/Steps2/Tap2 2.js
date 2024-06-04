@@ -8,49 +8,90 @@ import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
 const validationSchemaStep2 = Yup.object().shape({
-  ciud_Id: Yup.number().required('ID de Ciudad es requerido'),
-  alde_Id: Yup.number().nullable(),
-  colo_Id: Yup.number().required('ID de Colonia es requerido'),
-  peju_NumeroLocalApart: Yup.string().required('Número Local Apart es requerido'),
-  peju_PuntoReferencia: Yup.string().required('Punto de Referencia es requerido'),
+  pvin_Id: Yup.number().required("La provincia es requerida."),
+  ciud_Id: Yup.number().required("La ciudad es requerida."),
+  alde_Id: Yup.number().required("La aldea es requerida."),
+  colo_Id: Yup.number().required("La colonia es requerida."),
+  coin_NumeroLocalApart: Yup.string()
+    .required("El número local del apartamento es requerido.")
+    .matches(/^[a-zA-Z0-9]+$/, "El número local solo debe contener letras y números."),
+  coin_PuntoReferencia: Yup.string()
+    .required("El punto de referencia es requerido.")
+    .matches(/^[a-zA-Z0-9]+$/, "El punto de referencia solo debe contener letras y números."),
 });
 
 const Tap2 = ({ pejuId, childFormikSubmit, onNext }) => {
+  const [provinciasOptions, setProvinciasOptions] = useState([]);
+  const [ciudadesOptions, setCiudadesOptions] = useState([]);
   const [aldeasOptions, setAldeasOptions] = useState([]);
   const [coloniasOptions, setColoniasOptions] = useState([]);
-  const [ciudadesOptions, setCiudadesOptions] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
+  const [registro, setRegistro] = useState(null);
+  const [cargando, setCargando] = useState(true);
 
-  const urlAPI = 'https://localhost:44380/api/PersonaJuridica';
+  const urlAPI = 'https://localhost:44380/api/ComercianteIndividual';
+  const urlProvincia = 'https://localhost:44380/api/Provincias';
   const urlCiudad = 'https://localhost:44380/api/Ciudades';
   const urlAldea = 'https://localhost:44380/api/Aldea';
   const urlColonia = 'https://localhost:44380/api/Colonias';
   const keyAPI = '4b567cb1c6b24b51ab55248f8e66e5cc';
   const keyencriptada = 'FZWv3nQTyHYyNvdx';
 
-  useEffect(() => {}, []);
+  useEffect(() => {
+    listarProvincias();
+    listarComerciantes();
+  }, []);
 
-  const buscarCiudades = async (inputValue) => {
-    if (!inputValue || inputValue.trim() === '') return;
+  const listarProvincias = async () => {
+    try {
+      const response = await axios.get(`${urlProvincia}/Listar?pvin_EsAduana=false`, {
+        headers: {
+          'XApiKey': keyAPI,
+          'EncryptionKey': keyencriptada
+        }
+      });
+      setProvinciasOptions(response.data.data.map(provincia => ({
+        value: provincia.pvin_Id,
+        label: provincia.pvin_Nombre,
+      })));
+    } catch (error) {
+      toast.error("Error al listar las provincias.");
+    }
+  };
+
+  const listarComerciantes = async () => {
+    try {
+      const response = await axios.get(`${urlAPI}/Listar`, {
+        headers: {
+          'XApiKey': keyAPI,
+          'EncryptionKey': keyencriptada
+        }
+      });
+      const lista = response.data.data;
+      const ultimoObjeto = lista[lista.length - 1];
+      setRegistro(ultimoObjeto);
+      setCargando(false);
+    } catch (error) {
+      toast.error("Error al listar los comerciantes.");
+    }
+  };
+
+  const buscarCiudades = async (provinciaId, inputValue) => {
+    if (!provinciaId || !inputValue || inputValue.trim() === '') return;
     setIsLoading(true);
     try {
-      const response = await axios.get(`${urlCiudad}/Listar?ciud_EsAduana=true&search=${inputValue}`, {
+      const response = await axios.get(`${urlCiudad}/CiudadesFiltradaPorProvincias?pvin_Id=${provinciaId}&search=${inputValue}`, {
         headers: {
           'XApiKey': keyAPI,
           'EncryptionKey': keyencriptada,
         },
       });
-      if (response.data && Array.isArray(response.data)) {
-        const options = response.data.map((ciudad) => ({
-          value: ciudad.ciud_Id,
-          label: ciudad.ciud_Nombre,
-        }));
-        setCiudadesOptions(options);
-      } else {
-        console.error('La respuesta del API no contiene el formato esperado');
-      }
+      setCiudadesOptions(response.data.data.map(ciudad => ({
+        value: ciudad.ciud_Id,
+        label: ciudad.ciud_Nombre,
+      })));
     } catch (error) {
-      console.error('Error al buscar ciudades', error);
+      toast.error("Error al buscar ciudades.");
     } finally {
       setIsLoading(false);
     }
@@ -66,17 +107,12 @@ const Tap2 = ({ pejuId, childFormikSubmit, onNext }) => {
           'EncryptionKey': keyencriptada,
         },
       });
-      if (response.data && Array.isArray(response.data)) {
-        const options = response.data.map((aldea) => ({
-          value: aldea.alde_Id,
-          label: aldea.alde_Nombre,
-        }));
-        setAldeasOptions(options);
-      } else {
-        console.error('La respuesta del API no contiene el formato esperado');
-      }
+      setAldeasOptions(response.data.map(aldea => ({
+        value: aldea.alde_Id,
+        label: aldea.alde_Nombre,
+      })));
     } catch (error) {
-      console.error('Error al buscar aldeas', error);
+      toast.error("Error al buscar aldeas.");
     } finally {
       setIsLoading(false);
     }
@@ -92,23 +128,29 @@ const Tap2 = ({ pejuId, childFormikSubmit, onNext }) => {
           'EncryptionKey': keyencriptada,
         },
       });
-      if (response.data && Array.isArray(response.data)) {
-        const options = response.data.map((colonia) => ({
-          value: colonia.colo_Id,
-          label: colonia.colo_Nombre,
-        }));
-        setColoniasOptions(options);
-      } else {
-        console.error('La respuesta del API no contiene el formato esperado');
-      }
+      setColoniasOptions(response.data.map(colonia => ({
+        value: colonia.colo_Id,
+        label: colonia.colo_Nombre,
+      })));
     } catch (error) {
-      console.error('Error al buscar colonias', error);
+      toast.error("Error al buscar colonias.");
     } finally {
       setIsLoading(false);
     }
   };
 
-  const handleCityChange = (selectedOption, setFieldValue) => {
+  const handleProvinciaChange = (selectedOption, setFieldValue) => {
+    const pvin_Id = selectedOption ? selectedOption.value : '';
+    setFieldValue('pvin_Id', pvin_Id);
+    setFieldValue('ciud_Id', '');
+    setFieldValue('alde_Id', '');
+    setFieldValue('colo_Id', '');
+    setCiudadesOptions([]);
+    setAldeasOptions([]);
+    setColoniasOptions([]);
+  };
+
+  const handleCiudadChange = (selectedOption, setFieldValue) => {
     const ciud_Id = selectedOption ? selectedOption.value : '';
     setFieldValue('ciud_Id', ciud_Id);
     setFieldValue('alde_Id', '');
@@ -128,29 +170,25 @@ const Tap2 = ({ pejuId, childFormikSubmit, onNext }) => {
   };
 
   const handleSubmit = async (values, { setSubmitting }) => {
+    const fechaActual = new Date().toISOString();
+    const ComercianteAInsertar = {
+      ...values,
+      coin_Id: pejuId,
+      usua_UsuarioModificacion: 1,
+      coin_FechaModificacion: fechaActual,
+    };
     try {
-      const dataToSubmit = {
-        ...values,
-        peju_Id: pejuId,
-      };
-
-      console.log('Submitting data to API:', dataToSubmit); 
-      const response = await axios.post(`${urlAPI}/InsertarTap2`, dataToSubmit, {
+      await axios.post(`${urlAPI}/InsertarTap2`, ComercianteAInsertar, {
         headers: {
           'XApiKey': keyAPI,
-          'EncryptionKey': keyencriptada,
-        },
+          'EncryptionKey': keyencriptada
+        }
       });
-      console.log('API response:', response.data); 
       setSubmitting(false);
-      // toast.success('Datos insertados correctamente');
-      onNext(); 
+      onNext();
+      toast.success("Datos guardados correctamente.");
     } catch (error) {
-      console.error('Error inserting data', error);
-      if (error.response) {
-        console.error('Response data:', error.response.data); 
-      }
-      // toast.error('Error al insertar datos.');
+      toast.error("Error al insertar datos.");
       setSubmitting(false);
     }
   };
@@ -158,23 +196,39 @@ const Tap2 = ({ pejuId, childFormikSubmit, onNext }) => {
   return (
     <Formik
       initialValues={{
-        ciud_Id: '',
-        alde_Id: '',
-        colo_Id: '',
-        peju_NumeroLocalApart: '',
-        peju_PuntoReferencia: '',
+        pvin_Id: registro ? registro.pvin_Id : '',
+        ciud_Id: registro ? registro.ciud_Id : '',
+        alde_Id: registro ? registro.alde_Id : '',
+        colo_Id: registro ? registro.colo_Id : '',
+        coin_NumeroLocalApart: registro ? registro.coin_NumeroLocalApart : '',
+        coin_PuntoReferencia: registro ? registro.coin_PuntoReferencia : '',
       }}
       validationSchema={validationSchemaStep2}
       onSubmit={handleSubmit}
+      enableReinitialize
     >
       {({ handleSubmit, setFieldValue, values }) => {
         if (childFormikSubmit) {
           childFormikSubmit.current = handleSubmit;
         }
-        console.log('pejuId:', pejuId); 
         return (
           <Form onSubmit={handleSubmit}>
             <Row>
+              <Col md={6}>
+                <FormGroup>
+                  <Label for="pvin_Id">Provincia</Label>
+                  <Select
+                    id="pvin_Id"
+                    name="pvin_Id"
+                    options={provinciasOptions}
+                    onChange={(selectedOption) => handleProvinciaChange(selectedOption, setFieldValue)}
+                    isLoading={isLoading}
+                    placeholder="Seleccione Provincia"
+                    noOptionsMessage={() => 'No hay opciones'}
+                  />
+                  <ErrorMessage name="pvin_Id" component="div" style={{ color: 'red' }} />
+                </FormGroup>
+              </Col>
               <Col md={6}>
                 <FormGroup>
                   <Label for="ciud_Id">Ciudad</Label>
@@ -183,18 +237,21 @@ const Tap2 = ({ pejuId, childFormikSubmit, onNext }) => {
                     name="ciud_Id"
                     options={ciudadesOptions}
                     onInputChange={(value) => {
-                      if (value) {
-                        buscarCiudades(value);
+                      if (value && values.pvin_Id) {
+                        buscarCiudades(values.pvin_Id, value);
                       }
                     }}
-                    onChange={(selectedOption) => handleCityChange(selectedOption, setFieldValue)}
+                    onChange={(selectedOption) => handleCiudadChange(selectedOption, setFieldValue)}
                     isLoading={isLoading}
                     placeholder="Seleccione Ciudad"
                     noOptionsMessage={() => 'No hay opciones'}
+                    isDisabled={!values.pvin_Id}
                   />
                   <ErrorMessage name="ciud_Id" component="div" style={{ color: 'red' }} />
                 </FormGroup>
               </Col>
+            </Row>
+            <Row>
               <Col md={6}>
                 <FormGroup>
                   <Label for="alde_Id">Aldea</Label>
@@ -216,8 +273,6 @@ const Tap2 = ({ pejuId, childFormikSubmit, onNext }) => {
                   <ErrorMessage name="alde_Id" component="div" style={{ color: 'red' }} />
                 </FormGroup>
               </Col>
-            </Row>
-            <Row>
               <Col md={6}>
                 <FormGroup>
                   <Label for="colo_Id">Colonia</Label>
@@ -239,20 +294,30 @@ const Tap2 = ({ pejuId, childFormikSubmit, onNext }) => {
                   <ErrorMessage name="colo_Id" component="div" style={{ color: 'red' }} />
                 </FormGroup>
               </Col>
-              <Col md={6}>
-                <FormGroup>
-                  <Label for="peju_NumeroLocalApart">Número Local Apart</Label>
-                  <Field name="peju_NumeroLocalApart" as={Input} />
-                  <ErrorMessage name="peju_NumeroLocalApart" component="div" style={{ color: 'red' }} />
-                </FormGroup>
-              </Col>
             </Row>
             <Row>
               <Col md={6}>
                 <FormGroup>
-                  <Label for="peju_PuntoReferencia">Punto de Referencia</Label>
-                  <Field name="peju_PuntoReferencia" as={Input} />
-                  <ErrorMessage name="peju_PuntoReferencia" component="div" style={{ color: 'red' }} />
+                  <Label for="coin_NumeroLocalApart">Número Local del Apartamento</Label>
+                  <Field
+                    name="coin_NumeroLocalApart"
+                    as={Input}
+                    className="form-control"
+                    placeholder="Ingrese su número local..."
+                  />
+                  <ErrorMessage name="coin_NumeroLocalApart" component="div" className="text-danger" />
+                </FormGroup>
+              </Col>
+              <Col md={6}>
+                <FormGroup>
+                  <Label for="coin_PuntoReferencia">Punto de Referencia</Label>
+                  <Field
+                    name="coin_PuntoReferencia"
+                    as={Input}
+                    className="form-control"
+                    placeholder="Ingrese su punto de referencia..."
+                  />
+                  <ErrorMessage name="coin_PuntoReferencia" component="div" className="text-danger" />
                 </FormGroup>
               </Col>
             </Row>

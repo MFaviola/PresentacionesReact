@@ -1,20 +1,18 @@
-import React, { Fragment, useState, useEffect } from "react";
+import React, { Fragment, useState, useEffect, useRef } from "react";
 import { CSSTransition, TransitionGroup } from 'react-transition-group';
 import { Row, Col, Card, CardBody, Button, Collapse, FormGroup, Label } from "reactstrap";
 import DataTable from 'react-data-table-component';
-import PageTitle from "../../../Layout/AppMain/PageTitle";
+import PageTitle from "../../Layout/AppMain/PageTitle";
 import SweetAlert from 'react-bootstrap-sweetalert';
 import { ToastContainer, toast } from "react-toastify";
 import 'react-toastify/dist/ReactToastify.css';
 import MultiStep from "./Wizard";
-import Tap1 from './Tap 1';
-import Tap2 from './Tap 2';
-import Tap3 from './Tap 3';
-import Tap4 from './Tap 4';
-import Tap5 from './Tap 5'; 
-
-import TapFinal from './Tap Final';
-
+import Tap1 from './Steps2/Tap2 1';
+import Tap2 from './Steps2/Tap2 2';
+import Tap3 from './Steps2/Tap2 3';
+import Tap4 from './Steps2/Tap2 4';
+import Tap5 from './Steps2/Tap2 5'; 
+// import TapFinal from './Tap Final';
 import personaJuridicaAPI from './PersonaJuridicaAPI';
 
 const PersonaJuridica = () => {
@@ -24,8 +22,8 @@ const PersonaJuridica = () => {
   const [elimPersonaJuridica, setElimPersonaJuridica] = useState({ peju_Id: null, pers_Id: null });
   const [detallePersonaJuridica, setDetallePersonaJuridica] = useState(null);
   const [pejuId, setPejuId] = useState(null);
-  const [editarPersonaJuridicaId, setEditarPersonaJuridicaId] = useState(null); 
-
+  const [editarPersonaJuridicaId, setEditarPersonaJuridicaId] = useState(null);
+  const wizardRef = useRef(null);
 
   useEffect(() => {
     listarPersonaJuridicas();
@@ -73,14 +71,12 @@ const PersonaJuridica = () => {
   const eliminarPersonaJuridica = async () => {
     try {
       await personaJuridicaAPI.eliminarPersonaJuridica(elimPersonaJuridica.peju_Id, elimPersonaJuridica.pers_Id);
-
       listarPersonaJuridicas();
       setConfirmarEliminar(false);
-      toast.success("PersonaJuridica eliminado exitosamente!");
-
+      toast.success("Persona Jurídica eliminada exitosamente!");
     } catch (error) {
       console.error('Error al eliminar PersonaJuridica', error);
-      toast.error("Error al eliminar el PersonaJuridica.");
+      toast.error("Error al eliminar la Persona Jurídica.");
     }
   };
 
@@ -92,8 +88,6 @@ const PersonaJuridica = () => {
   const cancelarEliminacion = () => {
     setElimPersonaJuridica({ peju_Id: null, pers_Id: null });
     setConfirmarEliminar(false);
-    setEditarPersonaJuridicaId(null); 
-
   };
 
   const toggleCollapse = () => setCollapse(!collapse);
@@ -114,7 +108,7 @@ const PersonaJuridica = () => {
       <Button className="mb-2 me-2 btn-shadow" color="primary" onClick={() => obtenerDetallePersonaJuridica(row.peju_Id)}>
         Detalles
       </Button>
-      <Button className="mb-2 me-2 btn-shadow" color="secondary">
+      <Button className="mb-2 me-2 btn-shadow" color="secondary" onClick={() => editar(row.peju_Id)}>
         Editar
       </Button>
       <Button className="mb-2 me-2 btn-shadow" color="danger" onClick={() => eliminarPersonaJuridicaClick(row.peju_Id, row.pers_Id)}>
@@ -273,107 +267,26 @@ const PersonaJuridica = () => {
   };
 
   const columns = [
-    {
-      name: "RTN",
-      selector: row => row.pers_RTN,
-      sortable: true,
-    },
-    {
-      name: "Nombre",
-      selector: row => row.pers_Nombre,
-      sortable: true,
-    },
-    {
-      name: "Oficina",
-      selector: row => row.ofic_Nombre,
-      sortable: true,
-    },
-    {
-      name: "Estado Civil",
-      selector: row => row.escv_Nombre,
-      sortable: true,
-    },
-    {
-      name: "Oficio",
-      selector: row => row.ofpr_Nombre,
-      sortable: true,
-    },
-    {
-      name: "Colonia Empresa",
-      selector: row => row.coliniaEmpresa,
-      sortable: true,
-    },
-    {
-      name: "Ciudad Empresa",
-      selector: row => row.ciudadEmpresa,
-      sortable: true,
-    },
-    {
-      name: "Provincia Empresa",
-      selector: row => row.provinciaEmpresa,
-      sortable: true,
-    },
-    {
-      name: "Punto de Referencia",
-      selector: row => row.peju_PuntoReferencia,
-      sortable: true,
-    },
-    {
-      name: "Colonia Representante",
-      selector: row => row.coloniaRepresentante,
-      sortable: true,
-    },
-    {
-      name: "Ciudad Representante",
-      selector: row => row.ciudadRepresentante,
-      sortable: true,
-    },
-    {
-      name: "Provincia Representante",
-      selector: row => row.provinciaRepresentante,
-      sortable: true,
-    },
-    {
-      name: "Número Local Representante",
-      selector: row => row.peju_NumeroLocalRepresentante,
-      sortable: true,
-    },
-    {
-      name: "Punto de Referencia Representante",
-      selector: row => row.peju_PuntoReferenciaRepresentante,
-      sortable: true,
-    },
-    {
-      name: "Teléfono Empresa",
-      selector: row => row.peju_TelefonoEmpresa,
-      sortable: true,
-    },
-    {
-      name: "Teléfono Fijo Representante Legal",
-      selector: row => row.peju_TelefonoFijoRepresentanteLegal,
-      sortable: true,
-    },
-    {
-      name: "Teléfono Representante Legal",
-      selector: row => row.peju_TelefonoRepresentanteLegal,
-      sortable: true,
-    },
-    {
-      name: "Correo Electrónico",
-      selector: row => row.peju_CorreoElectronico,
-      sortable: true,
-    },
-    {
-      name: "Contrato Finalizado",
-      selector: row => row.peju_ContratoFinalizado ? "Sí" : "No",
-      sortable: true,
-    },
-    {
-      name: "Número Local Apartamento",
-      selector: row => row.peju_NumeroLocalApart,
-      sortable: true,
-    },
-   
+    { name: "RTN", selector: row => row.pers_RTN, sortable: true },
+    { name: "Nombre", selector: row => row.pers_Nombre, sortable: true },
+    { name: "Oficina", selector: row => row.ofic_Nombre, sortable: true },
+    { name: "Estado Civil", selector: row => row.escv_Nombre, sortable: true },
+    { name: "Oficio", selector: row => row.ofpr_Nombre, sortable: true },
+    { name: "Colonia Empresa", selector: row => row.coliniaEmpresa, sortable: true },
+    { name: "Ciudad Empresa", selector: row => row.ciudadEmpresa, sortable: true },
+    { name: "Provincia Empresa", selector: row => row.provinciaEmpresa, sortable: true },
+    { name: "Punto de Referencia", selector: row => row.peju_PuntoReferencia, sortable: true },
+    { name: "Colonia Representante", selector: row => row.coloniaRepresentante, sortable: true },
+    { name: "Ciudad Representante", selector: row => row.ciudadRepresentante, sortable: true },
+    { name: "Provincia Representante", selector: row => row.provinciaRepresentante, sortable: true },
+    { name: "Número Local Representante", selector: row => row.peju_NumeroLocalRepresentante, sortable: true },
+    { name: "Punto de Referencia Representante", selector: row => row.peju_PuntoReferenciaRepresentante, sortable: true },
+    { name: "Teléfono Empresa", selector: row => row.peju_TelefonoEmpresa, sortable: true },
+    { name: "Teléfono Fijo Representante Legal", selector: row => row.peju_TelefonoFijoRepresentanteLegal, sortable: true },
+    { name: "Teléfono Representante Legal", selector: row => row.peju_TelefonoRepresentanteLegal, sortable: true },
+    { name: "Correo Electrónico", selector: row => row.peju_CorreoElectronico, sortable: true },
+    { name: "Contrato Finalizado", selector: row => row.peju_ContratoFinalizado, sortable: true },
+    { name: "Número Local Apartamento", selector: row => row.peju_NumeroLocalApart, sortable: true },
     {
       name: "Acciones",
       cell: row => botonesAcciones(row),
@@ -385,13 +298,12 @@ const PersonaJuridica = () => {
   ];
 
   const steps = [
-    { name: "Datos Personales", component: <Tap1 initialValues={{ pers_RTN: '', pers_Nombre: '', ofic_Id: '', escv_Id: '', ofpr_Id: '' }} onNext={() => MultiStep.next()} setPersonaJuridicaId={setPejuId} childFormikSubmit={React.createRef()} /> },
-    { name: "Dirección 1", component: <Tap2 initialValues={{ ciud_Id: '', alde_Id: '', colo_Id: '', peju_NumeroLocalApart: '', peju_PuntoReferencia: '' }} pejuId={pejuId} childFormikSubmit={React.createRef()} onNext={() => MultiStep.next()} /> },
-    { name: "Dirección 2", component: <Tap3 initialValues={{ peju_CiudadIdRepresentante: '', peju_AldeaIdRepresentante: '', peju_ColoniaRepresentante: '', peju_NumeroLocalRepresentante: '', peju_PuntoReferenciaRepresentante: '' }} pejuId={pejuId} childFormikSubmit={React.createRef()} onNext={() => MultiStep.next()} /> },
-    { name: "Contacto", component: <Tap4 initialValues={{ peju_TelefonoEmpresa: '', peju_TelefonoFijoRepresentanteLegal: '', peju_TelefonoRepresentanteLegal: '', peju_CorreoElectronico: '', peju_CorreoElectronicoAlternativo: '' }} pejuId={pejuId} onNext={() => this.next()} /> },
+    { name: "Datos Personales", component: <Tap1 initialValues={{ pers_RTN: '', pers_Nombre: '', ofic_Id: '', escv_Id: '', ofpr_Id: '' }} onNext={() => wizardRef.current.next()} setPersonaJuridicaId={setPejuId} childFormikSubmit={React.createRef()} /> },
+    { name: "Dirección 1", component: <Tap2 initialValues={{ ciud_Id: '', alde_Id: '', colo_Id: '', peju_NumeroLocalApart: '', peju_PuntoReferencia: '' }} pejuId={pejuId} childFormikSubmit={React.createRef()} onNext={() => wizardRef.current.next()} /> },
+    { name: "Dirección 2", component: <Tap3 initialValues={{ peju_CiudadIdRepresentante: '', peju_AldeaIdRepresentante: '', peju_ColoniaRepresentante: '', peju_NumeroLocalRepresentante: '', peju_PuntoReferenciaRepresentante: '' }} pejuId={pejuId} childFormikSubmit={React.createRef()} onNext={() => wizardRef.current.next()} /> },
+    { name: "Contacto", component: <Tap4 initialValues={{ peju_TelefonoEmpresa: '', peju_TelefonoFijoRepresentanteLegal: '', peju_TelefonoRepresentanteLegal: '', peju_CorreoElectronico: '', peju_CorreoElectronicoAlternativo: '' }} pejuId={pejuId} onNext={() => wizardRef.current.next()} /> },
     { name: "Subir Documentación", component: <Tap5 pejuId={pejuId} /> }, 
-
-    { name: "Finalización", component: <TapFinal /> },
+    // { name: "Finalización", component: <TapFinal /> },
   ];
 
   return (
@@ -400,7 +312,7 @@ const PersonaJuridica = () => {
         <CSSTransition component="div" timeout={1500} enter={false} exit={false}>
           <div>
             <PageTitle
-              heading="PersonaJuridica Individual"
+              heading="Persona Jurídica Individual"
               icon="pe-7s-portfolio icon-gradient bg-sunny-morning"
             />
             <Row>
@@ -412,7 +324,7 @@ const PersonaJuridica = () => {
                   <Card className="main-card mb-3">
                     <CardBody>
                       <div className="forms-wizard-alt">
-                        <MultiStep showNavigation={true} steps={steps} onCancel={() => setCollapse(false)} />
+                        <MultiStep ref={wizardRef} showNavigation={true} steps={steps} onCancel={() => setCollapse(false)} />
                       </div>
                     </CardBody>
                   </Card>
@@ -445,7 +357,7 @@ const PersonaJuridica = () => {
         </CSSTransition>
       </TransitionGroup>
       <SweetAlert
-        title="Eliminar PersonaJuridica"
+        title="Eliminar Persona Jurídica"
         show={confirmarEliminar}
         showCancel
         confirmBtnText="Eliminar"
@@ -453,7 +365,7 @@ const PersonaJuridica = () => {
         cancelBtnText="Cancelar"
         onConfirm={eliminarPersonaJuridica}
         onCancel={cancelarEliminacion}>
-        ¿Está seguro que desea eliminar el PersonaJuridica?
+        ¿Está seguro que desea eliminar la Persona Jurídica?
       </SweetAlert>
       <ToastContainer />
     </Fragment>

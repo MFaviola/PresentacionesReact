@@ -26,7 +26,6 @@ const Tap3 = ({ pejuId, childFormikSubmit, onNext }) => {
   const keyencriptada = 'FZWv3nQTyHYyNvdx';
 
   useEffect(() => {
-    // Aquí puedes inicializar los valores si es necesario
   }, []);
 
   const buscarCiudades = async (inputValue) => {
@@ -131,7 +130,7 @@ const Tap3 = ({ pejuId, childFormikSubmit, onNext }) => {
       const fechaActual = new Date().toISOString(); 
       const dataToSubmit = {
         ...values,
-        peju_Id: pejuId, // Añadir el ID capturado del primer tap
+        peju_Id: pejuId, 
         usua_UsuarioModificacion: 1,
         peju_FechaModificacion: fechaActual
       };
@@ -144,13 +143,12 @@ const Tap3 = ({ pejuId, childFormikSubmit, onNext }) => {
       });
       console.log('Insert response:', response.data);
       setSubmitting(false);
-      toast.success("Datos insertados correctamente");
-      onNext(); // Move to the next step
+      // toast.success("Datos insertados correctamente");
+      onNext(); 
     } catch (error) {
-      console.error('Error inserting data', error);
-      toast.error("Error al insertar datos.");
+      // toast.error("Error al insertar datos.");
       setSubmitting(false);
-      throw error; // Ensure error is caught by the caller
+      throw error; 
     }
   };
 

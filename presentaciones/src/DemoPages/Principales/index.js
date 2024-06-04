@@ -1,20 +1,19 @@
 import React, { Fragment } from "react";
 import { Route } from "react-router-dom";
 
-// Principales
 
 import Comerciante from "./Comerciante";
+import PersonaJuridica2 from "./PersonaJuridica";
+
 import PersonaJuridica from "./Personas Juridicas/Persona Juridica";
 
 
 
-// Layout
 
 import AppHeader from "../../Layout/AppHeader/";
 import AppSidebar from "../../Layout/AppSidebar/";
 import AppFooter from "../../Layout/AppFooter/";
 
-// Theme Options
 
 import ThemeOptions from "../../Layout/ThemeOptions/";
 
@@ -28,6 +27,7 @@ const Principales = ({ match }) => (
         <div className="app-main__inner">
           <Route path={`${match.url}/comerciante`} component={Comerciante}/>
           <Route path={`${match.url}/personajuridica`} component={PersonaJuridica}/>
+          <Route path={`${match.url}/personajuridica2`} component={PersonaJuridica2}/>
 
         </div>
         <AppFooter />
