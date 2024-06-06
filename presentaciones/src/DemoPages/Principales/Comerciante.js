@@ -358,6 +358,8 @@ const listarColonias2 = async (ciudadId2) => {
      listarOficios();
      listarProvincias();
      listarProvincias2();
+
+     
   }, []);
 
 
@@ -376,51 +378,7 @@ const listarColonias2 = async (ciudadId2) => {
     </div>
   );
 
-  const editarComerciante = async (values, { setSubmitting }) => {
-    dejarpasar(true);
-
-    const fechaActual = new Date().toISOString();
-    let ComercianteAEditar = {
-      coin_Id: editComercianteId,
-      pers_Id:editPersId,
-      pers_RTN:values.pers_rtn,
-      pers_Nombre:values.pers_Nombre,
-      ofpr_Id:values.ofpr_Id,
-      ofic_Id:values.ofic_Id,
-      escv_Id:values.escv_Id,
-      pers_escvRepresentante: values.pers_escvRepresentante,
-      pers_OfprRepresentante: values.pers_OfprRepresentante,
-      pers_FormaRepresentacion: values.pers_FormaRepresentacion,
-      usua_UsuarioModificacion: 1,
-      coin_FechaModificacion: fechaActual
-    };
-    console.log('editar1',ComercianteAEditar);
-
-
-      try {
-        const response = await axios.post(`${urlAPI}/Editar`, ComercianteAEditar, {
-          headers: {
-            'XApiKey': keyAPI,
-            'EncryptionKey': keyencriptada
-          }
-        });
-
-        setActiveTab("2");
-        setActiveTab("3");
-        setActiveTab("4");
-        setActiveTab("5");
-        setShowPreviousBtn(true);
-        dejarpasar(true);
-
-        setShowNextBtn(true);
-      } catch (error) {
-        toast.error("Error al guardar los datos.");
-      }
-    setSubmitting(false);
-  };
-
-
-  const editarComercianteClick = (ComercianteId, PersId, rtn, nombre, oficid, escvid, ofprid, formarepre, persescv, persofpr, pvinid, ciudid, aldeid, coloid, numerolocal, puntorefe, pvinrepre, ciudadrepre, aldrearepre, coloniaidrepre, numerolocalrepre, puntoreferepre, celular, fijo, correo, correoalternativo) => {
+  const editarComercianteClick = async (ComercianteId, PersId, rtn, nombre, oficid, escvid, ofprid, formarepre, persescv, persofpr, pvinid, ciudid, aldeid, coloid, numerolocal, puntorefe, pvinrepre, ciudadrepre, aldrearepre, coloniaidrepre, numerolocalrepre, puntoreferepre, celular, fijo, correo, correoalternativo) => {
     setEditar(true);
     setEditComercianteId(ComercianteId);
     setEditPersId(PersId);
@@ -428,17 +386,19 @@ const listarColonias2 = async (ciudadId2) => {
     setNueva2({ pvin_Id: pvinid, ciud_Id: ciudid, alde_Id: aldeid, colo_Id: coloid, coin_NumeroLocalApart: numerolocal, coin_PuntoReferencia: puntorefe });
     setNueva3({ pvin_IdRepresentante: pvinrepre, coin_CiudadRepresentante: ciudadrepre, coin_AldeaRepresentante: aldrearepre, coin_coloniaIdRepresentante: coloniaidrepre, coin_NumeroLocaDepartRepresentante: numerolocalrepre, coin_PuntoReferenciaReprentante: puntoreferepre });
     setNueva4({ coin_TelefonoCelular: celular, coin_TelefonoFijo: fijo, coin_CorreoElectronico: correo, coin_CorreoElectronicoAlternativo: correoalternativo });
+    
+    await listarCiudades(pvinid);
+    await listarAldeas(ciudid);
+    await listarColonias(ciudid);
+    await listarCiudades2(pvinrepre);
+    await listarAldeas2(ciudadrepre);
+    await listarColonias2(ciudadrepre);
+    
     setDetalleComerciante(null);
     setCollapse(true);
     setActiveTab("1");
 };
 
-  useEffect(() => {
-    console.log("nueva1:", nueva1);
-    console.log("nueva2:", nueva2);
-    console.log("nueva3:", nueva3);
-    console.log("nueva4:", nueva4);
-  }, [nueva1, nueva2, nueva3, nueva4]);
 
 const obtenerDetalleComerciante = async (ComercianteId) => {
   try {
@@ -739,7 +699,7 @@ const cancelarr = () => {
       let ComercianteAEditar = {
         coin_Id: editComercianteId,
         pers_Id:editPersId,
-        pers_RTN:values.pers_rtn,
+        pers_RTN:values.pers_RTN,
         pers_Nombre:values.pers_Nombre,
         ofpr_Id:values.ofpr_Id,
         ofic_Id:values.ofic_Id,
@@ -758,13 +718,10 @@ const cancelarr = () => {
               'EncryptionKey': keyencriptada
             }
           });
+          console.log(response);
   
           setActiveTab("2");
-          setActiveTab("3");
-          setActiveTab("4");
-          setActiveTab("5");
           setShowPreviousBtn(true);
-          dejarpasar(true);
   
           setShowNextBtn(true);
   } else {
@@ -811,7 +768,20 @@ const cancelarr = () => {
 
   const submitTab2 = async (values, { setSubmitting }) => {
     const fechaActual = new Date().toISOString();
-    let ComercianteAInsertar = {
+    let ComercianteAInsertar = {};
+    if(editarr){
+      ComercianteAInsertar ={
+        coin_Id: editComercianteId,
+      ciud_Id: values.ciud_Id,
+      alde_Id: values.alde_Id,
+      colo_Id: values.colo_Id,
+      coin_NumeroLocalApart: values.coin_NumeroLocalApart,
+      coin_PuntoReferencia: values.coin_PuntoReferencia,
+      usua_UsuarioModificacion: 1,
+      coin_FechaModificacion: fechaActual
+      }
+    }else{
+      ComercianteAInsertar ={
       coin_Id: insertado,
       ciud_Id: values.ciud_Id,
       alde_Id: values.alde_Id,
@@ -820,7 +790,10 @@ const cancelarr = () => {
       coin_PuntoReferencia: values.coin_PuntoReferencia,
       usua_UsuarioModificacion: 1,
       coin_FechaModificacion: fechaActual
+      }
+
     };
+      
     console.log('insertar2',ComercianteAInsertar);
 
 
@@ -842,8 +815,10 @@ const cancelarr = () => {
   
   const submitTab3 = async (values, { setSubmitting }) => {
     const fechaActual = new Date().toISOString();
-    let ComercianteAInsertar = {
-      coin_Id: insertado,
+    let ComercianteAInsertar = {};
+    if(editarr){
+      ComercianteAInsertar = {
+      coin_Id: editComercianteId,
       coin_CiudadRepresentante: values.coin_CiudadRepresentante,
       coin_AldeaRepresentante: values.coin_AldeaRepresentante,
       coin_coloniaIdRepresentante: values.coin_coloniaIdRepresentante,
@@ -851,6 +826,18 @@ const cancelarr = () => {
       coin_PuntoReferenciaReprentante: values.coin_PuntoReferenciaReprentante,
       usua_UsuarioModificacion: 1,
       coin_FechaModificacion: fechaActual
+      }
+    }else{
+      ComercianteAInsertar = {
+        coin_Id: insertado,
+        coin_CiudadRepresentante: values.coin_CiudadRepresentante,
+        coin_AldeaRepresentante: values.coin_AldeaRepresentante,
+        coin_coloniaIdRepresentante: values.coin_coloniaIdRepresentante,
+        coin_NumeroLocaDepartRepresentante: values.coin_NumeroLocaDepartRepresentante,
+        coin_PuntoReferenciaReprentante: values.coin_PuntoReferenciaReprentante,
+        usua_UsuarioModificacion: 1,
+        coin_FechaModificacion: fechaActual
+        }
     };
     console.log('insertar3',ComercianteAInsertar);
 
@@ -873,15 +860,31 @@ const cancelarr = () => {
   
   const submitTab4 = async (values, { setSubmitting }) => {
     const fechaActual = new Date().toISOString();
-    let ComercianteAInsertar = {
-      coin_Id: insertado,
+    let ComercianteAInsertar = {};
+    if(editarr){
+
+      ComercianteAInsertar = {
+        coin_Id: editComercianteId,
       coin_TelefonoCelular: values.coin_TelefonoCelular,
       coin_TelefonoFijo: values.coin_TelefonoFijo,
       coin_CorreoElectronico: values.coin_CorreoElectronico,
       coin_CorreoElectronicoAlternativo: values.coin_CorreoElectronicoAlternativo,
       usua_UsuarioModificacion: 1,
       coin_FechaModificacion: fechaActual
+      }
+
+    }else{
+      ComercianteAInsertar = {
+        coin_Id: insertado,
+      coin_TelefonoCelular: values.coin_TelefonoCelular,
+      coin_TelefonoFijo: values.coin_TelefonoFijo,
+      coin_CorreoElectronico: values.coin_CorreoElectronico,
+      coin_CorreoElectronicoAlternativo: values.coin_CorreoElectronicoAlternativo,
+      usua_UsuarioModificacion: 1,
+      coin_FechaModificacion: fechaActual
+      }
     };
+      
     console.log('insertar4',ComercianteAInsertar);
 
 
@@ -1181,7 +1184,7 @@ const finalizar = async () => {
                                   <TabPane tabId="1">
                                     <CardBody>
                                     <Formik
-  initialValues={{nueva1}}
+  initialValues={nueva1}
   enableReinitialize
   validationSchema={validationSchema}
   onSubmit={submitTab1}
@@ -1328,7 +1331,7 @@ const finalizar = async () => {
       {editarr && (
     <Button
         color="secondary"
-        className="btn-shadow float-start btn-wide btn-pill mb-2 me-2"
+        className="btn-shadow float-end btn-wide btn-pill mb-2 me-2"
         outline
         onClick={() => {
             setCollapse(false);
@@ -1339,7 +1342,7 @@ const finalizar = async () => {
     </Button>
 )}
 
-
+     
       <Button
         color="primary"
         className="btn-shadow btn-wide float-end btn-pill btn-hover-shine mb-2 me-2"
@@ -1360,7 +1363,7 @@ const finalizar = async () => {
                                   <TabPane tabId="2">
                                     <CardBody>
                                     <Formik
-                                     initialValues={{nueva2}}
+                                     initialValues={nueva2}
                                      enableReinitialize
                                      validationSchema={validationSchema2}
                                      onSubmit={submitTab2}
@@ -1475,7 +1478,7 @@ const finalizar = async () => {
                                        {editarr && (
     <Button
         color="secondary"
-        className="btn-shadow float-start btn-wide btn-pill mb-2 me-2"
+        className="btn-shadow float-end btn-wide btn-pill mb-2 me-2"
         outline
         onClick={() => {
             setCollapse(false);
@@ -1485,7 +1488,6 @@ const finalizar = async () => {
         Volver al Inicio
     </Button>
 )}
-
 
                                        <Button
                                          color="primary"
@@ -1505,7 +1507,7 @@ const finalizar = async () => {
                                   <TabPane tabId="3">
                                     <CardBody>
                                     <Formik
-                                     initialValues={{nueva3}}
+                                     initialValues={nueva3}
                                      enableReinitialize
                                      validationSchema={validationSchema3}
                                      onSubmit={submitTab3}
@@ -1620,7 +1622,7 @@ const finalizar = async () => {
                                        {editarr && (
     <Button
         color="secondary"
-        className="btn-shadow float-start btn-wide btn-pill mb-2 me-2"
+        className="btn-shadow float-end btn-wide btn-pill mb-2 me-2"
         outline
         onClick={() => {
             setCollapse(false);
@@ -1649,7 +1651,7 @@ const finalizar = async () => {
                                   <TabPane tabId="4">
                                     <CardBody>
                                     <Formik
-                                     initialValues={{nueva4}}
+                                     initialValues={nueva4}
                                      enableReinitialize
                                      validationSchema={validationSchema4}
                                      onSubmit={submitTab4}
@@ -1767,9 +1769,10 @@ const finalizar = async () => {
                                        >
                                          Volver
                                        </Button>
+                                       {editarr && (
     <Button
         color="secondary"
-        className="btn-shadow float-start btn-wide btn-pill mb-2 me-2"
+        className="btn-shadow float-end btn-wide btn-pill mb-2 me-2"
         outline
         onClick={() => {
             setCollapse(false);
@@ -1778,6 +1781,8 @@ const finalizar = async () => {
     >
         Volver al Inicio
     </Button>
+)}
+
 
                                        <Button
                                          color="primary"
@@ -1834,7 +1839,7 @@ const finalizar = async () => {
                                                </Tooltip>
                                              </div>
                                            )}
-                                            <Modal visible={previewVisible} footer={null} onCancel={handleCancel}>
+                                            <Modal open={previewVisible} footer={null} onCancel={handleCancel}>
                                                  <img alt="Vista previa" style={{ width: '100%' }} src={previewImage} />
                                                </Modal>
                                              </Col>
@@ -1853,7 +1858,7 @@ const finalizar = async () => {
                                        {editarr && (
     <Button
         color="secondary"
-        className="btn-shadow float-start btn-wide btn-pill mb-2 me-2"
+        className="btn-shadow float-end btn-wide btn-pill mb-2 me-2"
         outline
         onClick={() => {
             setCollapse(false);
