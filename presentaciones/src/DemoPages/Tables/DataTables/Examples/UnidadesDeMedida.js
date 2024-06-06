@@ -90,6 +90,7 @@ const UnidadesDeMedidas = () => {
     setEditar(true);
     setEditUnidadesDeMedidasId(UnidadesDeMedidasId);
     setNuevaUnidadesDeMedidas({ unme_Descripcion: descripcion, unme_EsAduana: esAduana });
+    console.log(nuevaUnidadesDeMedidas);
     setDetalleUnidadesDeMedidas(null);
     setCollapse(true);
   };

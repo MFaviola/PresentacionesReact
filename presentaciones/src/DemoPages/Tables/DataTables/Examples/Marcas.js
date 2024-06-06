@@ -35,7 +35,6 @@ const Marcas = () => {
         }
       });
       setData(response.data.data);
-      console.log(response.data.data);
     } catch (error) {
       console.error('Error al listar Marcas', error);
     }
@@ -100,6 +99,7 @@ const Marcas = () => {
     setEditar(true);
     setEditMarcaId(marcaId);
     setNuevaMarca(descripcion);
+    console.log(nuevaMarca,'aaaaa');
     setDetalleMarca(null);
     setCollapse(true);
   };

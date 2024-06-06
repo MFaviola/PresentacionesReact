@@ -27,7 +27,7 @@ import 'react-toastify/dist/ReactToastify.css';
 import classnames from "classnames";
 import { faCommentDots, faBullhorn } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { Formik, Form, Field, ErrorMessage, insert } from "formik";
+import { Formik, Form, Field, ErrorMessage } from "formik";
 import * as Yup from "yup";
 import { Upload, Modal, Tooltip } from 'antd';
 import { UploadOutlined, EyeOutlined } from '@ant-design/icons';
@@ -82,6 +82,32 @@ const Comerciante = () => {
   const [imageUrl, setImageUrl] = useState('');
   const [previewVisible, setPreviewVisible] = useState(false);
   const toggleCollapse = () => setCollapse(!collapse);
+  const [nueva1, setNueva1] = useState({pers_RTN: "",
+    pers_Nombre:"",
+    ofic_Id:"",
+    escv_Id: "",
+    ofpr_Id: "",
+    pers_FormaRepresentacion: false,
+    pers_escvRepresentante: "",
+    pers_OfprRepresentante: ""});
+  const [nueva2, setNueva2] = useState({pvin_Id: "",
+    ciud_Id: "",
+    alde_Id: "",
+    colo_Id: "",
+     coin_NumeroLocalApart: "",
+     coin_PuntoReferencia: ""});
+  const [nueva3, setNueva3] = useState({pvin_IdRepresentante: "",
+    coin_CiudadRepresentante: "",
+    coin_AldeaRepresentante: "",
+    coin_coloniaIdRepresentante: "",
+    coin_NumeroLocaDepartRepresentante: "",
+    coin_PuntoReferenciaReprentante: "",});
+  const [nueva4, setNueva4] = useState({coin_TelefonoCelular: "",
+    coin_TelefonoFijo:"",
+    coin_CorreoElectronico: "",
+    coin_CorreoElectronicoAlternativo: "",
+   });
+
 
   const listarComerciantes = async () => {
     try {
@@ -92,7 +118,6 @@ const Comerciante = () => {
         }
       });
       setData(response.data.data);
-      console.log('esta es la informacion', response.data.data);
     } catch (error) {
       toast.error("Error al listar los comerciantes.");
     }
@@ -127,22 +152,7 @@ const Comerciante = () => {
     setConfirmarEliminar(true);
   };
 
-  const obtenerDetalleComerciante = async (ComercianteId) => {
-    try {
-      const response = await axios.get(`${urlAPI}/Listar`, {
-        headers: {
-          'XApiKey': keyAPI,
-          'EncryptionKey': keyencriptada
-        }
-      });
-      const lista = response.data.data;
-      const objeto = lista.find((list) => list.coin_Id === ComercianteId);
-      setDetalleComerciante(objeto);
-      setCollapse(true);
-    } catch (error) {
-      toast.error("Error al obtener los detalles del comerciante.");
-    }
-  };
+  
 
   const cancelarEliminacion = () => {
     setElimComercianteId(null);
@@ -150,11 +160,7 @@ const Comerciante = () => {
     setConfirmarEliminar(false);
   };
 
-  const cancelarr = () => {
-    setCollapse(false);
-    setDetalleComerciante(null);
-    setEditComercianteId(null);
-  };
+  
 
   
   const listarOficinas = async () => {
@@ -312,37 +318,7 @@ const listarColonias2 = async (ciudadId2) => {
      listarProvincias2();
   }, []);
 
-  // useEffect(() => {
-  //   const fetchData = async () => {
-  //     try {
-  //       await listarProvincias();
-  //       await listarComerciantes();
-  //       if (ideditar) {
-  //         const response = await axios.get(`${urlAPI}/Listar`, {
-  //           headers: {
-  //             'XApiKey': keyAPI,
-  //             'EncryptionKey': keyencriptada
-  //           }
-  //         });
-  //         const lista = response.data.data;
-  //         const registroo = lista.find((list) => list.coin_Id === ideditar);
-  //         console.log('fkfkf',registroo);
-  //         setRegistro(registroo);
-
-  //         const provinciaId = registroo.pvin_Id;
-  //       const ciudadId = registroo.ciud_Id;
-  //       await listarCiudades(provinciaId); await listarAldeas(ciudadId); await listarColonias(ciudadId);
-  //       }
-  //     } catch (error) {
-  //       console.error('Error al obtener detalles del comerciante', error);
-  //       toast.error("Error al obtener los detalles del comerciante.");
-  //     } finally {
-  //       setcargabdo(false);
-  //     }
-  //   };
-  
-  //   fetchData();
-  // }, [ideditar]);
+ 
 
   const ProvinciaCambio = async (event, setFieldValue) => {
     const provinciaId = event.target.value;
@@ -356,7 +332,7 @@ const listarColonias2 = async (ciudadId2) => {
     const provinciaId2 = event.target.value;
     console.log(provinciaId2);
     setSelectedProvincia2(provinciaId2);
-    setFieldValue('pvin_Id', provinciaId2);
+    setFieldValue('pvin_IdRepresentante', provinciaId2);
     await listarCiudades2(provinciaId2);
   };
 
@@ -379,7 +355,7 @@ const listarColonias2 = async (ciudadId2) => {
 
   const botonesAcciones = row => (
     <div>
-      <Button className="mb-2 me-2 btn-shadow" color="primary" onClick={() => editarComercianteClick(row.coin_Id,row.pers_Id,row.pers_RTN,row.pers_Nombre,row.ofic_Id,row.escv_Id,row.ofpr_Id,row.pers_FormaRepresentacion,row.pers_escvRepresentante,row.pers_OfprRepresentante,row.ciud_Id,row.alde_Id,row.colo_Id,row.coin_NumeroLocalApart,row.coin_PuntoReferencia,row.coin_CiudadRepresentante,row.coin_AldeaRepresentante,row.coin_coloniaIdRepresentante,row.coin_NumeroLocaDepartRepresentante,row.coin_PuntoReferenciaReprentante,row.coin_TelefonoCelular,row.coin_TelefonoFijo,row.coin_CorreoElectronico,row.coin_CorreoElectronicoAlternativo)}>
+      <Button className="mb-2 me-2 btn-shadow" color="primary" onClick={() => editarComercianteClick(row.coin_Id,row.pers_Id,row.pers_RTN,row.pers_Nombre,row.ofic_Id,row.escv_Id,row.ofpr_Id,row.pers_FormaRepresentacion,row.pers_escvRepresentante,row.pers_OfprRepresentante,row.pvin_Id,row.ciud_Id,row.alde_Id,row.colo_Id,row.coin_NumeroLocalApart,row.coin_PuntoReferencia,row.pvin_IdRepresentante,row.coin_CiudadRepresentante,row.coin_AldeaRepresentante,row.coin_coloniaIdRepresentante,row.coin_NumeroLocaDepartRepresentante,row.coin_PuntoReferenciaReprentante,row.coin_TelefonoCelular,row.coin_TelefonoFijo,row.coin_CorreoElectronico,row.coin_CorreoElectronicoAlternativo)}>
         Editar
       </Button>
       <Button className="mb-2 me-2 btn-shadow" color="alternate" onClick={() => obtenerDetalleComerciante(row.coin_Id)}>
@@ -436,29 +412,44 @@ const listarColonias2 = async (ciudadId2) => {
 
   const [registro, setRegistro] = useState(null);
 
-  const editarComercianteClick = async (ComercianteId, PersId) => {
+  const editarComercianteClick = (ComercianteId, PersId, rtn,nombre,oficid,escvid,ofprid,formarepre,persescv,persofpr,pvinid,ciudid,aldeid,coloid,numerolocal,puntorefe,pvinrepre,ciudadrepre,aldrearepre,coloniaidrepre,numerolocalrepre,puntoreferepre,celular,fijo,correo,correoalternativo) => {
     setEditar(true);
     setEditComercianteId(ComercianteId);
     setEditPersId(PersId);
-    // setNueva1({ pais_Codigo: PaisesId, pais_Nombre: nombre, pais_prefijo: prefijo, pais_EsAduana: esAduana });
+    setNueva1({ pers_RTN:rtn,pers_Nombre:nombre,ofic_Id:oficid,escv_Id:escvid,ofpr_Id:ofprid,pers_FormaRepresentacion:formarepre,pers_escvRepresentante:persescv,pers_OfprRepresentante:persofpr});
+    setNueva2({ pvin_Id: pvinid,ciud_Id:ciudid,alde_Id:aldeid,colo_Id:coloid,coin_NumeroLocalApart:numerolocal,coin_PuntoReferencia:puntorefe});
+    setNueva3({ pvin_IdRepresentante:pvinrepre,coin_CiudadRepresentante:ciudadrepre,coin_AldeaRepresentante:aldrearepre,coin_coloniaIdRepresentante:coloniaidrepre,coin_NumeroLocaDepartRepresentante:numerolocalrepre,coin_PuntoReferenciaReprentante:puntoreferepre});
+    setNueva4({ coin_TelefonoCelular:celular,coin_TelefonoFijo:fijo,coin_CorreoElectronico:correo,coin_CorreoElectronicoAlternativo:correoalternativo});
+    console.log(nueva1,nueva2,nueva3,nueva4);
     setDetalleComerciante(null);
     setCollapse(true);
-
-        const response = await axios.get(`${urlAPI}/Listar`, {
-            headers: {
-                'XApiKey': keyAPI,
-                'EncryptionKey': keyencriptada
-            }
-        });
-        const lista = response.data.data;
-        const comerciante = lista.find((list) => list.coin_Id === ComercianteId);
-        setRegistro(comerciante);
-
         setActiveTab("1");
-        setActiveTab("2");
-        setActiveTab("3");
-        setActiveTab("4");
-        setActiveTab("5");
+};
+
+const obtenerDetalleComerciante = async (ComercianteId) => {
+  try {
+    const response = await axios.get(`${urlAPI}/Listar`, {
+      headers: {
+        'XApiKey': keyAPI,
+        'EncryptionKey': keyencriptada
+      }
+    });
+    const lista = response.data.data;
+    const objeto = lista.find((list) => list.coin_Id === ComercianteId);
+    setDetalleComerciante(objeto);
+    setEditar(false);
+    setEditComercianteId(null);
+    setEditPersId(null);
+    setCollapse(true);
+  } catch (error) {
+    toast.error("Error al obtener los detalles del comerciante.");
+  }
+};
+
+const cancelarr = () => {
+  setCollapse(false);
+  setDetalleComerciante(null);
+  setEditComercianteId(null);
 };
 
 
@@ -678,7 +669,7 @@ const listarColonias2 = async (ciudadId2) => {
   });
 
   const validationSchema3 = Yup.object().shape({
-    pvin_Id: Yup.number().required("La provincia es requerida."),
+    pvin_IdRepresentante: Yup.number().required("La provincia es requerida."),
     coin_CiudadRepresentante: Yup.number().required("La ciudad es requerida."),
     coin_AldeaRepresentante: Yup.number().required("La aldea es requerida."),
     coin_coloniaIdRepresentante: Yup.number().required("La colonia es requerida."),
@@ -1176,16 +1167,7 @@ const finalizar = async () => {
                                   <TabPane tabId="1">
                                     <CardBody>
                                     <Formik
-  initialValues={{
-    pers_RTN: registro ? registro.pers_RTN:"",
-    pers_Nombre: registro ? registro.pers_Nombre:"",
-    ofic_Id:registro ? registro.ofic_Id:"",
-    escv_Id: registro ? registro.escv_Id:"",
-    ofpr_Id: registro ? registro.ofpr_Id:"",
-    pers_FormaRepresentacion: registro ? registro.pers_FormaRepresentacion:false,
-    pers_escvRepresentante: registro ? registro.pers_escvRepresentante:"",
-    pers_OfprRepresentante: registro ? registro.pers_OfprRepresentante:"",
-  }}
+  initialValues={{nueva1}}
   validationSchema={validationSchema}
   onSubmit={submitTab1}
 >
@@ -1362,15 +1344,7 @@ const finalizar = async () => {
                                   <TabPane tabId="2">
                                     <CardBody>
                                     <Formik
-                                     initialValues={{
-                                      pvin_Id: "",
-                                      ciud_Id: "",
-                                      alde_Id: "",
-                                      colo_Id: "",
-                                      pvin_Id: "",
-                                       coin_NumeroLocalApart: "",
-                                       coin_PuntoReferencia: ""
-                                     }}
+                                     initialValues={{nueva2}}
                                      validationSchema={validationSchema2}
                                      onSubmit={submitTab2}
                                    >
@@ -1514,14 +1488,7 @@ const finalizar = async () => {
                                   <TabPane tabId="3">
                                     <CardBody>
                                     <Formik
-                                     initialValues={{
-                                      pvin_Id: "",
-                                      coin_CiudadRepresentante: "",
-                                      coin_AldeaRepresentante: "",
-                                      coin_coloniaIdRepresentante: "",
-                                      coin_NumeroLocaDepartRepresentante: "",
-                                      coin_PuntoReferenciaReprentante: "",
-                                     }}
+                                     initialValues={{nueva3}}
                                      validationSchema={validationSchema3}
                                      onSubmit={submitTab3}
                                    >
@@ -1530,9 +1497,9 @@ const finalizar = async () => {
                                        <Row>
                                          <Col md={6}>
                                            <FormGroup>
-                                             <Label for="pvin_Id">Provincia Representante</Label>
+                                             <Label for="pvin_IdRepresentante">Provincia Representante</Label>
                                              <Field
-                                               name="pvin_Id"
+                                               name="pvin_IdRepresentante"
                                                as="select"
                                                className="form-control"
                                                onChange={(e) => ProvinciaCambio2(e, setFieldValue)}
@@ -1542,7 +1509,7 @@ const finalizar = async () => {
                                                  <option key={provincia.pvin_Id} value={provincia.pvin_Id}>{provincia.pvin_Nombre}</option>
                                                ))}
                                              </Field>
-                                             <ErrorMessage name="pvin_Id" component="div" className="text-danger" />
+                                             <ErrorMessage name="pvin_IdRepresentante" component="div" className="text-danger" />
                                            </FormGroup>
                                          </Col>
                                          <Col md={6}>
@@ -1664,12 +1631,7 @@ const finalizar = async () => {
                                   <TabPane tabId="4">
                                     <CardBody>
                                     <Formik
-                                     initialValues={{
-                                      coin_TelefonoCelular: registro ? registro.coin_TelefonoCelular:"",
-                                      coin_TelefonoFijo:registro ? registro.coin_TelefonoFijo:"",
-                                      coin_CorreoElectronico: registro ? registro.coin_CorreoElectronico:"",
-                                      coin_CorreoElectronicoAlternativo: registro ? registro.coin_CorreoElectronicoAlternativo:"",
-                                     }}
+                                     initialValues={{nueva4}}
                                      validationSchema={validationSchema4}
                                      onSubmit={submitTab4}
                                    >
