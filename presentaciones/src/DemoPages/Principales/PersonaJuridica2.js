@@ -27,6 +27,7 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { Formik, Form, Field, ErrorMessage } from "formik";
 import * as Yup from "yup";
 import Select from 'react-select';
+import personaJuridicaAPI from '../Servicios/PersonaJuridicaAPI';
 
 const urlAPI = 'https://localhost:44380/api/PersonaJuridica';
 const keyAPI = '4b567cb1c6b24b51ab55248f8e66e5cc';
@@ -42,7 +43,7 @@ const PersonaJuridica = () => {
   const [elimPersonaJuridicaId, setElimPersonaJuridicaId] = useState(null);
   const [elimPersId, setElimPersId] = useState(null);
   const [detallePersonaJuridica, setDetallePersonaJuridica] = useState(null);
-  const [editPersonaJuridicaId, setPersonaJuridicaId] = useState(null); 
+  const [editPersonaJuridicaId, setEditPersonaJuridicaId] = useState(null); 
   const [editPersId, setEditPersId] = useState(null); 
   const [activeTab, setActiveTab] = useState("1");
   const [dataOficina, setDataOficina] = useState([]);
@@ -74,7 +75,35 @@ const PersonaJuridica = () => {
 
   const toggleCollapse = () => setCollapse(!collapse);
 
+  const [nueva1, setNueva1] = useState({pers_RTN: "",
+  pers_Nombre:"",
+  ofic_Id:"",
+  escv_Id: "",
+  ofpr_Id: "",
+  pers_FormaRepresentacion: false,
+  pers_escvRepresentante: "",
+  pers_OfprRepresentante: ""});
 
+const [nueva2, setNueva2] = useState({pvin_Id: "",
+  ciud_Id: "",
+  alde_Id: "",
+  colo_Id: "",
+   peju_NumeroLocalApart: "",
+   peju_PuntoReferencia: ""});
+
+const [nueva3, setNueva3] = useState({pvin_IdRepresentante: "",
+  peju_CiudadRepresentante: "",
+  peju_AldeaRepresentante: "",
+  peju_coloniaIdRepresentante: "",
+  peju_NumeroLocaDepartRepresentante: "",
+  peju_PuntoReferenciaReprentante: "",});
+
+const [nueva4, setNueva4] = useState({
+  peju_TelefonoCelular: "",
+  peju_TelefonoFijo:"",
+  peju_CorreoElectronico: "",
+  peju_CorreoElectronicoAlternativo: "",
+ });
 
   // correo
 
@@ -197,6 +226,10 @@ const codigoenviado2 = async (correo) => {
   }
 };
 ///////
+
+
+
+
 
 
 
@@ -360,14 +393,14 @@ const finalizar = async () => {
     setElimPersonaJuridicaId(null);
     setElimPersId(null);
     setConfirmarEliminar(false);
-    setPersonaJuridicaId(null);
+    setEditPersonaJuridicaId(null);
 
   };
 
   const cancelarr = () => {
     setCollapse(false);
     setDetallePersonaJuridica(null);
-    setPersonaJuridicaId(null);
+    setEditPersonaJuridicaId(null);
   };
 
   const listarOficinas = async () => {
@@ -435,7 +468,6 @@ const finalizar = async () => {
       toast.error("Error al listar las ciudades.");
     }
   };
-
   const listarAldeas = async (ciudadId) => {
     try {
       const response = await axios.get(`${urlAldea}/FiltrarPorCiudades?alde_Id=${ciudadId}`, {
@@ -546,7 +578,9 @@ const finalizar = async () => {
   };
   const botonesAcciones = row => (
     <div>
-      <Button className="mb-2 me-2 btn-shadow" color="primary" onClick={() => editar(row.peju_Id)}>
+      <Button className="mb-2 me-2 btn-shadow" color="primary" onClick={() => editarPersonaJuridicaClick(row.peju_Id, row.pers_RTN,row.pers_Nombre,row.ofic_Id,row.escv_Id,row.ofpr_Id,row.pvin_Id,row.ciud_Id,row.alde_Id,row.colo_Id,row.peju_NumeroLocalApart,row.peju_PuntoReferencia,row.pvin_IdRepresentante,row.peju_CiudadRepresentante,row.peju_AldeaRepresentante,row.peju_coloniaIdRepresentante,row.peju_NumeroLocaDepartRepresentante,row.peju_PuntoReferenciaReprentante,row.peju_TelefonoCelular,row.peju_TelefonoFijo,row.peju_CorreoElectronico,row.peju_CorreoElectronicoAlternativo)}>
+
+
         Editar
       </Button>
       <Button className="mb-2 me-2 btn-shadow" color="alternate" onClick={() => obtenerDetallePersonaJuridica(row.peju_Id)}>
@@ -558,10 +592,10 @@ const finalizar = async () => {
     </div>
   );
 
-  const editar = (pejuid) => {
-    setPersonaJuridicaId(pejuid);
-    setCollapse(true);
-  };
+  // const editar = (pejuid) => {
+  //   setPersonaJuridicaId(pejuid);
+  //   setCollapse(true);
+  // };
 
   const editarPersonaJuridica = async (values, { setSubmitting }) => {
     dejarpasar(true);
@@ -589,7 +623,12 @@ const finalizar = async () => {
           }
         });
 
+        setActiveTab("2");
+        setActiveTab("3");
+        setActiveTab("4");
+        setActiveTab("5");
         setShowPreviousBtn(true);
+        dejarpasar(true);
         setShowNextBtn(true);
       } catch (error) {
         toast.error("Error al guardar los datos.");
@@ -597,13 +636,19 @@ const finalizar = async () => {
     setSubmitting(false);
   };
 
-  const editarComercianteClick = (PersonaJuridicaId,PersId) => {
+  const editarPersonaJuridicaClick = (PersonaJuridicaId, PersId, rtn,nombre,oficid,escvid,ofprid,pvinid,ciudid,aldeid,coloid,numerolocal,puntorefe,pvinrepre,ciudadrepre,aldrearepre,coloniaidrepre,numerolocalrepre,puntoreferepre,celular,fijo,correo,correoalternativo) => {
     setEditar(true);
-    setPersonaJuridicaId(PersonaJuridicaId);
+    setEditPersonaJuridicaId(PersonaJuridicaId);
     setEditPersId(PersId);
+    setNueva1({ pers_RTN:rtn,pers_Nombre:nombre,ofic_Id:oficid,escv_Id:escvid,ofpr_Id:ofprid});
+    setNueva2({ pvin_Id: pvinid,ciud_Id:ciudid,alde_Id:aldeid,colo_Id:coloid,peju_NumeroLocalApart:numerolocal,peju_PuntoReferencia:puntorefe});
+    setNueva3({ pvin_IdRepresentante:pvinrepre,peju_CiudadIdRepresentante:ciudadrepre,peju_AldeaIdRepresentante:aldrearepre,peju_ColoniaRepresentante:coloniaidrepre,peju_NumeroLocalRepresentante:numerolocalrepre,peju_PuntoReferenciaRepresentante:puntoreferepre});
+    setNueva4({ peju_TelefonoEmpresa:celular,peju_TelefonoFijoRepresentanteLegal:fijo,peju_CorreoElectronico:correo,peju_CorreoElectronicoAlternativo:correoalternativo});
+    console.log(nueva1,nueva2,nueva3,nueva4);
     setDetallePersonaJuridica(null);
     setCollapse(true);
-  };
+        setActiveTab("1");
+};
 
 
   const DetallesPersonaJuridica = ({ detalle }) => {
@@ -819,17 +864,27 @@ const finalizar = async () => {
 
 
 
-  const toggle = (tab, values) => {
+  const toggle = (tab) => {
     if (activeTab !== tab) {
-      if (tab === "2" && !values.pers_RTN) {
-        toast.error("Debe completar y guardar los datos del Tab 1 antes de continuar.");
+      if (tab === "2" && !dejarpasar) {
+        return;
+      } else if (tab === "3" && !dejarpasar) {
+        return;
+      }else if (tab === "4" && !dejarpasar) {
+        return;
+      }else if (tab === "5" && !dejarpasar) {
+        return;
+      }else if (tab === "6" && !dejarpasar) {
         return;
       }
+  
       setActiveTab(tab);
       setShowPreviousBtn(tab !== "1");
-      setShowNextBtn(tab !== "3");
+      setShowNextBtn(tab !== "6");
     }
   };
+
+
 
   const validationSchema = Yup.object().shape({
     pers_RTN: Yup.string()
@@ -843,9 +898,12 @@ const finalizar = async () => {
     ofpr_Id: Yup.number().required("El oficio es requerido."),
   });
 
+
+  
   const submitTab1 = async (values, { setSubmitting }) => {
     console.log('entra');
     const fechaActual = new Date().toISOString();
+    
     let PersonaJuridicaAInsertarr = {
       pers_RTN: values.pers_RTN,
       pers_Nombre: values.pers_Nombre,
