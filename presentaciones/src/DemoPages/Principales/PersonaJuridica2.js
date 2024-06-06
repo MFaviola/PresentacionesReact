@@ -56,7 +56,6 @@ const PersonaJuridica = () => {
   const [dataAldea2, setDataAldea2] = useState([]);
   const [dataColonia2, setDataColonia2] = useState([]);
   const [selectedProvincia2, setSelectedProvincia2] = useState("");
-  const [editarr, setEditar] = useState(false); 
 
   const [dataCiudad, setDataCiudad] = useState([]);
   const [dataAldea, setDataAldea] = useState([]);
@@ -74,36 +73,38 @@ const PersonaJuridica = () => {
   const [selectedCiudad2, setSelectedCiudad2] = useState("");
 
   const toggleCollapse = () => setCollapse(!collapse);
-
-  const [nueva1, setNueva1] = useState({pers_RTN: "",
-  pers_Nombre:"",
-  ofic_Id:"",
-  escv_Id: "",
-  ofpr_Id: "",
-  pers_FormaRepresentacion: false,
-  pers_escvRepresentante: "",
-  pers_OfprRepresentante: ""});
-
-const [nueva2, setNueva2] = useState({pvin_Id: "",
+  const [editarr, setEditar] = useState(false); 
+  const [editPersonaId, setEditPersonaId] = useState(null); 
+  const [nueva1, setNueva1] = useState({
+    pers_RTN: "",
+    pers_Nombre: "",
+    ofic_Id: "",
+    escv_Id: "",
+    ofpr_Id: "",
+});
+const [nueva2, setNueva2] = useState({
+  pvin_Id: "",
   ciud_Id: "",
   alde_Id: "",
   colo_Id: "",
-   peju_NumeroLocalApart: "",
-   peju_PuntoReferencia: ""});
-
-const [nueva3, setNueva3] = useState({pvin_IdRepresentante: "",
-  peju_CiudadRepresentante: "",
-  peju_AldeaRepresentante: "",
-  peju_coloniaIdRepresentante: "",
-  peju_NumeroLocaDepartRepresentante: "",
-  peju_PuntoReferenciaReprentante: "",});
-
+  peju_NumeroLocalApart: "",
+  peju_PuntoReferencia: ""
+});
+const [nueva3, setNueva3] = useState({
+  pvin_Id: "",
+  peju_CiudadIdRepresentante: "",
+  peju_AldeaIdRepresentante: "",
+  peju_ColoniaRepresentante: "",
+  peju_NumeroLocalRepresentante: "",
+  peju_PuntoReferenciaRepresentante: ""
+});
 const [nueva4, setNueva4] = useState({
-  peju_TelefonoCelular: "",
-  peju_TelefonoFijo:"",
+  peju_TelefonoEmpresa: "",
+  peju_TelefonoFijoRepresentanteLegal: "",
+  peju_TelefonoRepresentanteLegal: "",
   peju_CorreoElectronico: "",
-  peju_CorreoElectronicoAlternativo: "",
- });
+  peju_CorreoElectronicoAlternativo: ""
+});
 
   // correo
 
@@ -578,7 +579,7 @@ const finalizar = async () => {
   };
   const botonesAcciones = row => (
     <div>
-      <Button className="mb-2 me-2 btn-shadow" color="primary" onClick={() => editarPersonaJuridicaClick(row.peju_Id, row.pers_RTN,row.pers_Nombre,row.ofic_Id,row.escv_Id,row.ofpr_Id,row.pvin_Id,row.ciud_Id,row.alde_Id,row.colo_Id,row.peju_NumeroLocalApart,row.peju_PuntoReferencia,row.pvin_IdRepresentante,row.peju_CiudadRepresentante,row.peju_AldeaRepresentante,row.peju_coloniaIdRepresentante,row.peju_NumeroLocaDepartRepresentante,row.peju_PuntoReferenciaReprentante,row.peju_TelefonoCelular,row.peju_TelefonoFijo,row.peju_CorreoElectronico,row.peju_CorreoElectronicoAlternativo)}>
+      <Button className="mb-2 me-2 btn-shadow" color="primary" onClick={() => editarPersonaJuridicaClick(row.peju_Id, row.pers_RTN,row.pers_Nombre,row.ofic_Id,row.escv_Id,row.ofpr_Id,row.pvin_Id,row.ciud_Id,row.alde_Id,row.colo_Id,row.peju_NumeroLocalApart,row.peju_PuntoReferencia,row.pvin_IdRepresentante,row.peju_CiudadIdRepresentante,row.peju_AldeaRepresentante,row.peju_ColoniaRepresentante,row.peju_NumeroLocaDepartRepresentante,row.peju_PuntoReferenciaRepresentante,row.peju_TelefonoEmpresa,row.peju_TelefonoFijoRepresentanteLegal,row.peju_TelefonoRepresentanteLegal,row.peju_CorreoElectronico,row.peju_CorreoElectronicoAlternativo)}>
 
 
         Editar
@@ -592,62 +593,24 @@ const finalizar = async () => {
     </div>
   );
 
-  // const editar = (pejuid) => {
-  //   setPersonaJuridicaId(pejuid);
-  //   setCollapse(true);
-  // };
 
-  const editarPersonaJuridica = async (values, { setSubmitting }) => {
-    dejarpasar(true);
-
-    const fechaActual = new Date().toISOString();
-    let PersonaJuridicaAEditar = {
-      peju_Id: editPersonaJuridicaId,
-      pers_Id:editPersId,
-      pers_RTN:values.pers_rtn,
-      pers_Nombre:values.pers_Nombre,
-      ofpr_Id:values.ofpr_Id,
-      ofic_Id:values.ofic_Id,
-      escv_Id:values.escv_Id,
-      usua_UsuarioModificacion: 1,
-      peju_FechaModificacion: fechaActual
-    };
-    console.log('editar1',PersonaJuridicaAEditar);
-
-
-      try {
-        const response = await axios.post(`${urlAPI}/Editar`, PersonaJuridicaAEditar, {
-          headers: {
-            'XApiKey': keyAPI,
-            'EncryptionKey': keyencriptada
-          }
-        });
-
-        setActiveTab("2");
-        setActiveTab("3");
-        setActiveTab("4");
-        setActiveTab("5");
-        setShowPreviousBtn(true);
-        dejarpasar(true);
-        setShowNextBtn(true);
-      } catch (error) {
-        toast.error("Error al guardar los datos.");
-      }
-    setSubmitting(false);
-  };
-
-  const editarPersonaJuridicaClick = (PersonaJuridicaId, PersId, rtn,nombre,oficid,escvid,ofprid,pvinid,ciudid,aldeid,coloid,numerolocal,puntorefe,pvinrepre,ciudadrepre,aldrearepre,coloniaidrepre,numerolocalrepre,puntoreferepre,celular,fijo,correo,correoalternativo) => {
+  const editarPersonaJuridicaClick = async (PersonaJuridicaId, rtn,nombre,oficid,escvid,ofprid,pvinid,ciudid,aldeid,coloid,numerolocal,puntorefe,pvinrepre,ciudadrepre,aldrearepre,coloniaidrepre,numerolocalrepre,puntoreferepre,celular,fijo,telrepre,correo,correoalternativo) => {
     setEditar(true);
-    setEditPersonaJuridicaId(PersonaJuridicaId);
-    setEditPersId(PersId);
+    setEditPersonaId(PersonaJuridicaId);
     setNueva1({ pers_RTN:rtn,pers_Nombre:nombre,ofic_Id:oficid,escv_Id:escvid,ofpr_Id:ofprid});
     setNueva2({ pvin_Id: pvinid,ciud_Id:ciudid,alde_Id:aldeid,colo_Id:coloid,peju_NumeroLocalApart:numerolocal,peju_PuntoReferencia:puntorefe});
     setNueva3({ pvin_IdRepresentante:pvinrepre,peju_CiudadIdRepresentante:ciudadrepre,peju_AldeaIdRepresentante:aldrearepre,peju_ColoniaRepresentante:coloniaidrepre,peju_NumeroLocalRepresentante:numerolocalrepre,peju_PuntoReferenciaRepresentante:puntoreferepre});
-    setNueva4({ peju_TelefonoEmpresa:celular,peju_TelefonoFijoRepresentanteLegal:fijo,peju_CorreoElectronico:correo,peju_CorreoElectronicoAlternativo:correoalternativo});
-    console.log(nueva1,nueva2,nueva3,nueva4);
-    setDetallePersonaJuridica(null);
+    setNueva4({ peju_TelefonoEmpresa:celular,peju_TelefonoFijoRepresentanteLegal:fijo,peju_TelefonoRepresentanteLegal:telrepre,peju_CorreoElectronico:correo,peju_CorreoElectronicoAlternativo:correoalternativo});
+    
+    await listarCiudades(pvinid);
+    await listarAldeas(ciudid);
+    await listarColonias(ciudid);
+    await listarCiudades2(pvinrepre);
+    await listarAldeas2(ciudadrepre);
+    await listarColonias2(ciudadrepre);
+    
     setCollapse(true);
-        setActiveTab("1");
+    setActiveTab("1");
 };
 
 
@@ -910,44 +873,48 @@ const finalizar = async () => {
       ofic_Id: values.ofic_Id,
       escv_Id: values.escv_Id,
       ofpr_Id: values.ofpr_Id,
-
       usua_UsuarioCreacion: 1,
       peju_FechaCreacion: fechaActual
     };
-
+  
+    if (editarr) {
+      PersonaJuridicaAInsertarr.peju_Id = editPersonaJuridicaId;
+      PersonaJuridicaAInsertarr.usua_UsuarioModificacion = 1;
+      PersonaJuridicaAInsertarr.peju_FechaModificacion = fechaActual;
+    }
+  
     const rtnvalidado = /^\d{4}-\d{4}-\d{6}$/.test(values.pers_RTN);
-    console.log('PersonaJuridica insertado', PersonaJuridicaAInsertarr, 'rtn es valido?', rtnvalidado);
-
+    console.log('PersonaJuridica', PersonaJuridicaAInsertarr, 'rtn es valido?', rtnvalidado);
+  
     if (rtnvalidado) {
       try {
-        const response = await axios.post(`${urlAPI}/Insertar`, PersonaJuridicaAInsertarr, {
+        const response = await axios.post(`${urlAPI}/${editarr ? 'Editar' : 'Insertar'}`, PersonaJuridicaAInsertarr, {
           headers: {
             'XApiKey': keyAPI,
             'EncryptionKey': keyencriptada
           }
-
-          
         });
-        
+  
         listarPersonaJuridicas2();
-
+  
         setActiveTab("2");
         setShowPreviousBtn(true);
-        dejarpasar(true);
-
         setShowNextBtn(true);
+  
         const fullId = response.data.data.messageStatus;  
         const peju_Id = fullId.split('.')[0];  
-     
-       PersonaJuridicaId(peju_Id); 
-      } 
-      catch (error) {
+        PersonaJuridicaId(peju_Id); 
+  
+      } catch (error) {
+        console.error(error);
       }
     } else {
       toast.error("El RTN no es válido.");
     }
+  
     setSubmitting(false);
   };
+  
 
   const urlProvincia = 'https://localhost:44380/api/Provincias';
   const urlCiudad = 'https://localhost:44380/api/Ciudades';
@@ -1034,9 +1001,12 @@ const finalizar = async () => {
       colo_Id: values.colo_Id,
       peju_NumeroLocalApart: values.peju_NumeroLocalApart,
       peju_PuntoReferencia: values.peju_PuntoReferencia,
-      usua_UsuarioCreacion: 1,
-      peju_FechaCreacion: fechaActual
+      
     };
+
+    if (editarr) {
+      PersonaJuridicaAInsertar.peju_Id = editPersonaJuridicaId;
+    }
     console.log('insertar2', PersonaJuridicaAInsertar);
 
     try {
@@ -1075,6 +1045,10 @@ const finalizar = async () => {
       peju_PuntoReferenciaRepresentante: values.peju_PuntoReferenciaRepresentante,
   
     };
+
+    if (editarr) {
+      PersonaJuridicaAInsertar.peju_Id = editPersonaJuridicaId;
+    }
     console.log('insertar3',PersonaJuridicaAInsertar);
 
     try {
@@ -1248,13 +1222,7 @@ const submitTab4 = async (values, { setSubmitting }) => {
                             <TabPane tabId="1">
                               <CardBody>
                                 <Formik
-                                  initialValues={{
-                                    pers_RTN: "",
-                                    pers_Nombre: "",
-                                    ofic_Id: "",
-                                    escv_Id: "",
-                                    ofpr_Id: "",
-                                  }}
+                                  initialValues={nueva1}
                                   validationSchema={validationSchema}
                                   onSubmit={submitTab1}
                                 >
@@ -1364,14 +1332,7 @@ const submitTab4 = async (values, { setSubmitting }) => {
                             <TabPane tabId="2">
                               <CardBody>
                                 <Formik
-                                  initialValues={{
-                                    pvin_Id: "",
-                                    ciud_Id: "",
-                                    alde_Id: "",
-                                    colo_Id: "",
-                                    peju_NumeroLocalApart: "",
-                                    peju_PuntoReferencia: ""
-                                  }}
+                                  initialValues={{nueva2}}
                                   validationSchema={validationSchema2}
                                   onSubmit={submitTab2}
                                 >
@@ -1504,15 +1465,7 @@ const submitTab4 = async (values, { setSubmitting }) => {
                             <TabPane tabId="3">
                               <CardBody>
                                 <Formik
-                                  initialValues={{
-                                    pvin_Id: "",
-                                    peju_CiudadIdRepresentante: "",
-                                    peju_AldeaRepresentante: "",
-                                    peju_ColoniaRepresentante: "",
-                                    peju_NumeroLocalRepresentante: "",
-                                    peju_PuntoReferenciaRepresentante: ""
-
-                                  }}
+                                  initialValues={nueva3}
                                   validationSchema={validationSchemaStep3}
                                   onSubmit={submitTab3}
                                 >
@@ -1645,16 +1598,7 @@ const submitTab4 = async (values, { setSubmitting }) => {
                             <TabPane tabId="4">
   <CardBody>
     <Formik
-      initialValues={{
-        peju_TelefonoEmpresa: "",
-        peju_TelefonoFijoRepresentanteLegal: "",
-        peju_TelefonoRepresentanteLegal: "",
-        peju_CorreoElectronico: "",
-        peju_CorreoElectronicoAlternativo: "",
-      
-        codigoConfirmacion: "",
-        codigoConfirmacion2: "",
-      }}
+      initialValues={nueva4}
       validationSchema={validationSchemaStep4}
       onSubmit={submitTab4}
     >
