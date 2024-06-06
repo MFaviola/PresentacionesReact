@@ -92,6 +92,7 @@ const Comerciante = () => {
         }
       });
       setData(response.data.data);
+      console.log('esta es la informacion', response.data.data);
     } catch (error) {
       toast.error("Error al listar los comerciantes.");
     }
@@ -311,6 +312,38 @@ const listarColonias2 = async (ciudadId2) => {
      listarProvincias2();
   }, []);
 
+  // useEffect(() => {
+  //   const fetchData = async () => {
+  //     try {
+  //       await listarProvincias();
+  //       await listarComerciantes();
+  //       if (ideditar) {
+  //         const response = await axios.get(`${urlAPI}/Listar`, {
+  //           headers: {
+  //             'XApiKey': keyAPI,
+  //             'EncryptionKey': keyencriptada
+  //           }
+  //         });
+  //         const lista = response.data.data;
+  //         const registroo = lista.find((list) => list.coin_Id === ideditar);
+  //         console.log('fkfkf',registroo);
+  //         setRegistro(registroo);
+
+  //         const provinciaId = registroo.pvin_Id;
+  //       const ciudadId = registroo.ciud_Id;
+  //       await listarCiudades(provinciaId); await listarAldeas(ciudadId); await listarColonias(ciudadId);
+  //       }
+  //     } catch (error) {
+  //       console.error('Error al obtener detalles del comerciante', error);
+  //       toast.error("Error al obtener los detalles del comerciante.");
+  //     } finally {
+  //       setcargabdo(false);
+  //     }
+  //   };
+  
+  //   fetchData();
+  // }, [ideditar]);
+
   const ProvinciaCambio = async (event, setFieldValue) => {
     const provinciaId = event.target.value;
     console.log(provinciaId);
@@ -346,7 +379,7 @@ const listarColonias2 = async (ciudadId2) => {
 
   const botonesAcciones = row => (
     <div>
-      <Button className="mb-2 me-2 btn-shadow" color="primary" onClick={() => editarComercianteClick(row.coin_Id,row.pers_Id)}>
+      <Button className="mb-2 me-2 btn-shadow" color="primary" onClick={() => editarComercianteClick(row.coin_Id,row.pers_Id,row.pers_RTN,row.pers_Nombre,row.ofic_Id,row.escv_Id,row.ofpr_Id,row.pers_FormaRepresentacion,row.pers_escvRepresentante,row.pers_OfprRepresentante,row.ciud_Id,row.alde_Id,row.colo_Id,row.coin_NumeroLocalApart,row.coin_PuntoReferencia,row.coin_CiudadRepresentante,row.coin_AldeaRepresentante,row.coin_coloniaIdRepresentante,row.coin_NumeroLocaDepartRepresentante,row.coin_PuntoReferenciaReprentante,row.coin_TelefonoCelular,row.coin_TelefonoFijo,row.coin_CorreoElectronico,row.coin_CorreoElectronicoAlternativo)}>
         Editar
       </Button>
       <Button className="mb-2 me-2 btn-shadow" color="alternate" onClick={() => obtenerDetalleComerciante(row.coin_Id)}>
@@ -387,7 +420,13 @@ const listarColonias2 = async (ciudadId2) => {
           }
         });
 
+        setActiveTab("2");
+        setActiveTab("3");
+        setActiveTab("4");
+        setActiveTab("5");
         setShowPreviousBtn(true);
+        dejarpasar(true);
+
         setShowNextBtn(true);
       } catch (error) {
         toast.error("Error al guardar los datos.");
@@ -395,13 +434,33 @@ const listarColonias2 = async (ciudadId2) => {
     setSubmitting(false);
   };
 
-  const editarComercianteClick = (ComercianteId,PersId) => {
+  const [registro, setRegistro] = useState(null);
+
+  const editarComercianteClick = async (ComercianteId, PersId) => {
     setEditar(true);
     setEditComercianteId(ComercianteId);
     setEditPersId(PersId);
+    // setNueva1({ pais_Codigo: PaisesId, pais_Nombre: nombre, pais_prefijo: prefijo, pais_EsAduana: esAduana });
     setDetalleComerciante(null);
     setCollapse(true);
-  };
+
+        const response = await axios.get(`${urlAPI}/Listar`, {
+            headers: {
+                'XApiKey': keyAPI,
+                'EncryptionKey': keyencriptada
+            }
+        });
+        const lista = response.data.data;
+        const comerciante = lista.find((list) => list.coin_Id === ComercianteId);
+        setRegistro(comerciante);
+
+        setActiveTab("1");
+        setActiveTab("2");
+        setActiveTab("3");
+        setActiveTab("4");
+        setActiveTab("5");
+};
+
 
   const DetallesComerciante = ({ detalle }) => {
     if (!detalle) return null;
@@ -669,7 +728,42 @@ const listarColonias2 = async (ciudadId2) => {
   const submitTab1 = async (values, { setSubmitting }) => {
     console.log('entra');
     const fechaActual = new Date().toISOString();
-    let ComercianteAInsertarr = {
+    let ComercianteAInsertarr = {};
+
+    if (editarr) {
+      let ComercianteAEditar = {
+        coin_Id: editComercianteId,
+        pers_Id:editPersId,
+        pers_RTN:values.pers_rtn,
+        pers_Nombre:values.pers_Nombre,
+        ofpr_Id:values.ofpr_Id,
+        ofic_Id:values.ofic_Id,
+        escv_Id:values.escv_Id,
+        pers_escvRepresentante: values.pers_escvRepresentante,
+        pers_OfprRepresentante: values.pers_OfprRepresentante,
+        pers_FormaRepresentacion: values.pers_FormaRepresentacion,
+        usua_UsuarioModificacion: 1,
+        coin_FechaModificacion: fechaActual
+      };
+      console.log('editar1',ComercianteAEditar);
+  
+          const response = await axios.post(`${urlAPI}/Editar`, ComercianteAEditar, {
+            headers: {
+              'XApiKey': keyAPI,
+              'EncryptionKey': keyencriptada
+            }
+          });
+  
+          setActiveTab("2");
+          setActiveTab("3");
+          setActiveTab("4");
+          setActiveTab("5");
+          setShowPreviousBtn(true);
+          dejarpasar(true);
+  
+          setShowNextBtn(true);
+  } else {
+    ComercianteAInsertarr = {
       pers_RTN: values.pers_RTN,
       pers_Nombre: values.pers_Nombre,
       ofic_Id: values.ofic_Id,
@@ -680,31 +774,31 @@ const listarColonias2 = async (ciudadId2) => {
       pers_OfprRepresentante: values.pers_OfprRepresentante,
       usua_UsuarioCreacion: 1,
       coin_FechaCreacion: fechaActual
-    };
-  
-    const rtnvalidado = /^\d{4}-\d{4}-\d{6}$/.test(values.pers_RTN);
-    console.log('comerciante insertado', ComercianteAInsertarr, 'rtn es valido?', rtnvalidado);
-  
-    if (rtnvalidado) {
-      try {
-        const response = await axios.post(`${urlAPI}/Insertar`, ComercianteAInsertarr, {
-          headers: {
-            'XApiKey': keyAPI,
-            'EncryptionKey': keyencriptada
-          }
-        });
-        listarComerciantes2();
+  };
+  const rtnvalidado = /^\d{4}-\d{4}-\d{6}$/.test(values.pers_RTN);
+  console.log('comerciante insertado', ComercianteAInsertarr, 'rtn es valido?', rtnvalidado);
 
-        setActiveTab("2");
-        setShowPreviousBtn(true);
-        dejarpasar(true);
+  if (rtnvalidado) {
+    try {
+      const response = await axios.post(`${urlAPI}/Insertar`, ComercianteAInsertarr, {
+        headers: {
+          'XApiKey': keyAPI,
+          'EncryptionKey': keyencriptada
+        }
+      });
+      listarComerciantes2();
 
-        setShowNextBtn(true);
-      } catch (error) {
-      }
-    } else {
-      toast.error("El RTN no es válido.");
+      setActiveTab("2");
+      setShowPreviousBtn(true);
+      dejarpasar(true);
+
+      setShowNextBtn(true);
+    } catch (error) {
     }
+  } else {
+    toast.error("El RTN no es válido.");
+  }
+  }
     setSubmitting(false);
   };
 
@@ -1062,17 +1156,20 @@ const finalizar = async () => {
                                         </div>
                                       </NavLink>
                                     </NavItem>
-                                    <NavItem>
-                                     <NavLink href="#" className={classnames({ active: activeTab === "6" })} onClick={() => toggle("6")}>
-                                       <div className="widget-number text-danger">Tab 6</div>
-                                       <div className="tab-subheading">
-                                         <span className="pe-2 opacity-6">
-                                           <FontAwesomeIcon icon={faBullhorn} />
-                                         </span>
-                                         Guardar
-                                       </div>
-                                     </NavLink>
-                                   </NavItem>
+                                    {!editarr && (
+    <NavItem>
+        <NavLink href="#" className={classnames({ active: activeTab === "6" })} onClick={() => toggle("6")}>
+            <div className="widget-number text-danger">Tab 6</div>
+            <div className="tab-subheading">
+                <span className="pe-2 opacity-6">
+                    <FontAwesomeIcon icon={faBullhorn} />
+                </span>
+                Guardar
+            </div>
+        </NavLink>
+    </NavItem>
+)}
+
                                   </Nav>
                                 </CardHeader>
                                 <TabContent activeTab={activeTab}>
@@ -1080,14 +1177,14 @@ const finalizar = async () => {
                                     <CardBody>
                                     <Formik
   initialValues={{
-    pers_RTN: "",
-    pers_Nombre: "",
-    ofic_Id: "",
-    escv_Id: "",
-    ofpr_Id: "",
-    pers_FormaRepresentacion: false,
-    pers_escvRepresentante: "",
-    pers_OfprRepresentante: ""
+    pers_RTN: registro ? registro.pers_RTN:"",
+    pers_Nombre: registro ? registro.pers_Nombre:"",
+    ofic_Id:registro ? registro.ofic_Id:"",
+    escv_Id: registro ? registro.escv_Id:"",
+    ofpr_Id: registro ? registro.ofpr_Id:"",
+    pers_FormaRepresentacion: registro ? registro.pers_FormaRepresentacion:false,
+    pers_escvRepresentante: registro ? registro.pers_escvRepresentante:"",
+    pers_OfprRepresentante: registro ? registro.pers_OfprRepresentante:"",
   }}
   validationSchema={validationSchema}
   onSubmit={submitTab1}
@@ -1230,6 +1327,20 @@ const finalizar = async () => {
         </Col>
       </Row>
       <hr></hr>
+      {editarr && (
+    <Button
+        color="secondary"
+        className="btn-shadow float-start btn-wide btn-pill mb-2 me-2"
+        outline
+        onClick={() => {
+            setCollapse(false);
+            listarComerciantes();
+        }}
+    >
+        Volver al Inicio
+    </Button>
+)}
+
 
       <Button
         color="primary"
@@ -1370,6 +1481,20 @@ const finalizar = async () => {
                                        >
                                          Volver
                                        </Button>
+                                       {editarr && (
+    <Button
+        color="secondary"
+        className="btn-shadow float-start btn-wide btn-pill mb-2 me-2"
+        outline
+        onClick={() => {
+            setCollapse(false);
+            listarComerciantes();
+        }}
+    >
+        Volver al Inicio
+    </Button>
+)}
+
 
                                        <Button
                                          color="primary"
@@ -1507,6 +1632,20 @@ const finalizar = async () => {
                                        >
                                          Volver
                                        </Button>
+                                       {editarr && (
+    <Button
+        color="secondary"
+        className="btn-shadow float-start btn-wide btn-pill mb-2 me-2"
+        outline
+        onClick={() => {
+            setCollapse(false);
+            listarComerciantes();
+        }}
+    >
+        Volver al Inicio
+    </Button>
+)}
+
                                        <Button
                                          color="primary"
                                          className="btn-shadow btn-wide float-end btn-pill btn-hover-shine mb-2 me-2"
@@ -1526,10 +1665,10 @@ const finalizar = async () => {
                                     <CardBody>
                                     <Formik
                                      initialValues={{
-                                      coin_TelefonoCelular: "",
-                                      coin_TelefonoFijo: "",
-                                      coin_CorreoElectronico: "",
-                                      coin_CorreoElectronicoAlternativo: "",
+                                      coin_TelefonoCelular: registro ? registro.coin_TelefonoCelular:"",
+                                      coin_TelefonoFijo:registro ? registro.coin_TelefonoFijo:"",
+                                      coin_CorreoElectronico: registro ? registro.coin_CorreoElectronico:"",
+                                      coin_CorreoElectronicoAlternativo: registro ? registro.coin_CorreoElectronicoAlternativo:"",
                                      }}
                                      validationSchema={validationSchema4}
                                      onSubmit={submitTab4}
@@ -1647,6 +1786,20 @@ const finalizar = async () => {
                                        >
                                          Volver
                                        </Button>
+                                       {editarr && (
+    <Button
+        color="secondary"
+        className="btn-shadow float-start btn-wide btn-pill mb-2 me-2"
+        outline
+        onClick={() => {
+            setCollapse(false);
+            listarComerciantes();
+        }}
+    >
+        Volver al Inicio
+    </Button>
+)}
+
                                        <Button
                                          color="primary"
                                          className="btn-shadow btn-wide float-end btn-pill btn-hover-shine mb-2 me-2"
@@ -1718,6 +1871,20 @@ const finalizar = async () => {
                                        >
                                          Volver
                                        </Button>
+                                       {editarr && (
+    <Button
+        color="secondary"
+        className="btn-shadow float-start btn-wide btn-pill mb-2 me-2"
+        outline
+        onClick={() => {
+            setCollapse(false);
+            listarComerciantes();
+        }}
+    >
+        Volver al Inicio
+    </Button>
+)}
+
                                        <Button
                                          color="primary"
                                          className="btn-shadow btn-wide float-end btn-pill btn-hover-shine mb-2 me-2"
