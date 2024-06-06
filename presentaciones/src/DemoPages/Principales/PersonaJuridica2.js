@@ -285,6 +285,9 @@ const handleSubmit = async (values, { setSubmitting }) => {
     return;
   }
 }
+
+
+
 const finalizar = async () => {
   await axios.post(`${urlAPI}/FinalizarContratoJuridica?peju_Id=${insertado}`, {}, {
     headers: {
@@ -296,6 +299,7 @@ const finalizar = async () => {
   listarPersonaJuridicas();
   toast.success("Datos guardados con exito!");
 };
+
   const listarPersonaJuridicas = async () => {
     try {
       const response = await axios.get(`${urlAPI}/Listar`, {

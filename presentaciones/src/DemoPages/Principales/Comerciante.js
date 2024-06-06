@@ -111,8 +111,8 @@ const [nueva4, setNueva4] = useState({
   const [confirmacionCodigoAlternativo, setConfirmacionCodigoAlternativo] = useState('');
   const [enviarCodigoAlternativo, setEnviarCodigoAlternativo] = useState('');
   const [previewImage, setPreviewImage] = useState(null);
-  const [imageUrl, setImageUrl] = useState('');
-  const [previewVisible, setPreviewVisible] = useState(false);
+  // const [imageUrl, setImageUrl] = useState('');
+  // const [previewVisible, setPreviewVisible] = useState(false);
   const toggleCollapse = () => setCollapse(!collapse);
   
   const listarComerciantes = async () => {
@@ -998,6 +998,14 @@ const confirmarcodigo = async (codigo) => {
     }
 };
 
+
+
+///
+const [imageUrl, setImageUrl] = useState('');
+const [previewVisible, setPreviewVisible] = useState(false);
+
+
+
 const handleImageChange = async (event, setFieldValue) => {
   const file = event.currentTarget.files[0];
   setFieldValue("doco_URLImagen", file);
@@ -1007,51 +1015,56 @@ const handleImageChange = async (event, setFieldValue) => {
   formData.append('image', file);
 
   try {
-    const response = await axios.post('https://api.imgbb.com/1/upload?key=55c70c0d0085c37a2b71725303f42f0e', formData);
-
-    setImageUrl(response.data.data.url);
-    setShowPreviousBtn(true);
-
+    const response = await axios.post(`https://api.imgbb.com/1/upload?key=55c70c0d0085c37a2b71725303f42f0e`, formData);
+    const url = response.data.data.url;
+    setImageUrl(url);
     toast.success('Imagen subida correctamente');
+
   } catch (error) {
+    
     toast.error('Error al subir la imagen. Asegúrese que sea un formato válido.');
   }
+  
 };
 
-const handleSubmit = async (values, { setSubmitting }) => {
-  if (!imageUrl) {
-    toast.error("Primero sube una imagen válida.");
-    setSubmitting(false);
-    return;
-  }
 
-  const formData = {
+
+
+
+
+
+
+const submitTab5 = async (values, { setSubmitting }) => {
+  
+  console.log('entra');
+  const fechaActual = new Date().toISOString();
+  const imageUrlValue = imageUrl; 
+
+  let PersonaJuridicaAInsertar = {
     coin_Id: insertado,
-    doco_URLImagen: imageUrl,
+    doco_URLImagen: imageUrlValue,
     usua_UsuarioCreacion: 1,
-    doco_FechaCreacion: new Date().toISOString(),
+    doco_FechaCreacion: fechaActual
   };
+  console.log('insertar5', PersonaJuridicaAInsertar);
+  console.log('url image de 1', imageUrlValue);
 
   try {
-    const response = await axios.post(`${urlDocumento}/InsertarDocuComerciante`, formData, {
-
+    const response = await axios.post(`https://localhost:44380/api/DocumentosContratos/InsertarDocuComerciante`, PersonaJuridicaAInsertar, {
       headers: {
-        'Content-Type': 'application/json',
         'XApiKey': keyAPI,
         'EncryptionKey': keyencriptada
       }
     });
-    console.log('Insert response: golaaaa', response.data);
-    toast.success("Documento subido correctamente");
+    toast.success("Datos guardados correctamente.");
     setActiveTab("6");
-        setShowPreviousBtn(true);
-        dejarpasar(true);
-        setShowNextBtn(true);
+    setShowPreviousBtn(true);
+    dejarpasar(true);
+    setShowNextBtn(true);
   } catch (error) {
-    toast.error("Error al subir el documento.");
+    toast.error("Error al guardar los datos.");
   }
   setSubmitting(false);
-
 };
 
 const handlePreview = () => {
@@ -1059,7 +1072,19 @@ const handlePreview = () => {
 };
 
 const handleCancel = () => setPreviewVisible(false);
-  
+
+const handleSubmit = async (values, { setSubmitting }) => {
+  if (!imageUrl) {
+    toast.error("Primero sube una imagen válida.");
+    setSubmitting(false);
+    return;
+  }
+}
+
+
+
+
+
 const confirmarcodigoalternativo = async (codigoalternativo) => {
   try {
       const response = await axios.post(`${urlAPI}/ConfirmarCodigo2?codigo=${codigoalternativo}`, {}, {
@@ -1799,91 +1824,88 @@ const finalizar = async () => {
 
                                     </CardBody>
                                   </TabPane>
-                                  <TabPane tabId="5">
-                                    <CardBody>
-                                    <Formik
-                                       initialValues={{ doco_URLImagen: null }}
-                                       validationSchema={validationSchema5}
-                                       onSubmit={handleSubmit}
-                                     >
-                                     {({ handleSubmit, values, setFieldValue, isSubmitting }) => (
-                                       <Form onSubmit={handleSubmit}>
-                                       <Row>
-                                         <Col md={6}>
-                                           <FormGroup>
-                                             <Label for="doco_URLImagen">Subir Imagen</Label>
-                                             <Input
-                                               type="file"
-                                               name="doco_URLImagen"
-                                               onChange={(event) => handleImageChange(event, setFieldValue)}
-                                             />
-                                             <ErrorMessage name="doco_URLImagen" component="div" className="text-danger" />
-                                           </FormGroup>
-                                           {previewImage && (
-                                             <div>
-                                               <img src={previewImage} alt="Vista previa" style={{ width: '100%', maxHeight: '300px' }} />
-                                               <Tooltip title="Ver imagen">
-                                                 <EyeOutlined
-                                                   onClick={handlePreview}
-                                                   style={{
-                                                     position: 'absolute',
-                                                     top: '50%',
-                                                     left: '50%',
-                                                     transform: 'translate(-50%, -50%)',
-                                                     fontSize: '24px',
-                                                     color: 'rgba(0, 0, 0, 1)',
-                                                     cursor: 'pointer',
-                                                     borderBlockColor:'rgba(255, 255, 255, 1)'
-                                                   }}
-                                                 />
-                                               </Tooltip>
-                                             </div>
-                                           )}
-                                            <Modal open={previewVisible} footer={null} onCancel={handleCancel}>
-                                                 <img alt="Vista previa" style={{ width: '100%' }} src={previewImage} />
-                                               </Modal>
-                                             </Col>
-                                           </Row>
-                                           <Button type="submit" color="primary" disabled={isSubmitting}>Subir</Button>
-                                           <ToastContainer />
-                                           <hr></hr>
-                                           <Button
-                                         color="secondary"
-                                         className="btn-shadow float-start btn-wide btn-pill mb-2 me-2"
-                                         outline
-                                         onClick={() => setActiveTab("4")}
-                                       >
-                                         Volver
-                                       </Button>
-                                       {editarr && (
-    <Button
-        color="secondary"
-        className="btn-shadow float-end btn-wide btn-pill mb-2 me-2"
-        outline
-        onClick={() => {
-            setCollapse(false);
-            listarComerciantes();
-        }}
-    >
-        Volver al Inicio
-    </Button>
-)}
 
-                                       <Button
-                                         color="primary"
-                                         className="btn-shadow btn-wide float-end btn-pill btn-hover-shine mb-2 me-2"
-                                         type="submit"
-                                         disabled={isSubmitting}
-                                       >
-                                         Siguiente
-                                       </Button>
-                                       <ToastContainer />
-                                     </Form>
-                                     )}
-                                   </Formik>
+                             
 
-                                    </CardBody>
-                                  </TabPane>
+
+
+
+
+                            <TabPane tabId="5">
+      <CardBody>
+        <Formik
+          initialValues={{ doco_URLImagen: '' }}
+          validationSchema={validationSchema5}
+          onSubmit={submitTab5}
+        >
+          {({ setFieldValue, handleSubmit, isSubmitting }) => (
+            <Form onSubmit={handleSubmit}>
+              <Row>
+                <Col md={6}>
+                  <FormGroup>
+                    <Label for="doco_URLImagen">Subir Imagen</Label>
+                    <Input
+                      type="file"
+                      name="doco_URLImagen"
+                      onChange={(event) => handleImageChange(event, setFieldValue)}
+                    />
+                    <ErrorMessage name="doco_URLImagen" component="div" style={{ color: 'red' }} />
+                  </FormGroup>
+                  {previewImage && (
+                    <div>
+                      <img src={previewImage} alt="Vista previa" style={{ width: '100%', maxHeight: '300px' }} />
+                      {/* <Tooltip title="Ver imagen">
+                        <EyeOutlined
+                          onClick={handlePreview}
+                          style={{
+                            position: 'absolute',
+                            top: '50%',
+                            left: '50%',
+                            transform: 'translate(-50%, -50%)',
+                            fontSize: '24px',
+                            color: 'rgba(0, 0, 0, 1)',
+                            cursor: 'pointer',
+                            borderBlockColor:'rgba(255, 255, 255, 1)'
+                          }}
+                        />
+                      </Tooltip> */}
+                    </div>
+                  )}
+                  {/* <Modal visible={previewVisible} footer={null} onCancel={handleCancel}>
+                    <img alt="Vista previa" style={{ width: '100%' }} src={previewImage} />
+                  </Modal> */}
+                </Col>
+              </Row>
+              {/* <Button type="submit" color="primary" disabled={isSubmitting}>Subir</Button> */}
+              <ToastContainer />
+              <hr></hr>
+
+              <Button
+            color="secondary"
+            className="btn-shadow float-start btn-wide btn-pill"
+            outline
+            onClick={() => setActiveTab("4")}
+          >
+            Volver
+          </Button>
+          <Button
+            color="primary"
+            className="btn-shadow btn-wide float-end btn-pill btn-hover-shine"
+            type="submit"
+            disabled={isSubmitting}
+          >
+            Siguiente
+          </Button>
+          <ToastContainer />
+            </Form>
+          )}
+        </Formik>
+      </CardBody>
+    </TabPane>
+
+
+
+
                                   <TabPane tabId="6">
                                   <div className="form-wizard-content">
                                   <div className="no-results">
