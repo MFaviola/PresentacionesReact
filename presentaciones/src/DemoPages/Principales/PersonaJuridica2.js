@@ -42,13 +42,21 @@ const PersonaJuridica = () => {
   const [elimPersonaJuridicaId, setElimPersonaJuridicaId] = useState(null);
   const [elimPersId, setElimPersId] = useState(null);
   const [detallePersonaJuridica, setDetallePersonaJuridica] = useState(null);
-  const [editarPersonaJuridicaId, setEditarPersonaJuridicaId] = useState(null);
+  const [editPersonaJuridicaId, setPersonaJuridicaId] = useState(null); 
+  const [editPersId, setEditPersId] = useState(null); 
   const [activeTab, setActiveTab] = useState("1");
   const [dataOficina, setDataOficina] = useState([]);
   const [dataCivil, setDataCivil] = useState([]);
   const [dataOficios, setDataOficios] = useState([]);
   const [showPreviousBtn, setShowPreviousBtn] = useState(false);
   const [dataProvincia, setDataProvincia] = useState([]);
+  const [dataProvincia2, setDataProvincia2] = useState([]);
+  const [dataCiudad2, setDataCiudad2] = useState([]);
+  const [dataAldea2, setDataAldea2] = useState([]);
+  const [dataColonia2, setDataColonia2] = useState([]);
+  const [selectedProvincia2, setSelectedProvincia2] = useState("");
+  const [editarr, setEditar] = useState(false); 
+
   const [dataCiudad, setDataCiudad] = useState([]);
   const [dataAldea, setDataAldea] = useState([]);
   const [dataColonia, setDataColonia] = useState([]);
@@ -56,38 +64,23 @@ const PersonaJuridica = () => {
   const [selectedCiudad, setSelectedCiudad] = useState("");
   const [showNextBtn, setShowNextBtn] = useState(true);
   const [insertado, setInsertado] = useState(null);
+  const [dejarpasar, setdejarpasar] = useState(false);
+  const [confirmacionCodigo, setConfirmacionCodigo] = useState('');
+  const [enviarCodigo, setEnviarCodigo] = useState('');
+  const [confirmacionCodigoAlternativo, setConfirmacionCodigoAlternativo] = useState('');
+  const [enviarCodigoAlternativo, setEnviarCodigoAlternativo] = useState('');
+  const [previewImage, setPreviewImage] = useState(null);
+  const [selectedCiudad2, setSelectedCiudad2] = useState("");
 
   const toggleCollapse = () => setCollapse(!collapse);
 
 
 
   // correo
-  const [confirmacionCodigo, setConfirmacionCodigo] = useState('');
-  const [enviarCodigo, setEnviarCodigo] = useState('');
-  const [confirmacionCodigo2, setConfirmacionCodigo2] = useState('');
-  const [enviarCodigo2, setEnviarCodigo2] = useState('');
-  
 
+  const PersonaJuridicaId=''
   
-  const confirmarcodigo = async (codigo) => {
-    try {
-        const response = await axios.post(`${urlAPI}/ConfirmarCodigo?codigo=${codigo}`, {}, {
-            headers: {
-                'XApiKey': keyAPI,
-                'EncryptionKey': keyencriptada
-            }
-        });
   
-        if (response.data.message === "Exito") {
-            toast.success("Correo confirmado con éxito!");
-        } else {
-            toast.error("Código incorrecto.");
-        }
-    } catch (error) {
-        toast.error("Código incorrecto.");
-    }
-  };
-
 const confirmarcodigo2 = async (codigo) => {
   try {
       const response = await axios.post(`${urlAPI}/ConfirmarCodigo2?codigo=${codigo}`, {}, {
@@ -124,12 +117,13 @@ const confirmarcodigo2 = async (codigo) => {
     console.log(insertarcorreo);
 
     try {
-        await axios.post(`${urlAPI}/InsertarTap4`, insertarcorreo, {
-            headers: {
-                'XApiKey': keyAPI,
-                'EncryptionKey': keyencriptada
-            }
-        });
+      await axios.post(`${urlAPI}/InsertarTap4`, insertarcorreo, {
+          headers: {
+              'XApiKey': keyAPI,
+              'EncryptionKey': keyencriptada
+          }
+      });
+
 
         const response = await axios.get(`${urlAPI}/EnviarCodigo?correo=${correo}`, {
             headers: {
@@ -147,6 +141,25 @@ const confirmarcodigo2 = async (codigo) => {
 };
 
   
+const confirmarcodigo = async (codigo) => {
+  try {
+      const response = await axios.post(`${urlAPI}/ConfirmarCodigo?codigo=${codigo}`, {}, {
+          headers: {
+              'XApiKey': keyAPI,
+              'EncryptionKey': keyencriptada
+          }
+      });
+
+      if (response.data.message === "Exito") {
+          toast.success("Correo confirmado con éxito!");
+      } else {
+          toast.error("Código incorrecto.");
+      }
+  } catch (error) {
+      toast.error("Código incorrecto.");
+  }
+};
+
 const codigoenviado2 = async (correo) => {
   const fechaActual = new Date().toISOString(); 
 
@@ -193,7 +206,6 @@ const codigoenviado2 = async (correo) => {
 ///imagen///
 
 
-const [previewImage, setPreviewImage] = useState(null);
 const [imageUrl, setImageUrl] = useState('');
 const [previewVisible, setPreviewVisible] = useState(false);
 
@@ -209,11 +221,55 @@ const handleImageChange = async (event, setFieldValue) => {
 
   try {
     const response = await axios.post(`https://api.imgbb.com/1/upload?key=55c70c0d0085c37a2b71725303f42f0e`, formData);
-    setImageUrl(response.data.data.url);
+    const url = response.data.data.url;
+    setImageUrl(url);
     toast.success('Imagen subida correctamente');
+
   } catch (error) {
+    
     toast.error('Error al subir la imagen. Asegúrese que sea un formato válido.');
   }
+  
+};
+
+
+
+
+
+
+
+
+const submitTab5 = async (values, { setSubmitting }) => {
+  
+  console.log('entra');
+  const fechaActual = new Date().toISOString();
+  const imageUrlValue = imageUrl; 
+
+  let PersonaJuridicaAInsertar = {
+    peju_Id: insertado,
+    doco_URLImagen: imageUrlValue,
+    usua_UsuarioCreacion: 1,
+    doco_FechaCreacion: fechaActual
+  };
+  console.log('insertar5', PersonaJuridicaAInsertar);
+  console.log('url image de 1', imageUrlValue);
+
+  try {
+    const response = await axios.post(`https://localhost:44380/api/DocumentosContratos/InsertarDocuPersonaJuridica`, PersonaJuridicaAInsertar, {
+      headers: {
+        'XApiKey': keyAPI,
+        'EncryptionKey': keyencriptada
+      }
+    });
+    toast.success("Datos guardados correctamente.");
+    setActiveTab("6");
+    setShowPreviousBtn(true);
+    dejarpasar(true);
+    setShowNextBtn(true);
+  } catch (error) {
+    toast.error("Error al guardar los datos.");
+  }
+  setSubmitting(false);
 };
 
 const handlePreview = () => {
@@ -229,7 +285,17 @@ const handleSubmit = async (values, { setSubmitting }) => {
     return;
   }
 }
-
+const finalizar = async () => {
+  await axios.post(`${urlAPI}/FinalizarContratoJuridica?peju_Id=${insertado}`, {}, {
+    headers: {
+      'XApiKey': keyAPI,
+      'EncryptionKey': keyencriptada
+    }
+  });
+  setCollapse(false);
+  listarPersonaJuridicas();
+  toast.success("Datos guardados con exito!");
+};
   const listarPersonaJuridicas = async () => {
     try {
       const response = await axios.get(`${urlAPI}/Listar`, {
@@ -294,12 +360,14 @@ const handleSubmit = async (values, { setSubmitting }) => {
     setElimPersonaJuridicaId(null);
     setElimPersId(null);
     setConfirmarEliminar(false);
+    setPersonaJuridicaId(null);
+
   };
 
   const cancelarr = () => {
     setCollapse(false);
     setDetallePersonaJuridica(null);
-    setEditarPersonaJuridicaId(null);
+    setPersonaJuridicaId(null);
   };
 
   const listarOficinas = async () => {
@@ -396,6 +464,47 @@ const handleSubmit = async (values, { setSubmitting }) => {
     }
   };
 
+  const listarCiudades2 = async (provinciaId2) => {
+    try {
+      const response = await axios.get(`${urlCiudad}/CiudadesFiltradaPorProvincias?pvin_Id=${provinciaId2}`, {
+        headers: {
+          'XApiKey': keyAPI,
+          'EncryptionKey': keyencriptada
+        }
+      });
+      setDataCiudad2(response.data.data || []);
+    } catch (error) {
+      toast.error("Error al listar las ciudades.");
+    }
+  };
+  
+  const listarAldeas2 = async (ciudadId2) => {
+    try {
+      const response = await axios.get(`${urlAldea}/FiltrarPorCiudades?alde_Id=${ciudadId2}`, {
+        headers: {
+          'XApiKey': keyAPI,
+          'EncryptionKey': keyencriptada,
+        }
+      });
+      setDataAldea2(response.data || []);
+    } catch (error) {
+      toast.error("Error al listar las aldeas.");
+    }
+  };
+  
+  const listarColonias2 = async (ciudadId2) => {
+    try {
+      const response = await axios.get(`${urlColonia}/FiltrarPorCiudad?ciud_Id=${ciudadId2}`, {
+        headers: {
+          'XApiKey': keyAPI,
+          'EncryptionKey': keyencriptada
+        }
+      });
+      setDataColonia2(response.data || []);
+    } catch (error) {
+      toast.error("Error al listar las colonias.");
+    }
+  };
   useEffect(() => {
     listarPersonaJuridicas();
     listarPersonaJuridicas2();
@@ -411,6 +520,13 @@ const handleSubmit = async (values, { setSubmitting }) => {
     setFieldValue('pvin_Id', provinciaId);
     await listarCiudades(provinciaId);
   };
+  const ProvinciaCambio2 = async (event, setFieldValue) => {
+    const provinciaId2 = event.target.value;
+    console.log(provinciaId2);
+    setSelectedProvincia2(provinciaId2);
+    setFieldValue('pvin_Id', provinciaId2);
+    await listarCiudades2(provinciaId2);
+  };
 
   const CiudadCambio = async (event, setFieldValue) => {
     const ciudadId = event.value;
@@ -420,7 +536,14 @@ const handleSubmit = async (values, { setSubmitting }) => {
     await listarAldeas(ciudadId);
     await listarColonias(ciudadId);
   };
-
+  const CiudadCambio2 = async (event, setFieldValue) => {
+    const ciudadId2 = event.target.value;
+    console.log(ciudadId2);
+    setSelectedCiudad2(ciudadId2);
+    setFieldValue('peju_CiudadRepresentante', ciudadId2);
+    await listarAldeas2(ciudadId2);
+    await listarColonias2(ciudadId2);
+  };
   const botonesAcciones = row => (
     <div>
       <Button className="mb-2 me-2 btn-shadow" color="primary" onClick={() => editar(row.peju_Id)}>
@@ -436,9 +559,52 @@ const handleSubmit = async (values, { setSubmitting }) => {
   );
 
   const editar = (pejuid) => {
-    setEditarPersonaJuridicaId(pejuid);
+    setPersonaJuridicaId(pejuid);
     setCollapse(true);
   };
+
+  const editarPersonaJuridica = async (values, { setSubmitting }) => {
+    dejarpasar(true);
+
+    const fechaActual = new Date().toISOString();
+    let PersonaJuridicaAEditar = {
+      peju_Id: editPersonaJuridicaId,
+      pers_Id:editPersId,
+      pers_RTN:values.pers_rtn,
+      pers_Nombre:values.pers_Nombre,
+      ofpr_Id:values.ofpr_Id,
+      ofic_Id:values.ofic_Id,
+      escv_Id:values.escv_Id,
+      usua_UsuarioModificacion: 1,
+      peju_FechaModificacion: fechaActual
+    };
+    console.log('editar1',PersonaJuridicaAEditar);
+
+
+      try {
+        const response = await axios.post(`${urlAPI}/Editar`, PersonaJuridicaAEditar, {
+          headers: {
+            'XApiKey': keyAPI,
+            'EncryptionKey': keyencriptada
+          }
+        });
+
+        setShowPreviousBtn(true);
+        setShowNextBtn(true);
+      } catch (error) {
+        toast.error("Error al guardar los datos.");
+      }
+    setSubmitting(false);
+  };
+
+  const editarComercianteClick = (PersonaJuridicaId,PersId) => {
+    setEditar(true);
+    setPersonaJuridicaId(PersonaJuridicaId);
+    setEditPersId(PersId);
+    setDetallePersonaJuridica(null);
+    setCollapse(true);
+  };
+
 
   const DetallesPersonaJuridica = ({ detalle }) => {
     if (!detalle) return null;
@@ -454,9 +620,11 @@ const handleSubmit = async (values, { setSubmitting }) => {
       ciudadEmpresa,
       provinciaEmpresa,
       peju_PuntoReferencia,
+      peju_CiudadIdRepresentante,
       coloniaRepresentante,
       ciudadRepresentante,
       provinciaRepresentante,
+      peju_NumeroLocalApart,
       peju_NumeroLocalRepresentante,
       peju_PuntoReferenciaRepresentante,
       usuarioCreacionNombre,
@@ -580,10 +748,7 @@ const handleSubmit = async (values, { setSubmitting }) => {
           fixedHeaderScrollHeight="200px"
         />
         <hr />
-        <Button className="mb-2 me-2 btn-shadow" type="button" color="secondary" onClick={() => {
-          setCollapse(false);
-          setDetallePersonaJuridica(null);
-        }}>
+        <Button className="mb-2 me-2 btn-shadow" type="button" color="secondary" onClick={() => cancelarr()}>
           Volver
         </Button>
       </div>
@@ -702,13 +867,23 @@ const handleSubmit = async (values, { setSubmitting }) => {
             'XApiKey': keyAPI,
             'EncryptionKey': keyencriptada
           }
+
+          
         });
-        toast.success("Datos guardados correctamente.");
+        
+        listarPersonaJuridicas2();
+
         setActiveTab("2");
         setShowPreviousBtn(true);
+        dejarpasar(true);
+
         setShowNextBtn(true);
-      } catch (error) {
-        toast.error("Error al guardar los datos.");
+        const fullId = response.data.data.messageStatus;  
+        const peju_Id = fullId.split('.')[0];  
+     
+       PersonaJuridicaId(peju_Id); 
+      } 
+      catch (error) {
       }
     } else {
       toast.error("El RTN no es válido.");
@@ -742,9 +917,9 @@ const handleSubmit = async (values, { setSubmitting }) => {
 
   const validationSchemaStep3 = Yup.object().shape({
     pvin_Id: Yup.number().required("La provincia es requerida."),
-    ciud_Id: Yup.number().required("La ciudad es requerida."),
-    alde_Id: Yup.number().required("La aldea es requerida."),
-    colo_Id: Yup.number().required("La colonia es requerida."),
+    peju_CiudadIdRepresentante: Yup.number().required("La ciudad es requerida."),
+    peju_AldeaIdRepresentante: Yup.number().required("La aldea es requerida."),
+    peju_ColoniaRepresentante: Yup.number().required("La colonia es requerida."),
     peju_NumeroLocalRepresentante: Yup.string()
       .required("El número local del apartamento es requerido.")
       .matches(/^[a-zA-Z0-9]+$/, "El número local solo debe contener letras y números."),
@@ -782,6 +957,7 @@ const handleSubmit = async (values, { setSubmitting }) => {
           'EncryptionKey': keyencriptada
         }
       });
+      
       const lista = response.data.data;
       const ultimoObjeto = lista[lista.length - 1];
       setInsertado(ultimoObjeto.peju_Id);
@@ -791,14 +967,14 @@ const handleSubmit = async (values, { setSubmitting }) => {
   };
 
   const submitTab2 = async (values, { setSubmitting }) => {
-    console.log('entra');
+
     const fechaActual = new Date().toISOString();
     let PersonaJuridicaAInsertar = {
       peju_Id: insertado,
       ciud_Id: values.ciud_Id,
       alde_Id: values.alde_Id,
       colo_Id: values.colo_Id,
-      peju_NumeroLocal: values.peju_NumeroLocal,
+      peju_NumeroLocalApart: values.peju_NumeroLocalApart,
       peju_PuntoReferencia: values.peju_PuntoReferencia,
       usua_UsuarioCreacion: 1,
       peju_FechaCreacion: fechaActual
@@ -812,13 +988,12 @@ const handleSubmit = async (values, { setSubmitting }) => {
           'EncryptionKey': keyencriptada
         }
       });
-      toast.success("Datos guardados correctamente.");
       setActiveTab("3");
-      setShowPreviousBtn(true);
-      setShowNextBtn(true);
-    } catch (error) {
-      toast.error("Error al guardar los datos.");
-    }
+        setShowPreviousBtn(true);
+        dejarpasar(true);
+        setShowNextBtn(true);
+      } catch (error) {
+      }
     setSubmitting(false);
   };
 
@@ -832,19 +1007,17 @@ const handleSubmit = async (values, { setSubmitting }) => {
 
 
   const submitTab3 = async (values, { setSubmitting }) => {
-    console.log('entra');
     const fechaActual = new Date().toISOString();
     let PersonaJuridicaAInsertar = {
       peju_Id: insertado,
-      ciud_Id: values.ciud_Id,
-      alde_Id: values.alde_Id,
-      colo_Id: values.colo_Id,
+      peju_CiudadIdRepresentante: values.peju_CiudadIdRepresentante,
+      peju_AldeaIdRepresentante: values.peju_AldeaIdRepresentante,
+      peju_ColoniaRepresentante: values.peju_ColoniaRepresentante,
       peju_NumeroLocalRepresentante: values.peju_NumeroLocalRepresentante,
       peju_PuntoReferenciaRepresentante: values.peju_PuntoReferenciaRepresentante,
-      usua_UsuarioCreacion: 1,
-      peju_FechaCreacion: fechaActual
+  
     };
-    console.log('insertar3', PersonaJuridicaAInsertar);
+    console.log('insertar3',PersonaJuridicaAInsertar);
 
     try {
       const response = await axios.post(`${urlAPI}/InsertarTap3`, PersonaJuridicaAInsertar, {
@@ -853,22 +1026,20 @@ const handleSubmit = async (values, { setSubmitting }) => {
           'EncryptionKey': keyencriptada
         }
       });
-      toast.success("Datos guardados correctamente.");
       setActiveTab("4");
       setShowPreviousBtn(true);
+      dejarpasar(true);
       setShowNextBtn(true);
     } catch (error) {
-      toast.error("Error al guardar los datos.");
     }
-    setSubmitting(false);
-  };
+  setSubmitting(false);
+};
 
 
 
 
 
-  const submitTab4 = async (values, { setSubmitting }) => {
-    console.log('entra');
+const submitTab4 = async (values, { setSubmitting }) => {
     const fechaActual = new Date().toISOString();
     let PersonaJuridicaAInsertar = {
       peju_Id: insertado,
@@ -889,14 +1060,13 @@ const handleSubmit = async (values, { setSubmitting }) => {
           'EncryptionKey': keyencriptada
         }
       });
-      toast.success("Datos guardados correctamente.");
       setActiveTab("5");
       setShowPreviousBtn(true);
+      dejarpasar(true);
       setShowNextBtn(true);
     } catch (error) {
-      toast.error("Error al guardar los datos.");
     }
-    setSubmitting(false);
+  setSubmitting(false);
   };
 
 
@@ -905,34 +1075,6 @@ const handleSubmit = async (values, { setSubmitting }) => {
 
 
 
-  
-  const submitTab5 = async (values, { setSubmitting }) => {
-    console.log('entra');
-    const fechaActual = new Date().toISOString();
-    let PersonaJuridicaAInsertar = {
-      peju_Id: insertado,
-      doco_URLImagen: values.doco_URLImagen,
-      usua_UsuarioCreacion: 1,
-      doco_FechaCreacion: fechaActual
-    };
-    console.log('insertar5', PersonaJuridicaAInsertar);
-
-    try {
-      const response = await axios.post(`https://localhost:44380/api/DocumentosContratos/InsertarDocuPersonaJuridica`, PersonaJuridicaAInsertar, {
-        headers: {
-          'XApiKey': keyAPI,
-          'EncryptionKey': keyencriptada
-        }
-      });
-      toast.success("Datos guardados correctamente.");
-      setActiveTab("5");
-      setShowPreviousBtn(true);
-      setShowNextBtn(true);
-    } catch (error) {
-      toast.error("Error al guardar los datos.");
-    }
-    setSubmitting(false);
-  };
 
 
   
@@ -960,29 +1102,29 @@ const handleSubmit = async (values, { setSubmitting }) => {
                             <Nav justified>
                               <NavItem>
                                 <NavLink href="#" className={classnames({ active: activeTab === "1" })} onClick={() => toggle("1")}>
-                                  <div className="widget-number">Tab 1</div>
+                                  <div className="widget-number"> Datos Personales</div>
                                   <div className="tab-subheading">
                                     <span className="pe-2 opacity-6">
                                       <FontAwesomeIcon icon={faCommentDots} />
                                     </span>
-                                    Datos Personales
+                                    {/* Datos Personales */}
                                   </div>
                                 </NavLink>
                               </NavItem>
                               <NavItem>
                                 <NavLink href="#" className={classnames({ active: activeTab === "2" })} onClick={() => toggle("2")}>
-                                  <div className="widget-number">Tab 2</div>
-                                  <div className="tab-subheading">Dirección</div>
+                                  <div className="widget-number">Dirección</div>
+                                  <div className="tab-subheading"></div>
                                 </NavLink>
                               </NavItem>
                               <NavItem>
                                 <NavLink href="#" className={classnames({ active: activeTab === "3" })} onClick={() => toggle("3")}>
-                                  <div className="widget-number text-danger">Tab 3</div>
+                                  <div className="widget-number ">Dirección del Representante</div>
                                   <div className="tab-subheading">
                                     <span className="pe-2 opacity-6">
                                       <FontAwesomeIcon icon={faBullhorn} />
                                     </span>
-                                    Contacto
+                                    {/* Direccion  */}
                                   </div>
                                 </NavLink>
                               </NavItem>
@@ -1014,7 +1156,7 @@ const handleSubmit = async (values, { setSubmitting }) => {
                                     <span className="pe-2 opacity-6">
                                       <FontAwesomeIcon icon={faBullhorn} />
                                     </span>
-                                    RTN
+                                    Subir Documetacion
                                   </div>
                                 </NavLink>
                               </NavItem>
@@ -1023,12 +1165,12 @@ const handleSubmit = async (values, { setSubmitting }) => {
 
                               <NavItem>
                                 <NavLink href="#" className={classnames({ active: activeTab === "6" })} onClick={() => toggle("6")}>
-                                  <div className="widget-number text-danger">Subir documento </div>
+                                  <div className="widget-number text-danger">Terminar</div>
                                   <div className="tab-subheading">
                                     <span className="pe-2 opacity-6">
                                       <FontAwesomeIcon icon={faBullhorn} />
                                     </span>
-                                    RTN
+                                    Guardar
                                   </div>
                                 </NavLink>
                               </NavItem>
@@ -1306,11 +1448,12 @@ const handleSubmit = async (values, { setSubmitting }) => {
                                 <Formik
                                   initialValues={{
                                     pvin_Id: "",
-                                    ciud_Id: "",
-                                    alde_Id: "",
-                                    colo_Id: "",
+                                    peju_CiudadIdRepresentante: "",
+                                    peju_AldeaRepresentante: "",
+                                    peju_ColoniaRepresentante: "",
                                     peju_NumeroLocalRepresentante: "",
                                     peju_PuntoReferenciaRepresentante: ""
+
                                   }}
                                   validationSchema={validationSchemaStep3}
                                   onSubmit={submitTab3}
@@ -1336,52 +1479,52 @@ const handleSubmit = async (values, { setSubmitting }) => {
                                         </Col>
                                         <Col md={6}>
                                           <FormGroup>
-                                            <Label for="ciud_Id">Ciudad der Representante</Label>
+                                            <Label for="peju_CiudadIdRepresentante">Ciudad del Representante</Label>
                                             <Field
-                                              name="ciud_Id"
+                                              name="peju_CiudadIdRepresentante"
                                               component={Select}
                                               className="form-control"
                                               options={dataCiudad.map(ciudad => ({
                                                 value: ciudad.ciud_Id,
                                                 label: ciudad.ciud_Nombre
                                               }))}
-                                              onChange={option => CiudadCambio(option, setFieldValue)}
+                                              onChange={option => setFieldValue('peju_CiudadIdRepresentante', option.value)}
                                             />
-                                            <ErrorMessage name="ciud_Id" component="div" className="text-danger" />
+                                            <ErrorMessage name="peju_CiudadIdRepresentante" component="div" className="text-danger" />
                                           </FormGroup>
                                         </Col>
                                       </Row>
                                       <Row>
                                         <Col md={6}>
                                           <FormGroup>
-                                            <Label for="alde_Id">Aldea del Representante </Label>
+                                            <Label for="peju_AldeaIdRepresentante">Aldea del Representante </Label>
                                             <Field
-                                              name="alde_Id"
+                                              name="peju_AldeaIdRepresentante"
                                               component={Select}
                                               className="form-control"
                                               options={dataAldea.map(aldea => ({
                                                 value: aldea.alde_Id,
                                                 label: aldea.alde_Nombre
                                               }))}
-                                              onChange={option => setFieldValue('alde_Id', option.value)}
+                                              onChange={option => setFieldValue('peju_AldeaIdRepresentante', option.value)}
                                             />
-                                            <ErrorMessage name="alde_Id" component="div" className="text-danger" />
+                                            <ErrorMessage name="peju_AldeaIdRepresentante" component="div" className="text-danger" />
                                           </FormGroup>
                                         </Col>
                                         <Col md={6}>
                                           <FormGroup>
-                                            <Label for="colo_Id">Colonia del Representante</Label>
+                                            <Label for="peju_ColoniaRepresentante ">Colonia del Representante</Label>
                                             <Field
-                                              name="colo_Id"
+                                              name="peju_ColoniaRepresentante"
                                               component={Select}
                                               className="form-control"
                                               options={dataColonia.map(colonia => ({
                                                 value: colonia.colo_Id,
                                                 label: colonia.colo_Nombre
                                               }))}
-                                              onChange={option => setFieldValue('colo_Id', option.value)}
+                                              onChange={option => setFieldValue('peju_ColoniaRepresentante', option.value)}
                                             />
-                                            <ErrorMessage name="colo_Id" component="div" className="text-danger" />
+                                            <ErrorMessage name="peju_ColoniaRepresentante " component="div" className="text-danger" />
                                           </FormGroup>
                                         </Col>
                                       </Row>
@@ -1455,7 +1598,7 @@ const handleSubmit = async (values, { setSubmitting }) => {
         codigoConfirmacion2: "",
       }}
       validationSchema={validationSchemaStep4}
-      onSubmit={submitTab3}
+      onSubmit={submitTab4}
     >
       {({ handleSubmit, values, setFieldValue, isSubmitting }) => (
         <Form onSubmit={handleSubmit}>
@@ -1486,76 +1629,82 @@ const handleSubmit = async (values, { setSubmitting }) => {
             </Col>
           </Row>
           <Row>
-            <Col md={6}>
-              <FormGroup>
-                <Label for="peju_CorreoElectronico">Correo Electrónico</Label>
-                <InputGroup>
-                  <Field
-                    name="peju_CorreoElectronico"
-                    as={Input}
-                    className="form-control"
-                    placeholder="Ingrese su correo electrónico."
-                    onChange={(e) => {
-                      setFieldValue('peju_CorreoElectronico', e.target.value);
-                      setEnviarCodigo(e.target.value);
-                    }}
-                  />
-                  <InputGroupText>
-                    <Button className=" btn-shadow"  color="alternate" onClick={() => codigoenviado(enviarCodigo)}>Enviar código</Button>
-                  </InputGroupText>
-                </InputGroup>
-                <ErrorMessage name="peju_CorreoElectronico" component="div" className="text-danger"/>
-                <InputGroup className="mt-2">
-                  <Field
-                    name="codigoConfirmacion"
-                    as={Input}
-                    placeholder="Código de confirmación."
-                    onChange={(e) => setConfirmacionCodigo(e.target.value)}
-                  />
-                  <InputGroupText>
-                    <Button className="btn-shadow" color="alternate" onClick={() => confirmarcodigo(confirmacionCodigo)}>
-                      Confirmar Código
-                    </Button>
-                  </InputGroupText>
-                </InputGroup>
-              </FormGroup>
-            </Col>
-            <Col md={6}>
-              <FormGroup>
-                <Label for="peju_CorreoElectronicoAlternativo">Correo Electrónico Alternativo</Label>
-                <InputGroup>
-                  <Field
-                    name="peju_CorreoElectronicoAlternativo"
-                    as={Input}
-                    className="form-control"
-                    placeholder="Ingrese su correo electrónico."
-                    onChange={(e) => {
-                      setFieldValue('peju_CorreoElectronicoAlternativo', e.target.value);
-                      setEnviarCodigo(e.target.value);
-                    }}
-                  />
-                  <InputGroupText>
-                    <Button className=" btn-shadow"  color="alternate" onClick={() => codigoenviado2(enviarCodigo)}>Enviar código</Button>
-                  </InputGroupText>
-                </InputGroup>
-                <ErrorMessage name="peju_CorreoElectronicoAlternativo" component="div" className="text-danger"/>
-                <InputGroup className="mt-2">
-                  <Field
-                    name="codigoConfirmacion2"
-                    as={Input}
-                    placeholder="Código de confirmación."
-                    onChange={(e) => setConfirmacionCodigo2(e.target.value)}
-                  />
-                  <InputGroupText>
-                    <Button className="btn-shadow" color="alternate" onClick={() => confirmarcodigo2(confirmacionCodigo)}>
-                      Confirmar Código
-                    </Button>
-                  </InputGroupText>
-                </InputGroup>
-              </FormGroup>
-            </Col>
+          <Col md={6}>
+                                           <FormGroup>
+                                             <Label for="peju_CorreoElectronico">Correo Electrónico</Label>
+                                             <InputGroup>
+                                             <Field
+                                               name="peju_CorreoElectronico"
+                                               as={Input}
+                                               className="form-control"
+                                               placeholder="Ingrese su correo electrónico."
+                                               onChange={(e) => {
+                                                 setFieldValue('peju_CorreoElectronico', e.target.value);
+                                                 setEnviarCodigo(e.target.value);
+                                               }}
+                                             />
+                                             <InputGroupText>
+                                             <Button className=" btn-shadow"  color="alternate" onClick={() => codigoenviado(enviarCodigo)}>Enviar código</Button>
+                                            </InputGroupText>
+                                            </InputGroup>
+                                             <ErrorMessage name="peju_CorreoElectronico" component="div" className="text-danger" />
+                                           <InputGroup className="mt-2">
+                                            <Field
+                                              name="codigoConfirmacion"
+                                              as={Input}
+                                              placeholder="Código de confirmación."
+                                              onChange={(e) => setConfirmacionCodigo(e.target.value)}
+                                            />
+                                            <InputGroupText>
+                                             <Button className="btn-shadow" color="alternate" onClick={() => confirmarcodigo(confirmacionCodigo)}>
+                                              Confirmar Código
+                                             </Button>
+                                            </InputGroupText>
+                                           </InputGroup>
+                                           <ErrorMessage name="codigoConfirmacion" component="div" className="text-danger" />
 
+                                           </FormGroup>
 
+                                         </Col>
+                                         
+                                         
+                                         <Col md={6}>
+                                           <FormGroup>
+                                             <Label for="peju_CorreoElectronicoAlternativo">Correo Electrónico Alternativo</Label>
+                                             <InputGroup>
+                                             <Field
+                                               name="peju_CorreoElectronicoAlternativo"
+                                               as={Input}
+                                               className="form-control"
+                                               placeholder="Ingrese su correo electrónico alternativo."
+                                               onChange={(e) => {
+                                                 setFieldValue('peju_CorreoElectronicoAlternativo', e.target.value);
+                                                 setEnviarCodigoAlternativo(e.target.value);
+                                               }}
+                                             />
+                                             <InputGroupText>
+                                             <Button className=" btn-shadow"  color="alternate" onClick={() => codigoenviado2(enviarCodigoAlternativo)}>Enviar código</Button>
+                                            </InputGroupText>
+                                            </InputGroup>
+                                             <ErrorMessage name="peju_CorreoElectronicoAlternativo" component="div" className="text-danger" />
+                                           <InputGroup className="mt-2">
+                                            <Field
+                                              name="codigoConfirmacionAlternativo"
+                                              as={Input}
+                                              placeholder="Código de confirmación."
+                                              onChange={(e) => setConfirmacionCodigoAlternativo(e.target.value)}
+                                            />
+
+                                            <InputGroupText>
+                                             <Button className="btn-shadow" color="alternate" onClick={() => confirmarcodigo2(confirmacionCodigoAlternativo)}>
+                                              Confirmar Código
+                                             </Button>
+                                            </InputGroupText>
+                                           </InputGroup>
+                                          <ErrorMessage name="codigoConfirmacionAlternativo" component="div" className="text-danger" />
+
+                                           </FormGroup>
+                                         </Col>
 
             <Col md={6}>
               <FormGroup>
@@ -1570,6 +1719,8 @@ const handleSubmit = async (values, { setSubmitting }) => {
               </FormGroup>
             </Col>
           </Row>
+          <hr></hr>
+
           <Button
             color="secondary"
             className="btn-shadow float-start btn-wide btn-pill"
@@ -1605,9 +1756,9 @@ const handleSubmit = async (values, { setSubmitting }) => {
                             <TabPane tabId="5">
       <CardBody>
         <Formik
-          initialValues={{ doco_URLImagen: null }}
-          validationSchema={validationSchemaStep4}
-          onSubmit={handleSubmit}
+          initialValues={{ doco_URLImagen: '' }}
+          validationSchema={validationSchemaStep5}
+          onSubmit={submitTab5}
         >
           {({ setFieldValue, handleSubmit, isSubmitting }) => (
             <Form onSubmit={handleSubmit}>
@@ -1649,11 +1800,13 @@ const handleSubmit = async (values, { setSubmitting }) => {
               </Row>
               {/* <Button type="submit" color="primary" disabled={isSubmitting}>Subir</Button> */}
               <ToastContainer />
+              <hr></hr>
+
               <Button
             color="secondary"
             className="btn-shadow float-start btn-wide btn-pill"
             outline
-            onClick={() => setActiveTab("5")}
+            onClick={() => setActiveTab("4")}
           >
             Volver
           </Button>
@@ -1686,6 +1839,28 @@ const handleSubmit = async (values, { setSubmitting }) => {
  */}
 
 
+                                  <TabPane tabId="6">
+                                  <div className="form-wizard-content">
+                                  <div className="no-results">
+                                    <div className="sa-icon sa-success animate">
+                                      <span className="sa-line sa-tip animateSuccessTip" />
+                                      <span className="sa-line sa-long animateSuccessLong" />
+                                      <div className="sa-placeholder" />
+                                      <div className="sa-fix" />
+                                    </div>
+                                    <div className="results-subtitle mt-4">Formulario terminado!</div>
+                                    <div className="results-title">
+                                      Volver al Inicio
+                                    </div>
+                                    <div className="mt-3 mb-3" />
+                                    <div className="text-center">
+                                      <Button color="success" size="lg" className="btn-shadow btn-wide" onClick={finalizar}>
+                                        Finalizar
+                                      </Button>
+                                    </div>
+                                  </div>
+                                </div>
+                                  </TabPane>
 
 
                           </TabContent>
@@ -1711,7 +1886,7 @@ const handleSubmit = async (values, { setSubmitting }) => {
                 <Col md="12">
                   <Card className="main-card mb-3">
                     <CardBody>
-                      <DataTable
+                    <DataTable
                         data={data}
                         columns={columns}
                         pagination
