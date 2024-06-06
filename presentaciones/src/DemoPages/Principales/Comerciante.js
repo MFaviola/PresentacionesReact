@@ -52,8 +52,40 @@ const Comerciante = () => {
   const [elimPersId, setElimPersId] = useState(null);
   const [detalleComerciante, setDetalleComerciante] = useState(null);
   const [editarr, setEditar] = useState(false); 
-  const [editComercianteId, setEditComercianteId] = useState(null); 
-  const [editPersId, setEditPersId] = useState(null); 
+const [editComercianteId, setEditComercianteId] = useState(null); 
+const [editPersId, setEditPersId] = useState(null);
+const [nueva1, setNueva1] = useState({
+    pers_RTN: "",
+    pers_Nombre:"",
+    ofic_Id:"",
+    escv_Id: "",
+    ofpr_Id: "",
+    pers_FormaRepresentacion: false,
+    pers_escvRepresentante: "",
+    pers_OfprRepresentante: ""
+});
+const [nueva2, setNueva2] = useState({
+    pvin_Id: "",
+    ciud_Id: "",
+    alde_Id: "",
+    colo_Id: "",
+    coin_NumeroLocalApart: "",
+    coin_PuntoReferencia: ""
+});
+const [nueva3, setNueva3] = useState({
+    pvin_IdRepresentante: "",
+    coin_CiudadRepresentante: "",
+    coin_AldeaRepresentante: "",
+    coin_coloniaIdRepresentante: "",
+    coin_NumeroLocaDepartRepresentante: "",
+    coin_PuntoReferenciaReprentante: ""
+});
+const [nueva4, setNueva4] = useState({
+    coin_TelefonoCelular: "",
+    coin_TelefonoFijo:"",
+    coin_CorreoElectronico: "",
+    coin_CorreoElectronicoAlternativo: ""
+});
   const [activeTab, setActiveTab] = useState("1");
   const [dataOficina, setDataOficina] = useState([]);
   const [dataCivil, setDataCivil] = useState([]);
@@ -82,33 +114,7 @@ const Comerciante = () => {
   const [imageUrl, setImageUrl] = useState('');
   const [previewVisible, setPreviewVisible] = useState(false);
   const toggleCollapse = () => setCollapse(!collapse);
-  const [nueva1, setNueva1] = useState({pers_RTN: "",
-    pers_Nombre:"",
-    ofic_Id:"",
-    escv_Id: "",
-    ofpr_Id: "",
-    pers_FormaRepresentacion: false,
-    pers_escvRepresentante: "",
-    pers_OfprRepresentante: ""});
-  const [nueva2, setNueva2] = useState({pvin_Id: "",
-    ciud_Id: "",
-    alde_Id: "",
-    colo_Id: "",
-     coin_NumeroLocalApart: "",
-     coin_PuntoReferencia: ""});
-  const [nueva3, setNueva3] = useState({pvin_IdRepresentante: "",
-    coin_CiudadRepresentante: "",
-    coin_AldeaRepresentante: "",
-    coin_coloniaIdRepresentante: "",
-    coin_NumeroLocaDepartRepresentante: "",
-    coin_PuntoReferenciaReprentante: "",});
-  const [nueva4, setNueva4] = useState({coin_TelefonoCelular: "",
-    coin_TelefonoFijo:"",
-    coin_CorreoElectronico: "",
-    coin_CorreoElectronicoAlternativo: "",
-   });
-
-
+  
   const listarComerciantes = async () => {
     try {
       const response = await axios.get(`${urlAPI}/Listar`, {
@@ -308,15 +314,6 @@ const listarColonias2 = async (ciudadId2) => {
   }
 };
 
-  useEffect(() => {
-    listarComerciantes();
-    listarComerciantes2();
-     listarOficinas();
-     listarCiviles();
-     listarOficios();
-     listarProvincias();
-     listarProvincias2();
-  }, []);
 
  
 
@@ -353,9 +350,21 @@ const listarColonias2 = async (ciudadId2) => {
     await listarColonias2(ciudadId2);
   };
 
+  useEffect(() => {
+    listarComerciantes();
+   listarComerciantes2();
+     listarOficinas();
+     listarCiviles();
+     listarOficios();
+     listarProvincias();
+     listarProvincias2();
+  }, []);
+
+
   const botonesAcciones = row => (
     <div>
-      <Button className="mb-2 me-2 btn-shadow" color="primary" onClick={() => editarComercianteClick(row.coin_Id,row.pers_Id,row.pers_RTN,row.pers_Nombre,row.ofic_Id,row.escv_Id,row.ofpr_Id,row.pers_FormaRepresentacion,row.pers_escvRepresentante,row.pers_OfprRepresentante,row.pvin_Id,row.ciud_Id,row.alde_Id,row.colo_Id,row.coin_NumeroLocalApart,row.coin_PuntoReferencia,row.pvin_IdRepresentante,row.coin_CiudadRepresentante,row.coin_AldeaRepresentante,row.coin_coloniaIdRepresentante,row.coin_NumeroLocaDepartRepresentante,row.coin_PuntoReferenciaReprentante,row.coin_TelefonoCelular,row.coin_TelefonoFijo,row.coin_CorreoElectronico,row.coin_CorreoElectronicoAlternativo)}>
+      <Button className="mb-2 me-2 btn-shadow" color="primary" onClick={() => editarComercianteClick(row.coin_Id,row.pers_Id,row.pers_RTN
+,row.pers_Nombre,row.ofic_Id,row.escv_Id,row.ofpr_Id,row.pers_FormaRepresentacion,row.pers_escvRepresentante,row.pers_OfprRepresentante,row.pvin_Id,row.ciud_Id,row.alde_Id,row.colo_Id,row.coin_NumeroLocalApart,row.coin_PuntoReferencia,row.pvin_IdRepresentante,row.coin_CiudadRepresentante,row.coin_AldeaRepresentante,row.coin_coloniaIdRepresentante,row.coin_NumeroLocaDepartRepresentante,row.coin_PuntoReferenciaReprentante,row.coin_TelefonoCelular,row.coin_TelefonoFijo,row.coin_CorreoElectronico,row.coin_CorreoElectronicoAlternativo)}>
         Editar
       </Button>
       <Button className="mb-2 me-2 btn-shadow" color="alternate" onClick={() => obtenerDetalleComerciante(row.coin_Id)}>
@@ -410,21 +419,26 @@ const listarColonias2 = async (ciudadId2) => {
     setSubmitting(false);
   };
 
-  const [registro, setRegistro] = useState(null);
 
-  const editarComercianteClick = (ComercianteId, PersId, rtn,nombre,oficid,escvid,ofprid,formarepre,persescv,persofpr,pvinid,ciudid,aldeid,coloid,numerolocal,puntorefe,pvinrepre,ciudadrepre,aldrearepre,coloniaidrepre,numerolocalrepre,puntoreferepre,celular,fijo,correo,correoalternativo) => {
+  const editarComercianteClick = (ComercianteId, PersId, rtn, nombre, oficid, escvid, ofprid, formarepre, persescv, persofpr, pvinid, ciudid, aldeid, coloid, numerolocal, puntorefe, pvinrepre, ciudadrepre, aldrearepre, coloniaidrepre, numerolocalrepre, puntoreferepre, celular, fijo, correo, correoalternativo) => {
     setEditar(true);
     setEditComercianteId(ComercianteId);
     setEditPersId(PersId);
-    setNueva1({ pers_RTN:rtn,pers_Nombre:nombre,ofic_Id:oficid,escv_Id:escvid,ofpr_Id:ofprid,pers_FormaRepresentacion:formarepre,pers_escvRepresentante:persescv,pers_OfprRepresentante:persofpr});
-    setNueva2({ pvin_Id: pvinid,ciud_Id:ciudid,alde_Id:aldeid,colo_Id:coloid,coin_NumeroLocalApart:numerolocal,coin_PuntoReferencia:puntorefe});
-    setNueva3({ pvin_IdRepresentante:pvinrepre,coin_CiudadRepresentante:ciudadrepre,coin_AldeaRepresentante:aldrearepre,coin_coloniaIdRepresentante:coloniaidrepre,coin_NumeroLocaDepartRepresentante:numerolocalrepre,coin_PuntoReferenciaReprentante:puntoreferepre});
-    setNueva4({ coin_TelefonoCelular:celular,coin_TelefonoFijo:fijo,coin_CorreoElectronico:correo,coin_CorreoElectronicoAlternativo:correoalternativo});
-    console.log(nueva1,nueva2,nueva3,nueva4);
+    setNueva1({ pers_RTN: rtn, pers_Nombre: nombre, ofic_Id: oficid, escv_Id: escvid, ofpr_Id: ofprid, pers_FormaRepresentacion: formarepre, pers_escvRepresentante: persescv, pers_OfprRepresentante: persofpr });
+    setNueva2({ pvin_Id: pvinid, ciud_Id: ciudid, alde_Id: aldeid, colo_Id: coloid, coin_NumeroLocalApart: numerolocal, coin_PuntoReferencia: puntorefe });
+    setNueva3({ pvin_IdRepresentante: pvinrepre, coin_CiudadRepresentante: ciudadrepre, coin_AldeaRepresentante: aldrearepre, coin_coloniaIdRepresentante: coloniaidrepre, coin_NumeroLocaDepartRepresentante: numerolocalrepre, coin_PuntoReferenciaReprentante: puntoreferepre });
+    setNueva4({ coin_TelefonoCelular: celular, coin_TelefonoFijo: fijo, coin_CorreoElectronico: correo, coin_CorreoElectronicoAlternativo: correoalternativo });
     setDetalleComerciante(null);
     setCollapse(true);
-        setActiveTab("1");
+    setActiveTab("1");
 };
+
+  useEffect(() => {
+    console.log("nueva1:", nueva1);
+    console.log("nueva2:", nueva2);
+    console.log("nueva3:", nueva3);
+    console.log("nueva4:", nueva4);
+  }, [nueva1, nueva2, nueva3, nueva4]);
 
 const obtenerDetalleComerciante = async (ComercianteId) => {
   try {
@@ -1168,6 +1182,7 @@ const finalizar = async () => {
                                     <CardBody>
                                     <Formik
   initialValues={{nueva1}}
+  enableReinitialize
   validationSchema={validationSchema}
   onSubmit={submitTab1}
 >
@@ -1178,11 +1193,11 @@ const finalizar = async () => {
           <FormGroup>
             <Label for="pers_RTN">RTN</Label>
             <Field
-              name="pers_RTN"
-              as={Input}
-              className="form-control"
-              placeholder="Ingrese su RTN.."
-            />
+                            type="text"
+                            name="pers_RTN"
+                            as={Input}
+                            id="pers_RTN"
+                        />
             <ErrorMessage name="pers_RTN" component="div" className="text-danger" />
           </FormGroup>
         </Col>
@@ -1190,11 +1205,12 @@ const finalizar = async () => {
           <FormGroup>
             <Label for="pers_Nombre">Nombre</Label>
             <Field
-              name="pers_Nombre"
-              as={Input}
-              className="form-control"
-              placeholder="Ingrese su nombre.."
-            />
+                type="text"
+                name="pers_Nombre"
+                as={Input}
+                id="pers_Nombre"
+              />
+           
             <ErrorMessage name="pers_Nombre" component="div" className="text-danger" />
           </FormGroup>
         </Col>
@@ -1345,6 +1361,7 @@ const finalizar = async () => {
                                     <CardBody>
                                     <Formik
                                      initialValues={{nueva2}}
+                                     enableReinitialize
                                      validationSchema={validationSchema2}
                                      onSubmit={submitTab2}
                                    >
@@ -1489,6 +1506,7 @@ const finalizar = async () => {
                                     <CardBody>
                                     <Formik
                                      initialValues={{nueva3}}
+                                     enableReinitialize
                                      validationSchema={validationSchema3}
                                      onSubmit={submitTab3}
                                    >
@@ -1632,6 +1650,7 @@ const finalizar = async () => {
                                     <CardBody>
                                     <Formik
                                      initialValues={{nueva4}}
+                                     enableReinitialize
                                      validationSchema={validationSchema4}
                                      onSubmit={submitTab4}
                                    >
@@ -1748,7 +1767,6 @@ const finalizar = async () => {
                                        >
                                          Volver
                                        </Button>
-                                       {editarr && (
     <Button
         color="secondary"
         className="btn-shadow float-start btn-wide btn-pill mb-2 me-2"
@@ -1760,7 +1778,6 @@ const finalizar = async () => {
     >
         Volver al Inicio
     </Button>
-)}
 
                                        <Button
                                          color="primary"
