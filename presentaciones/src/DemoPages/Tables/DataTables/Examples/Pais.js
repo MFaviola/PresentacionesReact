@@ -92,6 +92,10 @@ const Paises = () => {
     setDetallePaises(null);
   };
 
+  useEffect(() => {
+    console.log("HOLA: ", nuevaPaises);
+  }, [nuevaPaises]);
+
   const obtenerDetallePaises = async (PaisesId) => {
     try {
       const response = await Servicios.listarPaises();
@@ -135,6 +139,8 @@ const Paises = () => {
       </Button>
     </div>
   );
+
+
 
   const DetallesPaises = ({ detalle }) => {
     if (!detalle) return null;
